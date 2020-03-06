@@ -87,6 +87,21 @@ const getObjectFromId = async qId => {
   return await engine.getObject(qId)
 }
 
+const getFieldValueByIndex = (values, targetField, index) => {
+  if (typeof index == 'number' && index >= 0) {
+    return values[targetField][index]
+  } else if (Array.isArray(index) && index.length) {
+    return values[targetField].filter((val, i) => index.includes(i))
+  } else {
+    return null
+  }
+}
+
+/**
+ * Creates a key-value object with the name of the dimension or measure as the key and the values in the
+ * dimension or measure as an array value. Users should use another function from this API to lookup values.
+ * @param {Object} hypercubeObject The Qlik hypercube object returned from a fulfilled call to generateHypercubeObjectFromDef
+ */
 const getValuesFromHypercubeObject = async hypercubeObject => {
   const layout = await hypercubeObject.getLayout()
   let fullMatrix = []
@@ -128,6 +143,7 @@ const getValuesFromHypercubeObject = async hypercubeObject => {
   return valuesByField
 }
 
+
 const getValuesFromListObject = async listObject => {
   const layout = await listObject.getLayout()
   let fullMatrix = []
@@ -150,12 +166,28 @@ const getValuesFromListObject = async listObject => {
   return values
 }
 
+/**
+ * Returns the value of a variable stored in the Qlik Sense app.
+ * @param {string} variableName The variable name inside the Qlik Sense app
+ */
 const getVariableValueByName = async (variableName) => {
   const variable = await engine.getVariableByName(variableName)
   return variable
 }
 
-const lookupIndexByFieldValue = (values, sourceField, sourceFieldValue) => {
+/**
+ * This function provides a way to locate, in the values array, the position(s) that match a specific value in a field.
+ * The returned indices can be used to get values from other fields.
+ * For example, if we look up the values "Network 1" in a "Network" field, a set of indices will be returned
+ * with all of the "rows" corresponding to Network 1. These indices can then be used by the function
+ * "getValuesByIndex" to retrieve other values corresponding to these rows.
+ * @param {object} values The fieldname-values array Object returned by getValuesFromHypercubeObject or getValuesFromListObject
+ * @param {*} sourceField The name of the field to filter for specific values
+ * @param {*} sourceFieldValue The specific values to match
+ * @param {*} returnMultiple Allow multiple indices to be returned, if false (default), return first.
+ *                            If true, return an array of all matching values.
+ */
+const lookupIndexByFieldValue = (values, sourceField, sourceFieldValue, returnMultiple) => {
   // console.log("lookupIndexByFieldValue", values, sourceField, sourceFieldValue)
   if (values && values[sourceField].length) {
     const fieldValues = values[sourceField]
@@ -164,9 +196,13 @@ const lookupIndexByFieldValue = (values, sourceField, sourceFieldValue) => {
     // filter the source field to only the target value
     fieldValuesIndex = fieldValuesIndex.filter(val => val.text == sourceFieldValue)
     if (fieldValuesIndex.length > 0) {
-      return fieldValuesIndex[0].index    
+      if (returnMultiple) {
+        return fieldValuesIndex.map(v => v.index)
+      } else {
+        return fieldValuesIndex[0].index    
+      }
     } else {
-      console.log("lookupIndexByFieldValue could not find index", values, sourceField, sourceFieldValue)
+      // console.log("lookupIndexByFieldValue could not find index", values, sourceField, sourceFieldValue)
       return -1
     }
   } else {
@@ -174,13 +210,54 @@ const lookupIndexByFieldValue = (values, sourceField, sourceFieldValue) => {
   }
 }
 
-const lookupValueByFieldValue = (values, sourceField, sourceFieldValue, targetField) => {
-  const index = lookupIndexByFieldValue(values, sourceField, sourceFieldValue)
-  if (index >= 0) {
-    return values[targetField][index]
+
+const lookupValueByFieldValue = (values, sourceField, sourceFieldValue, targetField, returnMultiple) => {
+  const index = lookupIndexByFieldValue(values, sourceField, sourceFieldValue, returnMultiple)
+  // console.log(index, sourceField, sourceFieldValue, targetField, values)
+  return getFieldValueByIndex(values, targetField, index)
+}
+
+const lookupIndexByMultipleFieldValues = (values, sourceFieldValueMap, returnMultiple) => {
+  // console.log("lookupIndexByMultipleFieldValues", values, sourceFieldValueMap)
+  if (values) {
+    let sourceField, sourceFieldValue, fieldValues
+
+    // we will filter the final indices from a set of all indices
+    let finalIndices = new Array((Object.keys(values)[0]).length)
+
+    for (sourceField in sourceFieldValueMap) {
+      sourceFieldValue = sourceFieldValue[sourceField]
+      if(values[sourceField].length) {
+        fieldValues = values[sourceField]
+        // add the index in the values object
+        let fieldValuesIndex = fieldValues.map((val, index) => ({...val, index}))
+        // filter the source field to only the target value
+        let indices = fieldValuesIndex.filter(val => val.text == sourceFieldValue)
+          .map(val => val.index)
+        
+        // get the intersection of the indices selected from this field with the accumulated, final indices
+        finalIndices = finalIndices.filter(val => indices.includes(val))
+      }
+    } 
+    if (finalIndices.length > 0) {
+      if (returnMultiple) {
+        return finalIndices
+      } else {
+        return finalIndices[0]
+      }
+    } else {
+      // console.log("lookupIndexByFieldValue could not find index", values, sourceField, sourceFieldValue)
+      return -1
+    }
   } else {
-    return null
+    return -1
   }
+}
+
+const lookupValueByMultipleFieldValues = (values, sourceFieldValueMap, targetField, returnMultiple) => {
+  const index = lookupIndexByMultipleFieldValues(values, sourceFieldValueMap, returnMultiple)
+  // console.log(index, sourceField, sourceFieldValue, targetField, values)
+  return getFieldValueByIndex(values, targetField, index)
 }
 
 const selectFieldValues = async (fieldName, values) => {  
@@ -219,12 +296,15 @@ const qlikAPI = {
   destroySessionObject,
   generateHypercubeObjectFromDef,
   generateListObject, 
+  getFieldValueByIndex,
   getObjectFromId,
   getValuesFromListObject,
   getValuesFromHypercubeObject,
   getVariableValueByName,
   lookupIndexByFieldValue,
   lookupValueByFieldValue,
+  lookupIndexByMultipleFieldValues,
+  lookupValueByMultipleFieldValues,
   selectFieldValues,
 }
 

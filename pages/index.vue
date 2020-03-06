@@ -178,6 +178,12 @@ export default {
     }
   },
   
+  methods: {
+    update() {
+      // console.log("update kp1", this.$refs.kpi1)
+      // this.$refs.kpi1.update()
+    }
+  },
   async mounted() {
     this.$store.state.qdtComponents.render("QdtSelectionToolbar", {title: "Selections", btnText: "Clear"}, this.$refs.qdtSelectionToolbar)
     // this.$store.state.qdtComponents.render("QdtFilter", {cols: ['School Name (Reporting Category)'], expanded: true}, this.$refs.qdtFilter)
@@ -192,12 +198,7 @@ export default {
     // console.log("List item init", layout, sess)
 
   },
-  methods: {
-    update() {
-      // console.log("update kp1", this.$refs.kpi1)
-      // this.$refs.kpi1.update()
-    }
-  }
+  
 }
 </script>
 

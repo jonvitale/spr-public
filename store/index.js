@@ -40,7 +40,6 @@ export const actions = {
     }
   },
   async update_current_selections({state, commit, dispatch} , selectionsByField) {
-    console.log("update_current_selections",selectionsByField )
     // for each field in the selections update the stored object
     let field, selections
     for (field in selectionsByField) {

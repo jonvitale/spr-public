@@ -1,43 +1,9 @@
 <template>
-  <div class="flex flex-wrap lg:flex-no-wrap">
-    <!-- <div class="lg:pr-2 flex-auto">
-      <div class="w-full md:w-1/5 bg-blue-900 px-2 md:pt-8 text-center fixed pin-b md:pin-l h-16 md:h-screen md:border-r-4 md:border-grey-dark">
-        <div class="md:relative mx-auto lg:float-right lg:px-6">
-          <ul class="list-reset flex flex-row md:flex-col text-center md:text-left">
-            <li class="mr-3 flex-1">
-              <a href="#" class="sidebar-linkblock py-1 md:py-3 pl-1 align-middle text-gray-300 no-underline hover:text-pink border-b-2 border-grey-darkest md:border-black hover:border-pink">
-                <i class="fas fa-link pr-0 md:pr-3"></i>
-                <span class="pb-1 md:pb-0 text-xs md:text-base text-grey-dark md:text-grey-light block md:inline-block">Overview</span>
-              </a>
-            </li>
-            <li class="mr-3 flex-1">
-              <a href="#" class="block py-1 md:py-3 pl-1 align-middle text-gray-300 no-underline hover:text-pink border-b-2 border-grey-darkest md:border-black hover:border-pink">
-              <i class="fas fa-link pr-0 md:pr-3"></i>
-              <span class="pb-1 md:pb-0 text-xs md:text-base text-grey-dark md:text-grey-light block md:inline-block">Achievement</span>
-              </a>
-            </li>
-            <li class="mr-3 flex-1">
-              <a href="#" class="block py-1 md:py-3 pl-1 align-middle text-white no-underline hover:text-white border-b-2 border-pink-dark">
-                <i class="fas fa-link pr-0 md:pr-3 text-pink"></i>
-                <span class="pb-1 md:pb-0 text-xs md:text-base text-white md:font-bold block md:inline-block">Progress</span>
-              </a>
-            </li>
-            <li class="mr-3 flex-1">
-              <a href="#" class="block py-1 md:py-3 pl-1 align-middle text-gray-300 no-underline hover:text-pink border-b-2 border-grey-darkest md:border-black hover:border-pink">
-                <i class="fas fa-link pr-0 md:pr-3"></i>
-                <span class="pb-1 md:pb-0 text-xs md:text-base text-grey-dark md:text-grey-light block md:inline-block">Collge &amp; Career</span>
-              </a>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>   -->
+  <div class="flex flex-wrap lg:flex-no-wrap">    
     <div class="w-full lg:w-1/5 text-left lg:h-screen sticky top-0">
       <div class="flex flex-col align-middle bg-blue-100 lg:h-screen lg:py-8">
         <div class="w-32 self-center">
-          <div>
-            <h3 class="mb-2"> Sections </h3>
-          </div>
+          <h3 class="mb-2"> Sections </h3>
           <div class="flex flex-col">
             <button class="section-nav-item" 
               :class="{'active': currentSection == 's-overview'}"
@@ -456,703 +422,724 @@
 
 <script>
 
-  import { mapState } from 'vuex'
+import { mapState } from 'vuex'
 
-  import metricValuesDef from '~/definitions/reportMeasures'
-  import QdtComponent from '~components/Qdt/QdtComponent.vue'
-  import LineChart from '~components/SimpleCharts/LineChart.vue'
-  import Columns from '~components/PageElements/Columns.vue'
-  import Column from '~components/PageElements/Column.vue'
-  import Square from '~components/PageElements/Square.vue'
-  import Horizontal from '~components/PageElements/Horizontal.vue'
-  import Heading from '~components/PageElements/Heading'
+import metricValuesDef from '~/definitions/reportMeasures'
+// import QdtComponent from '~components/Qdt/QdtComponent.vue'
+import LineChart from '~components/SimpleCharts/LineChart.vue'
+import Columns from '~components/PageElements/Columns.vue'
+import Column from '~components/PageElements/Column.vue'
+import Square from '~components/PageElements/Square.vue'
+import Horizontal from '~components/PageElements/Horizontal.vue'
+import Heading from '~components/PageElements/Heading'
 
-  const domainFacts = [
-    {
-      key: 'overall',
-      title: 'OVERALL',
-      metric_id: 'Z_OVERALL_OVERALL',
-      description: 'A school’s overall score represents its combined performance on the Achievement, Progress, Climate, and College & Career (for high schools only) domains.',
-    },
-    {
-      key: 'achievement',
-      title: 'Achievement',
-      metric_id: 'Z_ACH_OVERALL',
-      description: 'The Achievement domain measures performance on standardized assessments, including PSSA, Keystone Exams, ACCESS for ELLs, and reading assessments.',
-      metric_groups: [
-        {          
-          key: 'DRA',
-          metrics: [
-            { title: '% Reading at Grade Level- Grades K-2', metric_id: 'DRA' },
-          ]
-        },
-        {
-          key: 'PSSA_ELA',
-          title: 'PSSA: English Language Arts',
-          metrics: [
-            { subtitle: '% Proficient or Advanced', metric_id: 'PSSA_PROFADV_ELA' },
-            { subtitle: 'Grade 3 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_ELA_G3' },
-            { subtitle: 'Grade 4 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_ELA_G4' },
-            { subtitle: 'Grade 5 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_ELA_G5' },
-            { subtitle: 'Grade 6 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_ELA_G6' },
-            { subtitle: '% Advanced', metric_id: 'PSSA_ADV_ELA' },
-          ]
-        },
-        {
-          key: 'PSSA_MATH',
-          title: 'PSSA: Mathematics',
-          metrics: [
-            { subtitle: '% Proficient or Advanced', metric_id: 'PSSA_PROFADV_MATH' },
-            { subtitle: 'Grade 3 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_MATH_G3' },
-            { subtitle: 'Grade 4 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_MATH_G4' },
-            { subtitle: 'Grade 5 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_MATH_G5' },
-            { subtitle: 'Grade 6 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_MATH_G6' },
-            { subtitle: '% Advanced', metric_id: 'PSSA_ADV_MATH' },
-          ]
-        },
-        {
-          key: 'PSSA_SCI',
-          title: 'PSSA: Science',
-          metrics: [
-            { subtitle: '% Proficient or Advanced', metric_id: 'PSSA_PROFADV_SCI' },
-            { subtitle: 'Grade 4 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_SCI_G4' },
-            { subtitle: '% Advanced', metric_id: 'PSSA_ADV_SCI' },
-          ]
-        },
-        {
-          key: 'KEYSTONE_ALG1',
-          title: 'Keystone Exam - Algebra I',
-          metrics: [
-            { subtitle: '% Proficient or Advanced', metric_id: 'KEYSTONE_PROFADV_ALG1' },
-            { subtitle: 'Grade 9 - % Proficient or Advanced', metric_id: 'KEYSTONE_PROFADV_ALG1_G9' },
-            { subtitle: '% Advanced', metric_id: 'KEYSTONE_ADV_ALG1' },
-          ]
-        },
-        {
-          key: 'KEYSTONE_BIO',
-          title: 'Keystone Exam - Biology',
-          metrics: [
-            { subtitle: '% Proficient or Advanced', metric_id: 'KEYSTONE_PROFADV_BIO' },
-            { subtitle: '% Advanced', metric_id: 'KEYSTONE_ADV_BIO' },
-          ]
-        },
-        {
-          key: 'KEYSTONE_LIT',
-          title: 'Keystone Exam - Literature',
-          metrics: [
-            { subtitle: '% Proficient or Advanced', metric_id: 'KEYSTONE_PROFADV_LIT' },
-            { subtitle: '% Advanced', metric_id: 'KEYSTONE_ADV_LIT' },
-          ]
-        },
-        {          
-          key: 'ACCESS_PROF',
-          metrics: [
-            { title: 'ACCESS for ELLs:', subtitle: '% 4.5 or Above', metric_id: 'ACCESS_PROF' },
-          ]
-        },
-        
-      ]
-    },
-    {
-      key: 'progress',
-      title: 'Progress',
-      metric_id: 'Z_PROG_OVERALL',
-      description: 'The Progress domain measures growth on standardized assessments and progress towards graduation (for high schools only).',
-      metric_groups: [
-        {
-          key: 'PSSA_MATH_AGI',
-          metrics: [
-            {  title: 'PSSA Mathematics:', subtitle: 'Average Growth Index (AGI)', metric_id: 'PSSA_MATH_AGI' },
-          ]
-        },
-        {
-          key: 'PSSA_ELA_AGI',
-          metrics: [
-            {  title: 'PSSA English Language Arts:', subtitle: 'Average Growth Index (AGI)', metric_id: 'PSSA_ELA_AGI' },
-          ]
-        },
-        {
-          key: 'PSSA_GR_4_SCIENCE_AGI',
-          metrics: [
-            {  title: 'PSSA Science (Grade 4):', subtitle: 'Average Growth Index (AGI)', metric_id: 'PSSA_GR_4_SCIENCE_AGI' },
-          ]
-        },
-        {
-          key: 'KEYSTONE_ALG1_AGI',
-          metrics: [
-            {  title: 'Keystone Exam - Algebra I:', subtitle: 'Average Growth Index (AGI)', metric_id: 'KEYSTONE_ALGEBRA_I_AGI' },
-          ]
-        },
-        {
-          key: 'KEYSTONE_BIO_AGI',          
-          metrics: [
-            { title: 'Keystone Exam - Biology:', subtitle: 'Average Growth Index (AGI)', metric_id: 'KEYSTONE_BIOLOGY_AGI' },
-          ]
-        },
-        {
-          key: 'KEYSTONE_LIT_AGI',
-          metrics: [
-            { title: 'Keystone Exam - Literature:', subtitle: 'Average Growth Index (AGI)', metric_id: 'KEYSTONE_LITERATURE_AGI' },
-          ]
-        },
-        {
-          key: 'STAY_ON_TRACK',
-          metrics: [
-            { title: '% of On-Track Students', subtitle: 'Earning Credits Required for Promotion', metric_id: 'STAY_ON_TRACK' },
-          ]
-        },
-        {
-          key: 'BACK_ON_TRACK',
-          metrics: [
-            { title: '% of Off-Track Students', subtitle: 'Earning Credits Required for Promotion', metric_id: 'BACK_ON_TRACK' },
-          ]
-        },
-        {
-          key: 'ACCESS_GROWTH', 
-          metrics: [
-            { title: 'ACCESS for ELLs', subtitle: '% Growth in 60th Percentile or Above', metric_id: 'ACCESS_GROWTH' },
-          ]
-        },
-        { 
-          key: 'EQUITY_HEADER',
-          title: 'Progress, On Equity',
-          header: true,
-        },
-        {
-          key: 'PSSA_MATH_AGI_L33P',
-          metrics: [
-            {  title: 'PSSA Mathematics: ', subtitle: 'AGI for Lowest-Performing 33% of Students', metric_id: 'PSSA_MATH_AGI_L33P' },
-          ]
-        },
-        {
-          key: 'PSSA_ELA_AGI_L33P',
-          metrics: [
-            {  title: 'PSSA English Language Arts: ', subtitle: 'AGI for Lowest-Performing 33% of Students', metric_id: 'PSSA_ELA_AGI_L33P' },
-          ]
-        },
-        {
-          key: 'KEYSTONE_ALG1_AGI_L33P',
-          metrics: [
-            {  title: 'Keystone Exam - Algebra I: ', subtitle: 'AGI for Lowest-Performing 33% of Students', metric_id: 'KEYSTONE_ALG1_AGI_L33P' },
-          ]
-        },
-        {
-          key: 'KEYSTONE_BIO_AGI_L33P',
-          metrics: [
-            { title: 'Keystone Exam - Biology: ', subtitle: 'AGI for Lowest-Performing 33% of Students', metric_id: 'KEYSTONE_BIO_AGI_L33P' },
-          ]
-        },
-        {
-          key: 'KEYSTONE_LIT_AGI_L33P',
-          metrics: [
-            { title: 'Keystone Exam - Literature: ', subtitle: 'AGI for Lowest-Performing 33% of Students', metric_id: 'KEYSTONE_LIT_AGI_L33P' },
-          ]
-        },
-      ],
-    },
-    {
-      key: 'climate',
-      title: 'Climate',
-      metric_id: 'Z_CLIM_OVERALL',
-      description: 'The Climate domain measures school climate and student and parent/guardian engagement.',
-      metric_groups: [
-        {
-          key: 'ATTENDANCE',
-          metrics: [
-            { title: '% of Students Attending 95% or More of Instructional Days', metric_id: 'ATTENDANCE_95MORE' },
-            { subtitle: '% Attending 90% to 95% of days', metric_id: 'ATTENDANCE_9095' },
-            { subtitle: '% Attending 85% to 90% of days', metric_id: 'ATTENDANCE_8590' },
-            { subtitle: '% Attending 80% to 85% of days', metric_id: 'ATTENDANCE_8085' },
-            { subtitle: '% Attending less than 80% of days', metric_id: 'ATTENDANCE_LT80' },            
-          ]
-        },
-        {
-          key: 'RETENTION',
-          metrics: [
-            { title: 'Annual Retention Rate', metric_id: 'RETENTION' },
-          ]
-        },
-        {
-          key: 'ISS',
-          metrics: [
-            { title: '% of Students with Zero In-School Suspensions', metric_id: 'ISS' },
-          ]
-        },
-        {
-          key: 'OSS',
-          metrics: [
-            { title: '% of Students with Zero Out-of-School Suspensions', metric_id: 'OSS' },
-          ]
-        },
-        {
-          key: 'SVY_CLIM_STUD',
-          metrics: [
-            { title: 'Student Survey: School Climate Rating (% most positive responses)', metric_id: 'SVY_CLIM_STUD' },
-          ]
-        },
-        {
-          key: 'SVY_CLIM_PAR',
-          metrics: [
-            { title: 'Parent Survey: School Climate Rating (% most positive responses)', metric_id: 'SVY_CLIM_PAR' },
-          ]
-        },
-        {
-          key: 'SVY_PARENT_RATE',
-          metrics: [
-            { title: 'Parent/Guardian Survey: Participation Rate', metric_id: 'SVY_PARENT_RATE' },
-          ]
-        },
-      ],
-    },
-    {
-      key: 'cc',
-      title: 'College & Career',
-      title_style: {fontSize: '16pt', fontWeight: 700},
-      metric_id: 'Z_CC_OVERALL',
-      description: 'The College & Career domain measures college and career readiness and post-secondary outcomes.',
-      metric_groups: [
-        {
-          key: 'GRAD',
-          metrics: [
-            { title: 'Four-Year Cohort Graduation Rate', metric_id: 'GRAD' },
-          ]
-        },
-        {
-          key: 'FF_MATRIC',
-          metrics: [
-            { title: 'First-Fall College Matriculation Rate', metric_id: 'FF_MATRIC' },
-          ]
-        },
-        {
-          key: 'AP_IB_NOCTI',
-          metrics: [
-            { title: 'SAT & ACT Exams Participation & Performance', metric_id: 'AP_IB_NOCTI' },
-            { subtitle: '% Participating Not Meeting Threshold', metric_id: 'AP_IB_NOCTI_NOTPASS' },
-            { subtitle: '% Not Participating', metric_id: 'AP_IB_NOCTI_NOTPARTICIPATE' },      
-          ]
-        },
-        {
-          key: 'ACT_SAT',
-          metrics: [
-            { title: 'SAT & ACT Exams Participation & Performance', metric_id: 'ACT_SAT' },
-            { subtitle: '% Participating Not Meeting Threshold', metric_id: 'ACT_SAT_NOTPASS' },
-            { subtitle: '% Not Participating', metric_id: 'ACT_SAT_NOTPARTICIPATE' },      
-          ]
-        },
-         {
-          key: 'FAFSA',
-          metrics: [
-            { title: 'FAFSA Completion Rate', metric_id: 'FAFSA' },
-          ]
-        },
-        {
-          key: 'SVY_STUD_CCR',
-          metrics: [
-            { title: 'Student Survey:', subtitle: 'College & Career Readiness Rating (% most positive responses)', metric_id: 'SVY_STUD_CCR' },
-          ]
-        },
-      ]
-    },
-    {
-      key: 'ee',
-      title: 'Educator Effectiveness',
-      metric_groups: [
-        {
-          key: 'MMS_DISTIN',
-          metrics: [
-            { title: '% of Teachers Receiving an MMS Rating of Distinguished', metric_id: 'MMS_DISTIN' },
-          ]
-        },
-        {
-          key: 'MMS_PROF',
-          metrics: [
-            { title: '% of Teachers Receiving an MMS Rating of Proficient', metric_id: 'MMS_PROF' },
-          ]
-        },
-        {
-          key: 'MMS_NEEDS_IMP',
-          metrics: [
-            { title: '% of Teachers Receiving an MMS Rating of Needs Improvement', metric_id: 'MMS_NEEDS_IMP' },
-          ]
-        },
-        {
-          key: 'MMS_FAILING',
-          metrics: [
-            { title: '% of Teachers Receiving an MMS Rating of Failing', metric_id: 'MMS_FAILING' },
-          ]
-        },
-        {
-          key: 'ESSA_EFF',
-          metrics: [
-            { title: '% of Teachers Receiving an ESSA Rating of Effective', metric_id: 'ESSA_EFF' },
-          ]
-        },
-        {
-          key: 'ESSA_INEFF',
-          metrics: [
-            { title: '% of Teachers Receiving an ESSA Rating of Ineffective', metric_id: 'ESSA_INEFF' },
-          ]
-        },
-        {
-          key: 'TEACH_ATTENDANCE',
-          metrics: [
-            { title: '% of Teachers Attending 95% or More of Days', metric_id: 'TEACH_ATTENDANCE' },
-          ]
-        },
-        {
-          key: 'SVY_STUD_TEACH',
-          metrics: [
-            { title: 'Student Survey: Student Perception of Quality of Teacher Practice', subtitle: '(% of most positive responses)', metric_id: 'SVY_STUD_TEACH' },
-          ]
-        },
-      ]
-    }
-  ]
-  
-  const qObjs = {
-    overall: {
-      trend: {
-        type: 'QdtViz',
-        props: {id: 'asCLQwr', type: 'lineChart', width: '350px', height: '100px'} 
-      } 
-    },
-    achievement: {
-      trend: {
-        type: 'QdtViz',
-        props: {id: 'yEpnU', type: 'lineChart', width: '350px', height: '100px'}
-      }
-    },
-    progress: {
-      trend: {
-        type: 'QdtViz',
-        props: {id: 'VAMCDk', type: 'lineChart', width: '350px', height: '100px'}
-      }
-    },
-    climate: {
-      trend: {
-        type: 'QdtViz',
-        props: {id: 'MeZhrcm', type: 'lineChart', width: '350px', height: '100px'}
-      }
-    },
-    cc: {
-      trend: {
-        type: 'QdtViz',
-        props: {id: 'jMhBh', type: 'lineChart', width: '350px', height: '100px'}
-      }
-    },
-  }
-
-  
-  export default {
-    components: {
-      QdtComponent,
-      LineChart,
-      Columns,
-      Column,
-      Square,
-      Horizontal,
-      Heading,
-    },
-    data: function() {
-      return {
-        sessionObject: null,
-        schoolsInitialized: this.$store.state.schools.initialized,
-        // school_report: '',
-        slug_report: this.$route.params.slug_report,
-        metricValues: null,
-        domainFacts: domainFacts,
-        qObjs: qObjs,
-        currentSection: "",
-      }
-    },
-
-    computed: {
-      lookupTextByFieldValue() {        
-        return (sourceField, sourceFieldValue, targetField) => {
-          if (this.metricValues) {
-            const values = this.$qlik.lookupValueByFieldValue(this.metricValues, sourceField, sourceFieldValue, targetField)
-            if(targetField === 'exception') console.log('exception', values)
-            if (values && values.text) {
-              return values.text
-            } else {
-              return ''
-            }
-          } else {
-            return ''
-          }
-        }
+const domainFacts = [
+  {
+    key: 'overall',
+    title: 'OVERALL',
+    metric_id: 'Z_OVERALL_OVERALL',
+    description: 'A school’s overall score represents its combined performance on the Achievement, Progress, Climate, and College & Career (for high schools only) domains.',
+  },
+  {
+    key: 'achievement',
+    title: 'Achievement',
+    metric_id: 'Z_ACH_OVERALL',
+    description: 'The Achievement domain measures performance on standardized assessments, including PSSA, Keystone Exams, ACCESS for ELLs, and reading assessments.',
+    metric_groups: [
+      {          
+        key: 'DRA',
+        metrics: [
+          { title: '% Reading at Grade Level- Grades K-2', metric_id: 'DRA' },
+        ]
       },
-
-      lookupNumberByFieldValue() {        
-        return (sourceField, sourceFieldValue, targetField) => {
-          if (this.metricValues) {
-            const values = this.$qlik.lookupValueByFieldValue(this.metricValues, sourceField, sourceFieldValue, targetField)
-            if (values && values.number) {
-              return values.number
-            } else {
-              return null
-            }
-          } else {
-            return null
-          }
-        }
+      {
+        key: 'PSSA_ELA',
+        title: 'PSSA: English Language Arts',
+        metrics: [
+          { subtitle: '% Proficient or Advanced', metric_id: 'PSSA_PROFADV_ELA' },
+          { subtitle: 'Grade 3 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_ELA_G3' },
+          { subtitle: 'Grade 4 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_ELA_G4' },
+          { subtitle: 'Grade 5 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_ELA_G5' },
+          { subtitle: 'Grade 6 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_ELA_G6' },
+          { subtitle: '% Advanced', metric_id: 'PSSA_ADV_ELA' },
+        ]
       },
-
-      isApplicableByMetricId() {
-        return metric_id => {
-          if (this.metricValues) {
-            const values = this.$qlik.lookupValueByFieldValue(this.metricValues, "metric_id", metric_id, "exception")
-            if (values && values.number) {
-              return values.number !== 999
-            } else {
-              return true
-            }
-          } else {
-            return null
-          }
-        }
+      {
+        key: 'PSSA_MATH',
+        title: 'PSSA: Mathematics',
+        metrics: [
+          { subtitle: '% Proficient or Advanced', metric_id: 'PSSA_PROFADV_MATH' },
+          { subtitle: 'Grade 3 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_MATH_G3' },
+          { subtitle: 'Grade 4 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_MATH_G4' },
+          { subtitle: 'Grade 5 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_MATH_G5' },
+          { subtitle: 'Grade 6 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_MATH_G6' },
+          { subtitle: '% Advanced', metric_id: 'PSSA_ADV_MATH' },
+        ]
       },
-
-      isApplicableByMetricGroup() {
-        return metric_ids => {
-          let isApplicable = false
-          metric_ids.forEach(metric_id => {
-            const values = this.$qlik.lookupValueByFieldValue(this.metricValues, "metric_id", metric_id, "exception")
-            if (values && values.number) {
-              if (values.number !== 999) {
-                isApplicable = true
-              } 
-            } else {
-              isApplicable = true
-            } 
-          })
-          return isApplicable
-        }
+      {
+        key: 'PSSA_SCI',
+        title: 'PSSA: Science',
+        metrics: [
+          { subtitle: '% Proficient or Advanced', metric_id: 'PSSA_PROFADV_SCI' },
+          { subtitle: 'Grade 4 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_SCI_G4' },
+          { subtitle: '% Advanced', metric_id: 'PSSA_ADV_SCI' },
+        ]
+      },
+      {
+        key: 'KEYSTONE_ALG1',
+        title: 'Keystone Exam - Algebra I',
+        metrics: [
+          { subtitle: '% Proficient or Advanced', metric_id: 'KEYSTONE_PROFADV_ALG1' },
+          { subtitle: 'Grade 9 - % Proficient or Advanced', metric_id: 'KEYSTONE_PROFADV_ALG1_G9' },
+          { subtitle: '% Advanced', metric_id: 'KEYSTONE_ADV_ALG1' },
+        ]
+      },
+      {
+        key: 'KEYSTONE_BIO',
+        title: 'Keystone Exam - Biology',
+        metrics: [
+          { subtitle: '% Proficient or Advanced', metric_id: 'KEYSTONE_PROFADV_BIO' },
+          { subtitle: '% Advanced', metric_id: 'KEYSTONE_ADV_BIO' },
+        ]
+      },
+      {
+        key: 'KEYSTONE_LIT',
+        title: 'Keystone Exam - Literature',
+        metrics: [
+          { subtitle: '% Proficient or Advanced', metric_id: 'KEYSTONE_PROFADV_LIT' },
+          { subtitle: '% Advanced', metric_id: 'KEYSTONE_ADV_LIT' },
+        ]
+      },
+      {          
+        key: 'ACCESS_PROF',
+        metrics: [
+          { title: 'ACCESS for ELLs:', subtitle: '% 4.5 or Above', metric_id: 'ACCESS_PROF' },
+        ]
       },
       
-      school_report: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "school_report"),
-      srcschoolid: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "srcschoolid"),
-      schoolname: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "schoolname"),
-      governance: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "governance"),
-      address: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "address"),
-      phone: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "phone"),
-      fax: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "fax"),
-      zip_code: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "zip_code"),
-      url_school: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "url_school"),
-      report_name: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "report_name"),
-      grades_served: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "grades_served"),
-      enrollment: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "enrollment"),
-      admissiontype: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "admissiontype"),
-      turnaround: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "turnaround"),
+    ]
+  },
+  {
+    key: 'progress',
+    title: 'Progress',
+    metric_id: 'Z_PROG_OVERALL',
+    description: 'The Progress domain measures growth on standardized assessments and progress towards graduation (for high schools only).',
+    metric_groups: [
+      {
+        key: 'PSSA_MATH_AGI',
+        metrics: [
+          {  title: 'PSSA Mathematics:', subtitle: 'Average Growth Index (AGI)', metric_id: 'PSSA_MATH_AGI' },
+        ]
+      },
+      {
+        key: 'PSSA_ELA_AGI',
+        metrics: [
+          {  title: 'PSSA English Language Arts:', subtitle: 'Average Growth Index (AGI)', metric_id: 'PSSA_ELA_AGI' },
+        ]
+      },
+      {
+        key: 'PSSA_GR_4_SCIENCE_AGI',
+        metrics: [
+          {  title: 'PSSA Science (Grade 4):', subtitle: 'Average Growth Index (AGI)', metric_id: 'PSSA_GR_4_SCIENCE_AGI' },
+        ]
+      },
+      {
+        key: 'KEYSTONE_ALG1_AGI',
+        metrics: [
+          {  title: 'Keystone Exam - Algebra I:', subtitle: 'Average Growth Index (AGI)', metric_id: 'KEYSTONE_ALGEBRA_I_AGI' },
+        ]
+      },
+      {
+        key: 'KEYSTONE_BIO_AGI',          
+        metrics: [
+          { title: 'Keystone Exam - Biology:', subtitle: 'Average Growth Index (AGI)', metric_id: 'KEYSTONE_BIOLOGY_AGI' },
+        ]
+      },
+      {
+        key: 'KEYSTONE_LIT_AGI',
+        metrics: [
+          { title: 'Keystone Exam - Literature:', subtitle: 'Average Growth Index (AGI)', metric_id: 'KEYSTONE_LITERATURE_AGI' },
+        ]
+      },
+      {
+        key: 'STAY_ON_TRACK',
+        metrics: [
+          { title: '% of On-Track Students', subtitle: 'Earning Credits Required for Promotion', metric_id: 'STAY_ON_TRACK' },
+        ]
+      },
+      {
+        key: 'BACK_ON_TRACK',
+        metrics: [
+          { title: '% of Off-Track Students', subtitle: 'Earning Credits Required for Promotion', metric_id: 'BACK_ON_TRACK' },
+        ]
+      },
+      {
+        key: 'ACCESS_GROWTH', 
+        metrics: [
+          { title: 'ACCESS for ELLs', subtitle: '% Growth in 60th Percentile or Above', metric_id: 'ACCESS_GROWTH' },
+        ]
+      },
+      { 
+        key: 'EQUITY_HEADER',
+        title: 'Progress, On Equity',
+        header: true,
+      },
+      {
+        key: 'PSSA_MATH_AGI_L33P',
+        metrics: [
+          {  title: 'PSSA Mathematics: ', subtitle: 'AGI for Lowest-Performing 33% of Students', metric_id: 'PSSA_MATH_AGI_L33P' },
+        ]
+      },
+      {
+        key: 'PSSA_ELA_AGI_L33P',
+        metrics: [
+          {  title: 'PSSA English Language Arts: ', subtitle: 'AGI for Lowest-Performing 33% of Students', metric_id: 'PSSA_ELA_AGI_L33P' },
+        ]
+      },
+      {
+        key: 'KEYSTONE_ALG1_AGI_L33P',
+        metrics: [
+          {  title: 'Keystone Exam - Algebra I: ', subtitle: 'AGI for Lowest-Performing 33% of Students', metric_id: 'KEYSTONE_ALG1_AGI_L33P' },
+        ]
+      },
+      {
+        key: 'KEYSTONE_BIO_AGI_L33P',
+        metrics: [
+          { title: 'Keystone Exam - Biology: ', subtitle: 'AGI for Lowest-Performing 33% of Students', metric_id: 'KEYSTONE_BIO_AGI_L33P' },
+        ]
+      },
+      {
+        key: 'KEYSTONE_LIT_AGI_L33P',
+        metrics: [
+          { title: 'Keystone Exam - Literature: ', subtitle: 'AGI for Lowest-Performing 33% of Students', metric_id: 'KEYSTONE_LIT_AGI_L33P' },
+        ]
+      },
+    ],
+  },
+  {
+    key: 'climate',
+    title: 'Climate',
+    metric_id: 'Z_CLIM_OVERALL',
+    description: 'The Climate domain measures school climate and student and parent/guardian engagement.',
+    metric_groups: [
+      {
+        key: 'ATTENDANCE',
+        metrics: [
+          { title: '% of Students Attending 95% or More of Instructional Days', metric_id: 'ATTENDANCE_95MORE' },
+          { subtitle: '% Attending 90% to 95% of days', metric_id: 'ATTENDANCE_9095' },
+          { subtitle: '% Attending 85% to 90% of days', metric_id: 'ATTENDANCE_8590' },
+          { subtitle: '% Attending 80% to 85% of days', metric_id: 'ATTENDANCE_8085' },
+          { subtitle: '% Attending less than 80% of days', metric_id: 'ATTENDANCE_LT80' },            
+        ]
+      },
+      {
+        key: 'RETENTION',
+        metrics: [
+          { title: 'Annual Retention Rate', metric_id: 'RETENTION' },
+        ]
+      },
+      {
+        key: 'ISS',
+        metrics: [
+          { title: '% of Students with Zero In-School Suspensions', metric_id: 'ISS' },
+        ]
+      },
+      {
+        key: 'OSS',
+        metrics: [
+          { title: '% of Students with Zero Out-of-School Suspensions', metric_id: 'OSS' },
+        ]
+      },
+      {
+        key: 'SVY_CLIM_STUD',
+        metrics: [
+          { title: 'Student Survey: School Climate Rating (% most positive responses)', metric_id: 'SVY_CLIM_STUD' },
+        ]
+      },
+      {
+        key: 'SVY_CLIM_PAR',
+        metrics: [
+          { title: 'Parent Survey: School Climate Rating (% most positive responses)', metric_id: 'SVY_CLIM_PAR' },
+        ]
+      },
+      {
+        key: 'SVY_PARENT_RATE',
+        metrics: [
+          { title: 'Parent/Guardian Survey: Participation Rate', metric_id: 'SVY_PARENT_RATE' },
+        ]
+      },
+    ],
+  },
+  {
+    key: 'cc',
+    title: 'College & Career',
+    title_style: {fontSize: '16pt', fontWeight: 700},
+    metric_id: 'Z_CC_OVERALL',
+    description: 'The College & Career domain measures college and career readiness and post-secondary outcomes.',
+    metric_groups: [
+      {
+        key: 'GRAD',
+        metrics: [
+          { title: 'Four-Year Cohort Graduation Rate', metric_id: 'GRAD' },
+        ]
+      },
+      {
+        key: 'FF_MATRIC',
+        metrics: [
+          { title: 'First-Fall College Matriculation Rate', metric_id: 'FF_MATRIC' },
+        ]
+      },
+      {
+        key: 'AP_IB_NOCTI',
+        metrics: [
+          { title: 'SAT & ACT Exams Participation & Performance', metric_id: 'AP_IB_NOCTI' },
+          { subtitle: '% Participating Not Meeting Threshold', metric_id: 'AP_IB_NOCTI_NOTPASS' },
+          { subtitle: '% Not Participating', metric_id: 'AP_IB_NOCTI_NOTPARTICIPATE' },      
+        ]
+      },
+      {
+        key: 'ACT_SAT',
+        metrics: [
+          { title: 'SAT & ACT Exams Participation & Performance', metric_id: 'ACT_SAT' },
+          { subtitle: '% Participating Not Meeting Threshold', metric_id: 'ACT_SAT_NOTPASS' },
+          { subtitle: '% Not Participating', metric_id: 'ACT_SAT_NOTPARTICIPATE' },      
+        ]
+      },
+        {
+        key: 'FAFSA',
+        metrics: [
+          { title: 'FAFSA Completion Rate', metric_id: 'FAFSA' },
+        ]
+      },
+      {
+        key: 'SVY_STUD_CCR',
+        metrics: [
+          { title: 'Student Survey:', subtitle: 'College & Career Readiness Rating (% most positive responses)', metric_id: 'SVY_STUD_CCR' },
+        ]
+      },
+    ]
+  },
+  {
+    key: 'ee',
+    title: 'Educator Effectiveness',
+    metric_groups: [
+      {
+        key: 'MMS_DISTIN',
+        metrics: [
+          { title: '% of Teachers Receiving an MMS Rating of Distinguished', metric_id: 'MMS_DISTIN' },
+        ]
+      },
+      {
+        key: 'MMS_PROF',
+        metrics: [
+          { title: '% of Teachers Receiving an MMS Rating of Proficient', metric_id: 'MMS_PROF' },
+        ]
+      },
+      {
+        key: 'MMS_NEEDS_IMP',
+        metrics: [
+          { title: '% of Teachers Receiving an MMS Rating of Needs Improvement', metric_id: 'MMS_NEEDS_IMP' },
+        ]
+      },
+      {
+        key: 'MMS_FAILING',
+        metrics: [
+          { title: '% of Teachers Receiving an MMS Rating of Failing', metric_id: 'MMS_FAILING' },
+        ]
+      },
+      {
+        key: 'ESSA_EFF',
+        metrics: [
+          { title: '% of Teachers Receiving an ESSA Rating of Effective', metric_id: 'ESSA_EFF' },
+        ]
+      },
+      {
+        key: 'ESSA_INEFF',
+        metrics: [
+          { title: '% of Teachers Receiving an ESSA Rating of Ineffective', metric_id: 'ESSA_INEFF' },
+        ]
+      },
+      {
+        key: 'TEACH_ATTENDANCE',
+        metrics: [
+          { title: '% of Teachers Attending 95% or More of Days', metric_id: 'TEACH_ATTENDANCE' },
+        ]
+      },
+      {
+        key: 'SVY_STUD_TEACH',
+        metrics: [
+          { title: 'Student Survey: Student Perception of Quality of Teacher Practice', subtitle: '(% of most positive responses)', metric_id: 'SVY_STUD_TEACH' },
+        ]
+      },
+    ]
+  }
+]
+
+export default {
+  components: {
+    // QdtComponent,
+    LineChart,
+    Columns,
+    Column,
+    Square,
+    Horizontal,
+    Heading,
+  },
+  data() {
+    return {
+      sessionObject: null,
+      schoolsInitialized: this.$store.state.schools.initialized,
+      slug_report: this.$route.params.slug_report,
+      metricValues: null,
+      domainFacts: domainFacts,
+      // qObjs: qObjs,
+      currentSection: "",
+    }
+  },
+
+  computed: {
+    // lookupTextByFieldValue() {        
+    //   return (sourceField, sourceFieldValue, targetField) => {
+    //     if (this.metricValues) {
+    //       const values = this.$qlik.lookupValueByFieldValue(this.metricValues, sourceField, sourceFieldValue, targetField)
+    //       if(targetField === 'exception') console.log('exception', values)
+    //       if (values && values.text) {
+    //         return values.text
+    //       } else {
+    //         return ''
+    //       }
+    //     } else {
+    //       return ''
+    //     }
+    //   }
+    // },
+
+    // lookupNumberByFieldValue() {        
+    //   return (sourceField, sourceFieldValue, targetField) => {
+    //     if (this.metricValues) {
+    //       const values = this.$qlik.lookupValueByFieldValue(this.metricValues, sourceField, sourceFieldValue, targetField)
+    //       if (values && values.number) {
+    //         return values.number
+    //       } else {
+    //         return null
+    //       }
+    //     } else {
+    //       return null
+    //     }
+    //   }
+    // },
+
+    // isApplicableByMetricId() {
+    //   return metric_id => {
+    //     if (this.metricValues) {
+    //       const values = this.$qlik.lookupValueByFieldValue(this.metricValues, "metric_id", metric_id, "exception")
+    //       if (values && values.number) {
+    //         return values.number !== 999
+    //       } else {
+    //         return true
+    //       }
+    //     } else {
+    //       return null
+    //     }
+    //   }
+    // },
+
+    // isApplicableByMetricGroup() {
+    //   return metric_ids => {
+    //     let isApplicable = false
+    //     metric_ids.forEach(metric_id => {
+    //       const values = this.$qlik.lookupValueByFieldValue(this.metricValues, "metric_id", metric_id, "exception")
+    //       if (values && values.number) {
+    //         if (values.number !== 999) {
+    //           isApplicable = true
+    //         } 
+    //       } else {
+    //         isApplicable = true
+    //       } 
+    //     })
+    //     return isApplicable
+    //   }
+    // },
+    
+    school_report: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "school_report"),
+    srcschoolid: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "srcschoolid"),
+    schoolname: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "schoolname"),
+    governance: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "governance"),
+    address: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "address"),
+    phone: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "phone"),
+    fax: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "fax"),
+    zip_code: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "zip_code"),
+    url_school: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "url_school"),
+    report_name: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "report_name"),
+    grades_served: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "grades_served"),
+    enrollment: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "enrollment"),
+    admissiontype: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "admissiontype"),
+    turnaround: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "turnaround"),
+  },
+  watch: {
+    schoolsInitialized(to, from) {
+      if (to && !from) {
+        this.initialize()
+      }
+    }
+  },
+  
+  methods: {      
+    async destroy() {        
+      if (this.sessionObject) {
+        this.sessionObject.removeListener("changed", this.update)
+        this.$qlik.destroySessionObject(this.sessionObject)
+      }
     },
-    watch: {
-      schoolsInitialized(to, from) {
-        if (to && !from) {
-          this.initialize()
+
+    getSPRColorByTextValue(textVal) {
+      const val = parseInt(textVal)
+      // console.log("this val for color", val)
+      if (val < 25) { return '#c0504d' }
+      else if (val < 50) { return "#f79646" }
+      else if (val < 75) { return "#00b050" }
+      else if (val >= 75) { return "#0070c0" }
+      else { return "#888888" }
+    },
+
+    getFullReportTypeByShort(shortReportType) {
+      if (shortReportType == 'K8') { return 'K-8' }
+      else if (shortReportType == 'ES') { return  'Elementary School' }
+      else if (shortReportType == 'MS') { return  'Middle School' }
+      else if (shortReportType == 'HS') { return  'High School' }
+      else { return shortReportType }
+    },
+
+    getCurrentScrollSection() {
+      const sections = ['s-overview', 's-achievement', 's-progress', 's-climate', 's-cc']
+      //console.log(this.$refs)
+      let currentSection = "", sectionName, ref
+      for (sectionName in this.$refs) {
+        ref = this.$refs[sectionName]
+        if (ref.length) ref = ref[0]
+        if (ref.nodeName == "SECTION") {
+          if (ref.offsetTop &&
+            window.scrollY < ref.offsetTop + ref.offsetHeight
+          ) {
+            currentSection = sectionName
+            break
+          }
         }
       }
+      this.currentSection = currentSection
+      // console.log("scroll", window.scrollY, currentSection)
+    },
+
+    lookupTextByFieldValue (sourceField, sourceFieldValue, targetField) {
+      if (this.metricValues) {
+        const values = this.$qlik.lookupValueByFieldValue(this.metricValues, sourceField, sourceFieldValue, targetField)
+        if (values && values.text) {
+          return values.text
+        } else {
+          return ''
+        }
+      } else {
+        return ''
+      }
+    },
+
+    lookupNumberByFieldValue (sourceField, sourceFieldValue, targetField) {
+      if (this.metricValues) {
+        const values = this.$qlik.lookupValueByFieldValue(this.metricValues, sourceField, sourceFieldValue, targetField)
+        if (values && values.number) {
+          return values.number
+        } else {
+          return null
+        }
+      } else {
+        return null
+      }
+    },   
+
+    /** 
+     * initialize grabs the school's slug from the route param to use as this pages school.
+     * We then get the full name of the school - and report type - from the slug.
+     * Then select the school in the field to update the line graphs
+     * Then get the measures from the metricValues hypermetricValues def
+     * initialized depends upon the school list being loaded, so we must only call that when schools/initialized is true in vuex 
+    */
+    async initialize() {
+      this.sessionObject = await this.$qlik.generateHypercubeObjectFromDef(metricValuesDef)
+      this.sessionObject.on("changed", this.update)
+      let selectedValues = {}
+      selectedValues["school_report"] = await this.$qlik.selectFieldValues("School Name (Reporting Category)", [{text: this.school_report}])
+      this.$store.dispatch("update_current_selections", selectedValues)
+      this.getCurrentScrollSection()
+      this.update()
+    },
+
+    isApplicableByMetricId (metric_id) {
+      if (this.metricValues) {
+        const values = this.$qlik.lookupValueByFieldValue(this.metricValues, "metric_id", metric_id, "exception")
+        if (values && values.number) {
+          return values.number !== 999
+        } else {
+          return true
+        }
+      } else {
+        return null
+      }
+    },
+
+    isApplicableByMetricGroup(metric_ids) {
+      let isApplicable = false
+      metric_ids.forEach(metric_id => {
+        const values = this.$qlik.lookupValueByFieldValue(this.metricValues, "metric_id", metric_id, "exception")
+        if (values && values.number) {
+          if (values.number !== 999) {
+            isApplicable = true
+          } 
+        } else {
+          isApplicable = true
+        } 
+      })
+      return isApplicable
+    },
+
+    scrollToSection(sectionName) {
+      console.log("navigate to section", sectionName, this.$refs, this.$refs[sectionName][0])
+      if(this.$refs[sectionName].length) {
+        this.$refs[sectionName][0].scrollIntoView()
+      } else if (this.$refs[sectionName].scrollIntoView) {
+        this.$refs[sectionName].scrollIntoView()
+      }
+    },
+
+    async update() {
+      if (this.sessionObject) {
+        this.metricValues = await this.$qlik.getValuesFromHypercubeObject(this.sessionObject)
+      }        
     },
     
-    methods: {      
-      async destroy() {        
-        if (this.sessionObject) {
-          this.sessionObject.removeListener("changed", this.update)
-          this.$qlik.destroySessionObject(this.sessionObject)
-        }
-      },
+    
+    
+  },
 
-      getSPRColorByTextValue(textVal) {
-        const val = parseInt(textVal)
-        // console.log("this val for color", val)
-        if (val < 25) { return '#c0504d' }
-        else if (val < 50) { return "#f79646" }
-        else if (val < 75) { return "#00b050" }
-        else if (val >= 75) { return "#0070c0" }
-        else { return "#888888" }
-      },
+  created() {      
+    if (this.schoolsInitialized) this.initialize()
+  },
 
-      getFullReportTypeByShort(shortReportType) {
-        if (shortReportType == 'K8') { return 'K-8' }
-        else if (shortReportType == 'ES') { return  'Elementary School' }
-        else if (shortReportType == 'MS') { return  'Middle School' }
-        else if (shortReportType == 'HS') { return  'High School' }
-        else { return shortReportType }
-      },
+  beforeMount() {
+    window.addEventListener("scroll", this.getCurrentScrollSection)
+  },
 
-      getCurrentScrollSection() {
-        const sections = ['s-overview', 's-achievement', 's-progress', 's-climate', 's-cc']
-        //console.log(this.$refs)
-        let currentSection = "", sectionName, ref
-        for (sectionName in this.$refs) {
-          ref = this.$refs[sectionName]
-          if (ref.length) ref = ref[0]
-          if (ref.nodeName == "SECTION") {
-            if (ref.offsetTop &&
-              window.scrollY < ref.offsetTop + ref.offsetHeight
-            ) {
-              currentSection = sectionName
-              break
-            }
-          }
-        }
-        this.currentSection = currentSection
-        console.log("scroll", window.scrollY, currentSection)
-      },
-
-      /** 
-       * initialize grabs the school's slug from the route param to use as this pages school.
-       * We then get the full name of the school - and report type - from the slug.
-       * Then select the school in the field to update the line graphs
-       * Then get the measures from the metricValues hypermetricValues def
-       * initialized depends upon the school list being loaded, so we must only call that when schools/initialized is true in vuex 
-      */
-      async initialize() {
-        this.sessionObject = await this.$qlik.generateHypercubeObjectFromDef(metricValuesDef)
-        this.sessionObject.on("changed", this.update)
-        let selectedValues = {}
-        selectedValues["school_report"] = await this.$qlik.selectFieldValues("School Name (Reporting Category)", [{text: this.school_report}])
-        this.$store.dispatch("update_current_selections", selectedValues)
-        this.getCurrentScrollSection()
-        this.update()
-      },
-
-      scrollToSection(sectionName) {
-        console.log("navigate to section", sectionName, this.$refs, this.$refs[sectionName][0])
-        if(this.$refs[sectionName].length) {
-          this.$refs[sectionName][0].scrollIntoView()
-        } else if (this.$refs[sectionName].scrollIntoView) {
-          this.$refs[sectionName].scrollIntoView()
-        }
-      },
-
-      async update() {
-        if (this.sessionObject) {
-          this.metricValues = await this.$qlik.getValuesFromHypercubeObject(this.sessionObject)
-        }        
-      },
-      
-      
-      
-    },
-
-    created() {      
-      if (this.schoolsInitialized) this.initialize()
-    },
-
-    beforeMount() {
-      window.addEventListener("scroll", this.getCurrentScrollSection)
-    },
-
-    beforeDestroy() {    
-      this.destroy()
-      window.removeEventListener("scroll", this.getCurrentScrollSection)
-    },
+  beforeDestroy() {    
+    this.destroy()
+    window.removeEventListener("scroll", this.getCurrentScrollSection)
+  },
 }
 </script>
 <style scoped>
-  h1 {
-    font-size: 20pt;
-    font-weight: bold;
-  }
+h1 {
+  font-size: 20pt;
+  font-weight: bold;
+}
 
-  h2 {
-    font-size: 18pt;
-    font-weight: bold;
-  }
+h2 {
+  font-size: 18pt;
+  font-weight: bold;
+}
 
-  h3 {
-    font-size: 14pt;
-    font-weight: bold;
-  }
+h3 {
+  font-size: 14pt;
+  font-weight: bold;
+}
 
-  h4 {
-    font-size: 14pt;
-    font-weight: 600;
-  }
+h4 {
+  font-size: 14pt;
+  font-weight: 600;
+}
 
-  hr {
-    margin-top: 5px;
-    margin-bottom: 1rem;
-    border-top: 2px solid #888888;
-  }
+h5 {
+  font-size: 13pt;
+  font-weight: 500;
+}
 
-  hr.page {
-    border-top: 80px solid #666666;
-  }
+hr {
+  margin-top: 5px;
+  margin-bottom: 1rem;
+  border-top: 2px solid #888888;
+}
 
-  hr.dark {
-    border-top: 2px solid #666666;
-  }
- 
-  hr.medium {
-    border-top: 2px solid #888888;
-  }
+hr.page {
+  border-top: 80px solid #666666;
+}
 
-  hr.light {
-    border-top: 1px solid #aaaaaa;
-  }
+hr.dark {
+  border-top: 2px solid #666666;
+}
 
-  hr.tint {
-    border-top: 1px solid #cccccc;
-  }
+hr.medium {
+  border-top: 2px solid #888888;
+}
 
-  .label-3year {
-    font-size: 24pt;
-    color: #888888;
-  }
+hr.light {
+  border-top: 1px solid #aaaaaa;
+}
 
-  .box {
-    float: left;
-    margin-top: 3pt;
-    background-color: black;
-    width: 10pt;
-    height: 10pt;
-  }
+hr.tint {
+  border-top: 1px solid #cccccc;
+}
 
-  .section-nav-item {
-    @apply py-2 text-left cursor-pointer outline-none;
-  }
+.label-3year {
+  font-size: 24pt;
+  color: #888888;
+}
 
-  .section-nav-item:hover {
-    @apply font-semibold;
-  }
+.box {
+  float: left;
+  margin-top: 3pt;
+  background-color: black;
+  width: 10pt;
+  height: 10pt;
+}
 
-  .section-nav-item.active {
-    @apply font-semibold underline;
-  }
+.section-nav-item {
+  @apply py-2 text-left cursor-pointer outline-none;
+}
 
-  .spr-intervene {
-    color: theme('colors.spr-intervene');
-  }
-  
-  .spr-watch {
-    color: theme('colors.spr-watch');
-  }
+.section-nav-item:hover {
+  @apply font-semibold;
+}
 
-  .spr-reinforce {
-    color: theme('colors.spr-reinforce');
-  }
-  
-  .spr-model {
-    color: theme('colors.spr-model');
-  }
+.section-nav-item.active {
+  @apply font-semibold underline;
+}
 
-  .bg-spr-intervene {
-    background-color: theme('colors.spr-intervene');
-  }
-  
-  .bg-spr-watch {
-    background-color: theme('colors.spr-watch');
-  }
+.spr-intervene {
+  color: theme('colors.spr-intervene');
+}
 
-  .bg-spr-reinforce {
-    background-color: theme('colors.spr-reinforce');
-  }
-  
-  .bg-spr-model {
-    background-color: theme('colors.spr-model');
-  }
+.spr-watch {
+  color: theme('colors.spr-watch');
+}
 
+.spr-reinforce {
+  color: theme('colors.spr-reinforce');
+}
 
+.spr-model {
+  color: theme('colors.spr-model');
+}
 
+.bg-spr-intervene {
+  background-color: theme('colors.spr-intervene');
+}
+
+.bg-spr-watch {
+  background-color: theme('colors.spr-watch');
+}
+
+.bg-spr-reinforce {
+  background-color: theme('colors.spr-reinforce');
+}
+
+.bg-spr-model {
+  background-color: theme('colors.spr-model');
+}
 </style>

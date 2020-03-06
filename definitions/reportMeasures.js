@@ -209,6 +209,29 @@ export default {
               , '#0.#%')`
           }
         },
+        {
+          qDef: {
+            qLabel: 'points-earned', 
+            qDef: `Num(
+              If([Metric ID] = 'Z_OVERALL_OVERALL', Max({<[Exception Overall] = {"*"}, YearEnd={$(=$(v_Max_YearEnd))}>} [Points Earned Overall]),
+                If(Match([Metric ID],'Z_ACH_OVERALL', 'Z_PROG_OVERALL', 'Z_CLIM_OVERALL', 'Z_CC_OVERALL') > 0, 
+                  Round(Max({<[Points Possible in Domain] = {">0"}, YearEnd={$(=$(v_Max_YearEnd))}>} [Points Earned in Domain]), 0.01),
+                  Round(Max({<[Points Possible for Metric] = {">0"}, YearEnd={$(=$(v_Max_YearEnd))}>} [Points Earned for Metric]), 0.01)
+                  )) , '#0.##')
+              `
+          }
+        },
+        {
+          qDef: {
+            qLabel: 'points-possible', 
+            qDef: `Num(
+              If([Metric ID] = 'Z_OVERALL_OVERALL', Max({<[Exception Overall] = {"*"}, YearEnd={$(=$(v_Max_YearEnd))}>} [Points Possible Overall]),
+                If(Match([Metric ID],'Z_ACH_OVERALL', 'Z_PROG_OVERALL', 'Z_CLIM_OVERALL', 'Z_CC_OVERALL') > 0, 
+                  Round(Max({<[Points Possible in Domain] = {">0"}, YearEnd={$(=$(v_Max_YearEnd))}>} [Points Possible in Domain]), 0.01),
+                  Round(Max({<[Points Possible for Metric] = {">0"}, YearEnd={$(=$(v_Max_YearEnd))}>} [Points Possible for Metric]), 0.01)
+                )) , '#0.##')`
+          }
+        },
         // The following are for metric-level only 
 
         // scores can be % in some cases and # in others
@@ -228,27 +251,7 @@ export default {
           }
         },
         // The following are for metric-level and domain-level
-        {
-          qDef: {
-            qLabel: 'points-earned', 
-            qDef: `Num(
-              If(Match([Metric ID],'Z_ACH_OVERALL', 'Z_PROG_OVERALL', 'Z_CLIM_OVERALL', 'Z_CC_OVERALL') > 0, 
-                Round(Max({<[Points Possible in Domain] = {">0"}, YearEnd={$(=$(v_Max_YearEnd))}>} [Points Earned in Domain]), 0.01),
-                Round(Max({<[Points Possible for Metric] = {">0"}, YearEnd={$(=$(v_Max_YearEnd))}>} [Points Earned for Metric]), 0.01)
-                ) , '#0.##')
-              `
-          }
-        },
-        {
-          qDef: {
-            qLabel: 'points-possible', 
-            qDef: `Num(
-              If(Match([Metric ID],'Z_ACH_OVERALL', 'Z_PROG_OVERALL', 'Z_CLIM_OVERALL', 'Z_CC_OVERALL') > 0, 
-                Round(Max({<[Points Possible in Domain] = {">0"}, YearEnd={$(=$(v_Max_YearEnd))}>} [Points Possible in Domain]), 0.01),
-                Round(Max({<[Points Possible for Metric] = {">0"}, YearEnd={$(=$(v_Max_YearEnd))}>} [Points Possible for Metric]), 0.01)
-              ) , '#0.##')`
-          }
-        },
+        
 
       ],     
     }
