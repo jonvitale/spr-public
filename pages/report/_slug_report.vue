@@ -127,9 +127,9 @@
                   :class="{'text-2xl': domain.key === 'overall'}" 
                 >               
                   {{ domain.title }}: 
-                  <span :style="{color: getSPRColorByTextValue(lookupTextByFieldValue('metric_id', domain.metric_id, 'perc-earned'))}"> 
+                  <span :style="{color: getSPRColorByTextValue(lookupTextByFieldValue('metric_id', domain.metric_id, 'perc_earned'))}"> 
                     {{ lookupTextByFieldValue('metric_id', domain.metric_id, 'tier').toUpperCase() }} 
-                    ({{ lookupTextByFieldValue('metric_id', domain.metric_id, 'perc-earned') }})
+                    ({{ lookupTextByFieldValue('metric_id', domain.metric_id, 'perc_earned') }})
                   </span>              
                 </p>
                 <p class="lg:w-full">
@@ -146,16 +146,16 @@
                 </div>
                 <!-- <QdtComponent :qdtAPI="$qdt" :type="qObjs[domain.key].trend.type" :props="qObjs[domain.key].trend.props" />    -->
                 <LineChart :pointHeights="[
-                  lookupNumberByFieldValue('metric_id', domain.metric_id, 'perc-earned-ppy'),                  
-                  lookupNumberByFieldValue('metric_id', domain.metric_id, 'perc-earned-py'), 
-                  lookupNumberByFieldValue('metric_id', domain.metric_id, 'perc-earned'), 
+                  lookupNumberByFieldValue('metric_id', domain.metric_id, 'perc_earned_ppy'),                  
+                  lookupNumberByFieldValue('metric_id', domain.metric_id, 'perc_earned_py'), 
+                  lookupNumberByFieldValue('metric_id', domain.metric_id, 'perc_earned'), 
                   ]"
                 /> 
               </div>
               <div class="w-36 text-center ml-2 pl-8 md:ml-0 md:pl-0">
                 <h4 class="lg:invisible mt-2"> 3 YEAR AVG </h4>
                 <p class="label-3year"> 
-                  {{ lookupTextByFieldValue('metric_id', domain.metric_id, 'perc-earned-3year') }} 
+                  {{ lookupTextByFieldValue('metric_id', domain.metric_id, 'perc_earned_3year') }} 
                 </p>
               </div>
             </div>
@@ -220,7 +220,7 @@
                             {{ metric.title }}
                           </p>  
                           <p :class="[
-                              lookupNumberByFieldValue('metric_id', metric.metric_id, 'points-possible') > 0 ? 'text-black' : 'text-gray-600',
+                              lookupNumberByFieldValue('metric_id', metric.metric_id, 'points_possible') > 0 ? 'text-black' : 'text-gray-600',
                               metric_group.metrics.length == 1 ? 'pl-0' : 'pl-6'
                             ]"
                           > 
@@ -229,7 +229,7 @@
                         </p>
                       </div>
                       <div class="w-full lg:w-48 text-center"
-                        :class="lookupNumberByFieldValue('metric_id', metric.metric_id, 'points-possible') > 0 ? 'text-black' : 'text-gray-600'"
+                        :class="lookupNumberByFieldValue('metric_id', metric.metric_id, 'points_possible') > 0 ? 'text-black' : 'text-gray-600'"
                       >
                         <p v-if="lookupNumberByFieldValue('metric_id', metric.metric_id, 'exception') > 0"> &nbsp; </p>
                         <p v-else>
@@ -243,12 +243,12 @@
                       <div class="w-full lg:w-48 text-center">
                         <p v-if="lookupNumberByFieldValue('metric_id', metric.metric_id, 'exception') > 0"> &nbsp; </p>
                         <p v-else>
-                          <span v-if="lookupNumberByFieldValue('metric_id', metric.metric_id, 'points-possible') > 0">
-                            <span class="text-xl text-black">{{ lookupTextByFieldValue('metric_id', metric.metric_id, 'points-earned') }} </span>
+                          <span v-if="lookupNumberByFieldValue('metric_id', metric.metric_id, 'points_possible') > 0">
+                            <span class="text-xl text-black">{{ lookupTextByFieldValue('metric_id', metric.metric_id, 'points_earned') }} </span>
                             <span class="text-gray-600"> out of </span>
-                            <span class="text-xl text-black">{{ lookupTextByFieldValue('metric_id', metric.metric_id, 'points-possible') }} </span>
+                            <span class="text-xl text-black">{{ lookupTextByFieldValue('metric_id', metric.metric_id, 'points_possible') }} </span>
                             <br>
-                            <span class="text-black">({{ lookupTextByFieldValue('metric_id', metric.metric_id, 'perc-earned') }})</span>
+                            <span class="text-black">({{ lookupTextByFieldValue('metric_id', metric.metric_id, 'perc_earned') }})</span>
                           </span>
                         </p>
                       </div>
@@ -259,8 +259,8 @@
                           </span>
                         </p>
                         <p v-else>
-                          <span v-if="lookupNumberByFieldValue('metric_id', metric.metric_id, 'points-possible') > 0"
-                            :style="{color: getSPRColorByTextValue(lookupTextByFieldValue('metric_id', metric.metric_id, 'perc-earned'))}"
+                          <span v-if="lookupNumberByFieldValue('metric_id', metric.metric_id, 'points_possible') > 0"
+                            :style="{color: getSPRColorByTextValue(lookupTextByFieldValue('metric_id', metric.metric_id, 'perc_earned'))}"
                           >
                             {{ lookupTextByFieldValue('metric_id', metric.metric_id, 'tier').toUpperCase() }} 
                           </span>
@@ -285,20 +285,20 @@
                   <span class="text-md text-gray-600"> % of Points Earned </span>
                 </p>
                 <p class="w-full lg:w-48 text-center text-2xl font-bold"> 
-                  <span :style="{color: getSPRColorByTextValue(lookupTextByFieldValue('metric_id', domain.metric_id, 'perc-earned'))}"> 
-                    {{ lookupTextByFieldValue('metric_id', domain.metric_id, 'perc-earned') }}
+                  <span :style="{color: getSPRColorByTextValue(lookupTextByFieldValue('metric_id', domain.metric_id, 'perc_earned'))}"> 
+                    {{ lookupTextByFieldValue('metric_id', domain.metric_id, 'perc_earned') }}
                   </span>  
                 </p>
                 <p class="w-full lg:w-48 text-center text-black font-bold"> 
-                  <span class="text-xl">{{ lookupTextByFieldValue('metric_id', domain.metric_id, 'points-earned') }} </span>
+                  <span class="text-xl">{{ lookupTextByFieldValue('metric_id', domain.metric_id, 'points_earned') }} </span>
                   <span class="text-md text-gray-800"> out of </span>
-                  <span class="text-xl">{{ lookupTextByFieldValue('metric_id', domain.metric_id, 'points-possible') }} </span>
+                  <span class="text-xl">{{ lookupTextByFieldValue('metric_id', domain.metric_id, 'points_possible') }} </span>
                 </p>
                 <p class="w-full lg:w-1/4 text-center text-2xl font-bold"> 
                   <span v-if="lookupNumberByFieldValue('metric_id', domain.metric_id, 'exception') > 0"> 
                     {{ lookupTextByFieldValue('metric_id', domain.metric_id, 'exception_name').toUpperCase() }} 
                   </span>
-                  <span v-else :style="{color: getSPRColorByTextValue(lookupTextByFieldValue('metric_id', domain.metric_id, 'perc-earned'))}"> 
+                  <span v-else :style="{color: getSPRColorByTextValue(lookupTextByFieldValue('metric_id', domain.metric_id, 'perc_earned'))}"> 
                     {{ lookupTextByFieldValue('metric_id', domain.metric_id, 'tier').toUpperCase() }} 
                   </span>   
                 </p>

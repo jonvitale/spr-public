@@ -87,7 +87,7 @@ const getObjectFromId = async qId => {
   return await engine.getObject(qId)
 }
 
-const getFieldValueByIndex = (values, targetField, index) => {
+const getFieldValueByIndex = (values, index, targetField) => {
   if (typeof index == 'number' && index >= 0) {
     return values[targetField][index]
   } else if (Array.isArray(index) && index.length) {
@@ -189,7 +189,7 @@ const getVariableValueByName = async (variableName) => {
  */
 const lookupIndexByFieldValue = (values, sourceField, sourceFieldValue, returnMultiple) => {
   // console.log("lookupIndexByFieldValue", values, sourceField, sourceFieldValue)
-  if (values && values[sourceField].length) {
+  if (values && Object.keys(values).includes(sourceField)) {
     const fieldValues = values[sourceField]
     // add the index in the values object
     let fieldValuesIndex = fieldValues.map((val, index) => ({...val, index}))
@@ -210,24 +210,49 @@ const lookupIndexByFieldValue = (values, sourceField, sourceFieldValue, returnMu
   }
 }
 
+const formatReturnValues = (returnValues, returnKey) => {
+  if (typeof returnKey == 'string') {
+    if (Array.isArray(returnValues)) {
+      if (Object.keys(returnValues[0]).includes(returnKey)) {
+        return returnValues.map(v => v[returnKey])
+      } else {
+        return returnValues
+      }
+    } else {
+      if (Object.keys(returnValues).includes(returnKey)) {
+        return returnValues[returnKey]
+      } else {
+        return returnValues
+      }
+    }
+  } else {
+    return returnValues
+  }
+}
 
-const lookupValueByFieldValue = (values, sourceField, sourceFieldValue, targetField, returnMultiple) => {
-  const index = lookupIndexByFieldValue(values, sourceField, sourceFieldValue, returnMultiple)
-  // console.log(index, sourceField, sourceFieldValue, targetField, values)
-  return getFieldValueByIndex(values, targetField, index)
+const lookupValueByFieldValue = (values, sourceField, sourceFieldValue, targetField, returnMultiple, returnKey) => {
+  if (values != null) {
+    const index = lookupIndexByFieldValue(values, sourceField, sourceFieldValue, returnMultiple)
+    // console.log(index, sourceField, sourceFieldValue, targetField, values)
+    let returnValues = getFieldValueByIndex(values, index, targetField)
+    return formatReturnValues(returnValues, returnKey)
+  } else {
+    return null
+  }
 }
 
 const lookupIndexByMultipleFieldValues = (values, sourceFieldValueMap, returnMultiple) => {
   // console.log("lookupIndexByMultipleFieldValues", values, sourceFieldValueMap)
-  if (values) {
+  if (values != null) {
     let sourceField, sourceFieldValue, fieldValues
 
     // we will filter the final indices from a set of all indices
-    let finalIndices = new Array((Object.keys(values)[0]).length)
+    const length = values[Object.keys(values)[0]].length
+    let finalIndices = [...Array(length).keys()]
 
     for (sourceField in sourceFieldValueMap) {
-      sourceFieldValue = sourceFieldValue[sourceField]
-      if(values[sourceField].length) {
+      sourceFieldValue = sourceFieldValueMap[sourceField]
+      if(values[sourceField].length > 0) {
         fieldValues = values[sourceField]
         // add the index in the values object
         let fieldValuesIndex = fieldValues.map((val, index) => ({...val, index}))
@@ -254,10 +279,13 @@ const lookupIndexByMultipleFieldValues = (values, sourceFieldValueMap, returnMul
   }
 }
 
-const lookupValueByMultipleFieldValues = (values, sourceFieldValueMap, targetField, returnMultiple) => {
-  const index = lookupIndexByMultipleFieldValues(values, sourceFieldValueMap, returnMultiple)
-  // console.log(index, sourceField, sourceFieldValue, targetField, values)
-  return getFieldValueByIndex(values, targetField, index)
+const lookupValueByMultipleFieldValues = (values, sourceFieldValueMap, targetField, returnMultiple, returnKey) => {
+  if (values != null) {
+    const index = lookupIndexByMultipleFieldValues(values, sourceFieldValueMap, returnMultiple)
+    // console.log(index, sourceField, sourceFieldValue, targetField, values)
+    let returnValues = getFieldValueByIndex(values, index, targetField)
+    return formatReturnValues(returnValues, returnKey)
+  }
 }
 
 const selectFieldValues = async (fieldName, values) => {  

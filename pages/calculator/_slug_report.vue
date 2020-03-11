@@ -36,30 +36,30 @@
                     <button> Reset </button>
                   </div>
                   <div class="flex flex-row justify-between">
-                    <div class="text-white py-1 px-4 mr-2"
-                      :style="{'background-color': getSPRColorByTextValue(lookupTextByFieldValue('metric_id', domain.metric_id, 'perc-earned'))}"
+                    <div class="score-card"
+                      :style="{'background-color': getSPRColorByTextValue($qlik.lookupValueByFieldValue(metricValues, 'metric_id', domain.metric_id, 'perc_earned', false, 'text'))}"
                     > 
                       <h4> Current </h4>
                       <h1 class="text-right"> 
-                        {{lookupTextByFieldValue('metric_id', domain.metric_id, 'perc-earned')}} 
+                        {{$qlik.lookupValueByFieldValue(metricValues, 'metric_id', domain.metric_id, 'perc_earned', false, 'text')}} 
                       </h1>                      
-                      <p> 
-                        <span class="text-lg">{{ lookupTextByFieldValue('metric_id', domain.metric_id, 'points-earned') }} </span>
+                      <p class="text-right"> 
+                        <span class="text-lg">{{ $qlik.lookupValueByFieldValue(metricValues, 'metric_id', domain.metric_id, 'points_earned', false, 'text') }} </span>
                         <span class="text-md">out of </span>
-                        <span class="text-lg">{{ lookupTextByFieldValue('metric_id', domain.metric_id, 'points-possible') }} </span>
+                        <span class="text-lg">{{ $qlik.lookupValueByFieldValue(metricValues, 'metric_id', domain.metric_id, 'points_possible', false, 'text') }} </span>
                       </p>
                     </div>
-                    <div class="text-white py-1 px-4 mr-2"
-                      :style="{'background-color': getSPRColorByTextValue(lookupProjectedTextByFieldValue('metric_id', domain.metric_id, 'perc-earned'))}"
+                    <div class="score-card text-white py-1 px-4 mr-2"
+                      :style="{'background-color': getSPRColorByTextValue($qlik.lookupValueByFieldValue(metricValues, 'metric_id', domain.metric_id, 'projected_perc_earned', false, 'text'))}"
                     > 
                       <h4> Projected </h4>
                       <h1 class="text-right"> 
-                        {{lookupProjectedTextByFieldValue('metric_id', domain.metric_id, 'perc-earned')}} 
+                        {{ $qlik.lookupValueByFieldValue(metricValues, 'metric_id', domain.metric_id, 'projected_perc_earned', false, 'text') }} 
                       </h1>
-                      <p> 
-                        <span class="text-lg">{{ lookupProjectedTextByFieldValue('metric_id', domain.metric_id, 'points-earned') }} </span>
+                      <p class="text-right"> 
+                        <span class="text-lg">{{ $qlik.lookupValueByFieldValue(metricValues, 'metric_id', domain.metric_id, 'projected_points_earned', false, 'number') | formatValue(false) }} </span>
                         <span class="text-md"> out of </span>
-                        <span class="text-lg">{{ lookupProjectedTextByFieldValue('metric_id', domain.metric_id, 'points-possible') }} </span>
+                        <span class="text-lg">{{ $qlik.lookupValueByFieldValue(metricValues, 'metric_id', domain.metric_id, 'projected_points_possible', false, 'number') | formatValue(false, true) }} </span>
                       </p>
                     </div>
                   </div>
@@ -83,66 +83,76 @@
               <div> Scored Range and Metric Score </div>
             </div>
             <div class="flex flex-row w-full lg:w-1/2">
-              <div class="w-1/4"> Current Points </div>
-              <div class="w-1/4"> Projected Points </div>
-              <div class="w-1/4"> Projected Change </div>
-              <div class="w-1/4"> &nbsp; </div>
+              <div class="mr-2 text-center" style="width: 11rem"> Current Points </div>
+              <div class="mr-2 text-center" style="width: 11rem"> Projected Points </div>
+              <div class="mr-2 text-center" style="width: 7rem"> Projected Change </div>
             </div>
           </div>
-        </div>
+        </div
+        >
+        <!--  Projected Metric Sliders -->
         <div v-for="metric_id in metricIds" :key="metric_id">
-          <div class="flex flex-row"
-            v-if="isApplicableByMetricId(metric_id) && lookupNumberByFieldValue('metric_id', metric_id, 'points-possible') > 0"
+          <div class="flex flex-row flex-wrap mb-2 bg-gray-200"
+            v-if="isApplicableByMetricId(metric_id) && $qlik.lookupValueByFieldValue(metricValues, 'metric_id', metric_id, 'points_possible', false, 'number') > 0"
             >
             <div class="w-full lg:w-1/2">
-              <h5> 
-                {{lookupTextByFieldValue('metric_id', metric_id, 'metric_name') }} 
-              </h5>
+              <h6 class="p-1"> 
+                {{$qlik.lookupValueByFieldValue(metricValues, 'metric_id', metric_id, 'metric_name', false, 'text') }} 
+              </h6>
+              <!-- Note: we only update the metric on input (every movement), but do all rollups on change -->
               <ProjectionSlider
+                style="min-width:300px; max-width:600px; min-height:4rem;"
                 class="w-full"
-                :currentValue="lookupNumberByFieldValue('metric_id', metric_id, 'points-earned')"
-                :min="0"
-                :max="lookupNumberByFieldValue('metric_id', metric_id, 'points-possible')"
+                :ref="'projection-slider-'+metric_id"
+                :referenceValue="$qlik.lookupValueByFieldValue(metricValues, 'metric_id', metric_id, 'score', false, 'number')"
+                :floor="$qlik.lookupValueByFieldValue(metricValues, 'metric_id', metric_id, 'points_floor', false, 'number') / 100"
+                :ceiling="$qlik.lookupValueByFieldValue(metricValues, 'metric_id', metric_id, 'points_target', false, 'number') / 100"
+                :min="$qlik.lookupValueByFieldValue(metricValues, 'metric_id', metric_id, 'is_agi', false, 'number') ? -10 : 0"
+                :max="$qlik.lookupValueByFieldValue(metricValues, 'metric_id', metric_id, 'is_agi', false, 'number') ? 10 : 1"
+                :is-percent="$qlik.lookupValueByFieldValue(metricValues, 'metric_id', metric_id, 'is_agi', false, 'number') != 1"
+                @input="updateProjectedMetric(metric_id, $event, false)"
+                @change="updateProjectedMetric(metric_id, $event, true)"
               />
+              <div class="flex justify-center">
+                <button @click="resetProjectedMetric(metric_id)"> Reset </button>
+              </div>
             </div>
             <div class="flex flex-row w-full lg:w-1/2">
               <div class="flex flex-row justify-between">
-                <div class="text-white py-1 px-4 mr-2"
-                  :style="{'background-color': getSPRColorByTextValue(lookupTextByFieldValue('metric_id', metric_id, 'perc-earned'))}"
+                <div class="score-card text-white py-1 px-4 mr-2"
+                  :style="{'background-color': getSPRColorByTextValue($qlik.lookupValueByFieldValue(metricValues, 'metric_id', metric_id, 'perc_earned', false, 'text'))}"
                   > 
                   <h4> Current </h4>
                   <h1 class="text-right"> 
-                    {{lookupTextByFieldValue('metric_id', metric_id, 'perc-earned')}} 
+                    {{$qlik.lookupValueByFieldValue(metricValues, 'metric_id', metric_id, 'perc_earned', false, 'text')}} 
                   </h1>
-                  <p> 
-                    <span class="text-lg">{{ lookupTextByFieldValue('metric_id', metric_id, 'points-earned') }} </span>
+                  <p class="text-right"> 
+                    <span class="text-lg">{{ $qlik.lookupValueByFieldValue(metricValues, 'metric_id', metric_id, 'points_earned', false, 'text') | formatValue(false) }} </span>
                     <span class="text-md">out of </span>
-                    <span class="text-lg">{{ lookupTextByFieldValue('metric_id', metric_id, 'points-possible') }} </span>
-                  </p>
+                    <span class="text-lg">{{ $qlik.lookupValueByFieldValue(metricValues, 'metric_id', metric_id, 'points_possible', false, 'text') | formatValue(false) }} </span>
+                  </p>                  
                 </div>
-                <div class="text-white py-1 px-4 mr-2"
-                  :style="{'background-color': getSPRColorByTextValue(lookupProjectedTextByFieldValue('metric_id', metric_id, 'perc-earned'))}"
+                <div class="score-card text-white py-1 px-4 mr-2"
+                  :style="{'background-color': getSPRColorByTextValue($qlik.lookupValueByFieldValue(metricValues, 'metric_id', metric_id, 'projected_perc_earned', false, 'text'))}"
                   > 
                   <h4> Projected </h4>
                   <h1 class="text-right"> 
-                    {{lookupProjectedTextByFieldValue('metric_id', metric_id, 'perc-earned')}} 
+                    {{ $qlik.lookupValueByFieldValue(metricValues, 'metric_id', metric_id, 'projected_perc_earned', false, 'number') | formatValue(true, true) }} 
                   </h1>
-                  <p> 
-                    <span class="text-lg">{{ lookupProjectedTextByFieldValue('metric_id', metric_id, 'points-earned') }} </span>
+                  <p class="text-right"> 
+                    <span class="text-lg">{{ $qlik.lookupValueByFieldValue(metricValues, 'metric_id', metric_id, 'projected_points_earned', false, 'number') | formatValue(false) }} </span>
                     <span class="text-md"> out of </span>
-                    <span class="text-lg">{{ lookupProjectedTextByFieldValue('metric_id', metric_id, 'points-possible') }} </span>
+                    <span class="text-lg">{{ $qlik.lookupValueByFieldValue(metricValues, 'metric_id', metric_id, 'projected_points_possible', false, 'number') | formatValue(false) }} </span>
                   </p>
                 </div>
-                <div class="text-black py-1 px-4 mr-2">
+                <div class="change-card">
                   <h1>
                     {{ 
-                      (lookupProjectedNumberByFieldValue('metric_id', metric_id, 'perc-earned') - 
-                      lookupNumberByFieldValue('metric_id', metric_id, 'perc-earned')) 
+                      ($qlik.lookupValueByFieldValue(metricValues, 'metric_id', metric_id, 'projected_perc_earned', false, 'number') - 
+                      $qlik.lookupValueByFieldValue(metricValues, 'metric_id', metric_id, 'perc_earned', false, 'number'))
+                    | formatValue(true, true)
                     }} 
                   </h1>
-                </div>
-                <div>
-                  <button> Reset </button>
                 </div>
               </div>
             </div>
@@ -154,7 +164,7 @@
 </template>
 
 <script>
-import metricValuesDef from '~/definitions/reportMeasures'
+import metricValuesDef from '~/definitions/calculatorMeasures'
 
 import ProjectionSlider from '~components/PageElements/ProjectionSlider.vue'
 import Columns from '~components/PageElements/Columns.vue'
@@ -521,11 +531,12 @@ export default {
     }
   },
   computed: {
+    // a shortcut for the template
+    mv() {
+      return this.metricValues
+    },
     metricIds() {
-      let metricIds = this.lookupTextByFieldValue('domain_name', this.currentDomain, 'metric_id', true)
-      if (Array.isArray(metricIds)) {
-        metricIds = metricIds.filter(m => !m.includes("OVERALL"))      
-      }
+      let metricIds = this.$qlik.lookupValueByMultipleFieldValues(this.metricValues, {'domain_name': this.currentDomain, 'is_metric': true}, 'metric_id', true, 'text')
       return metricIds
     },
     school_report: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "school_report"),
@@ -606,13 +617,6 @@ export default {
       }
     },
 
-    lookupProjectedTextByFieldValue (sourceField, sourceFieldValue, targetField, returnMultiple) {
-      return this.lookupTextByFieldValue(sourceField, sourceFieldValue, targetField, returnMultiple)
-    },
-
-    lookupProjectedNumberByFieldValue (sourceField, sourceFieldValue, targetField, returnMultiple) {
-      return this.lookupNumberByFieldValue(sourceField, sourceFieldValue, targetField, returnMultiple)
-    },
     
     /** 
      * initialize grabs the school's slug from the route param to use as this pages school.
@@ -647,8 +651,190 @@ export default {
     async update() {
       if (this.sessionObject) {
         this.metricValues = await this.$qlik.getValuesFromHypercubeObject(this.sessionObject)
+        
+        // add a deep copy of the score field as projected scores
+        this.metricValues['projected_score'] = new Array(this.metricValues['metric_id'].length)
+        this.metricValues['projected_perc_earned'] = new Array(this.metricValues['metric_id'].length)
+        this.metricValues['projected_points_earned'] = new Array(this.metricValues['metric_id'].length)
+        this.metricValues['projected_points_earned_calculated'] = new Array(this.metricValues['metric_id'].length)
+        this.metricValues['projected_points_possible'] = new Array(this.metricValues['metric_id'].length)
+        let score, numerator, denominator
+        this.metricValues['score'].forEach((v, metric_index) => {
+          this.updateProjectedValuesAtIndex(metric_index, v.number, true)
+        })
+
+        // for each of the domain calculate rollup values based upon projected values
+        this.updateProjectedRollUpValues('Achievement', true)
+        this.updateProjectedRollUpValues('Progress', true)
+        this.updateProjectedRollUpValues('Climate', true)
+        this.updateProjectedRollUpValues('College & Career', true)
+        this.updateProjectedRollUpValues('Overall', true)
+        // console.log("metricValues projected_score", this.metricValues['projected_score'])
+        
       }        
     },
+
+    resetProjectedMetric(metric_id) {
+      // tell the slider to reset
+      this.$refs['projection-slider-'+metric_id][0].reset()
+      const metric_index = this.$qlik.lookupIndexByFieldValue(this.metricValues, "metric_id", metric_id, false)
+      const projected_score = this.metricValues['score'][metric_index].number
+      this.updateProjectedValuesAtIndex(metric_index, projected_score, true)
+      this.updateProjectedRollUpValues(this.currentDomain)
+      this.updateProjectedRollUpValues("Overall")
+      this.$forceUpdate()
+    },
+
+    async updateProjectedMetric(metric_id, {currentTarget, projectedValue}, doRollup) {
+      // console.log("event", currentTarget, projectedValue)
+      const metric_index = this.$qlik.lookupIndexByFieldValue(this.metricValues, "metric_id", metric_id, false)
+      // console.log("update metric", metric_id, "index:", metric_index, "to", projected_score)
+      this.updateProjectedValuesAtIndex(metric_index, projectedValue)
+      if (doRollup) {
+        this.updateProjectedRollUpValues(this.currentDomain)
+        this.updateProjectedRollUpValues("Overall")
+      }
+      this.$forceUpdate()
+    },
+
+    updateProjectedValuesAtIndex(metric_index, score, useDefaultValues) {
+      let points, perc, points_calc
+      let is_agi = this.metricValues['is_agi'][metric_index].number == 1
+      let points_possible = this.metricValues['points_possible'][metric_index].number
+      let floor = this.metricValues['points_floor'][metric_index].number / (is_agi ? 1 : 100)
+      let target = this.metricValues['points_target'][metric_index].number / (is_agi ? 1 : 100)          
+      let isSelected = this.metricValues['score'][metric_index].isSelected
+      let isExcluded = this.metricValues['score'][metric_index].isExcluded
+
+      if (useDefaultValues) {
+        perc = this.metricValues['perc_earned'][metric_index].number
+        points = this.metricValues['points_earned'][metric_index].number
+        // if there is a numerator and denominator, use that to create a score
+        let numerator = this.metricValues['numerator'][metric_index].number
+        let denominator = this.metricValues['denominator'][metric_index].number
+        if (isFinite(parseFloat(numerator)) && isFinite(parseFloat(denominator))) {
+          let score_calc = numerator / denominator
+          // score_calc = Math.round(10000 * score_calc) / 10000
+          let perc_calc = Math.min(Math.max((score_calc - floor) / (target - floor), 0), 1)
+          points_calc = Math.round(1000 * perc_calc * points_possible) / 1000
+        } else {
+          points_calc = points
+        }
+          
+      } else {
+        if (this.metricValues['metric_id'][metric_index].text == 'SVY_PARENT_RATE')
+          console.log(this.metricValues['metric_id'][metric_index].text, "is_agi", score, is_agi)
+        perc = Math.min(Math.max((score - floor) / (target - floor), 0), 1)
+        points = perc * points_possible
+        points_calc = points
+      }
+      // round percent to hundredth place, but only after calculating points
+      // perc = Math.round(100 * perc) / 100
+
+      // console.log("i", i, perc, this.metricValues['points_floor'][metric_index].number, this.metricValues['points_target'][metric_index].number)
+      
+      this.metricValues['projected_score'][metric_index] = {
+        text: (100 * score) + '%',
+        number: score,
+        isSelected: isSelected,
+        isExcluded: isExcluded
+      }
+
+      this.metricValues['projected_perc_earned'][metric_index] = {
+        text: (100 * perc) + '%',
+        number: perc,
+        isSelected: isSelected,
+        isExcluded: isExcluded
+      }
+
+      this.metricValues['projected_points_earned'][metric_index] = {
+        text: points.toString(),
+        number: points,
+        isSelected: isSelected,
+        isExcluded: isExcluded
+      }
+      
+      this.metricValues['projected_points_earned_calculated'][metric_index] = {
+        text: points.toString(),
+        number: points_calc,
+        isSelected: isSelected,
+        isExcluded: isExcluded
+      }
+
+      this.metricValues['projected_points_possible'][metric_index] = {
+        text: points_possible.toString(),
+        number: points_possible,
+        isSelected: isSelected,
+        isExcluded: isExcluded
+      }  
+    },
+
+    updateProjectedRollUpValues(domain, useDefaultValues) {
+      const mapDomainToId = domain => {
+        if (domain == 'Overall') {
+          return 'Z_OVERALL_OVERALL'
+        } else if (domain == 'Achievement') {
+          return 'Z_ACH_OVERALL'
+        } else if (domain == 'Progress') {
+          return 'Z_PROG_OVERALL'
+        } else if (domain == 'Climate') {
+          return 'Z_CLIM_OVERALL'
+        } else if (domain == 'College & Career') {
+          return 'Z_CC_OVERALL'
+        } 
+      }
+      const domain_index = this.$qlik.lookupIndexByFieldValue(this.metricValues, "metric_id", mapDomainToId(domain), false)
+      const isSelected = this.metricValues['points_possible'][domain_index].isSelected
+      const isExcluded = this.metricValues['points_possible'][domain_index].isExcluded
+      let perc, points, points_possible      
+
+      if (useDefaultValues) {
+        points_possible = this.metricValues['points_possible'][domain_index].number
+        points = this.metricValues['points_earned'][domain_index].number
+        perc = this.metricValues['perc_earned'][domain_index].number
+      } else {
+        let projected_points, projected_points_possible
+        if (domain == 'Overall') {
+          projected_points = this.$qlik.lookupValueByFieldValue(this.metricValues, "is_domain", 1, 'projected_points_earned', true)
+            .map(v => v.number)
+          projected_points_possible = this.$qlik.lookupValueByFieldValue(this.metricValues, "is_domain", 1, 'projected_points_possible', true)
+            .map(v => v.number)
+        } else {
+          projected_points = this.$qlik.lookupValueByMultipleFieldValues(this.metricValues, {"is_metric": 1, "domain_name": domain }, 'projected_points_earned_calculated', true)
+            .map(v => v.number)
+          projected_points_possible = this.$qlik.lookupValueByMultipleFieldValues(this.metricValues, {"is_metric": 1, "domain_name": domain }, 'projected_points_possible', true)
+            .map(v => v.number)
+        }
+
+        // console.log("projected_points", projected_points)
+        points = Math.round(100 * projected_points.reduce((acc, val) => acc + (isFinite(parseFloat(val)) ? parseFloat(val): 0), 0)) / 100
+        points_possible = Math.round(100 * projected_points_possible.reduce((acc, val) => acc + (isFinite(parseFloat(val)) ? parseFloat(val): 0), 0)) / 100
+        perc = points / points_possible
+        perc = Math.round(100 * perc) / 100
+      }
+      console.log("points", domain, points, points_possible, perc) //projected_points, 
+      
+      this.metricValues['projected_perc_earned'][domain_index] = {
+        text: (100 * perc) + '%',
+        number: perc,
+        isSelected: isSelected,
+        isExcluded: isExcluded
+      }
+
+      this.metricValues['projected_points_earned'][domain_index] = {
+        text: points.toString(),
+        number: points,
+        isSelected: isSelected,
+        isExcluded: isExcluded
+      }  
+      
+      this.metricValues['projected_points_possible'][domain_index] = {
+        text: points_possible.toString(),
+        number: points_possible,
+        isSelected: isSelected,
+        isExcluded: isExcluded
+      }  
+    }
   },
   created() {      
     if (this.schoolsInitialized) this.initialize()
@@ -656,9 +842,38 @@ export default {
   beforeDestroy() {    
     this.destroy()
   },
+  filters: {
+    formatValue (value, isPercent, roundAtWhole) {
+      if(isPercent) {
+        if (roundAtWhole) {
+          return Math.round(value * 100) + '%'
+        } else {
+          return Math.round(value * 10000) / 100 + '%'
+        }        
+      } else {
+        if (roundAtWhole) {
+           return Math.round(value)
+        } else {
+          return Math.round(value * 100) / 100
+        }
+      }
+    }
+  }
 }
 </script>
-<style scoped>
+<style lang="postcss" scoped>
+.score-card {
+  @apply text-white py-1 px-4 mr-2;
+  width: 11rem;
+  height: 7rem;
+}
+
+.change-card {
+  @apply text-black bg-gray-400 py-1 px-4 mr-2;
+  width: 7rem;
+  height: 7rem;
+}
+
 h1 {
   font-size: 20pt;
   font-weight: bold;
@@ -714,14 +929,6 @@ hr.light {
 
 hr.tint {
   border-top: 1px solid #cccccc;
-}
-
-.box {
-  float: left;
-  margin-top: 3pt;
-  background-color: black;
-  width: 10pt;
-  height: 10pt;
 }
 
 .spr-intervene {

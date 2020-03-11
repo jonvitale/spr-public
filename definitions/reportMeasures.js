@@ -14,7 +14,7 @@
 //   // {label: 'perc-overall', expression: '$(vMM_Only_PercScore_pMetric_pYearEnd(Z_OVERALL_OVERALL, 2018))'},
 //   // {label: 'tier-overall', expression: '$(vMM_Only_Tier_pMetric_pYearEnd(Z_OVERALL_OVERALL, 2018))'}
 //   {
-//     label: 'perc-earned', 
+//     label: 'perc_earned', 
 //     expression: `
 //       Num(
 //         If([Metric ID] = 'Z_OVERALL_OVERALL', Max({<[Points Possible Overall] = {">0"}, [Overall Tier] = {"*"}, YearEnd={$(=$(v_Max_YearEnd))}>} [Percent Earned Overall]),
@@ -36,7 +36,7 @@
 //       )`
 //   },
 //   {
-//     label: 'perc-earned-3year', 
+//     label: 'perc_earned_3year', 
 //     expression: `
 //       Num(
 //         If([Metric ID] = 'Z_OVERALL_OVERALL', 
@@ -109,11 +109,9 @@ export default {
         {qDef: {qFieldLabels: ['metric_id'], qFieldDefs: ['Metric ID']}, qNullSuppression: false},
       ],
       qMeasures: [
-        // {label: 'perc-overall', expression: '$(vMM_Only_PercScore_pMetric_pYearEnd(Z_OVERALL_OVERALL, 2018))'},
-        // {label: 'tier-overall', expression: '$(vMM_Only_Tier_pMetric_pYearEnd(Z_OVERALL_OVERALL, 2018))'}
         {
           qDef: {
-            qLabel: 'perc-earned', 
+            qLabel: 'perc_earned', 
             qDef: `Num(
                 If([Metric ID] = 'Z_OVERALL_OVERALL', Max({<[Points Possible Overall] = {">0"}, [Overall Tier] = {"*"}, YearEnd={$(=$(v_Max_YearEnd))}>} [Percent Earned Overall]),
                   If(Match([Metric ID],'Z_ACH_OVERALL', 'Z_PROG_OVERALL', 'Z_CLIM_OVERALL', 'Z_CC_OVERALL') > 0, 
@@ -126,7 +124,7 @@ export default {
         },
         {
           qDef: {
-            qLabel: 'perc-earned-py', 
+            qLabel: 'perc_earned_py', 
             qDef: `Num(
                 If([Metric ID] = 'Z_OVERALL_OVERALL', Max({<[Points Possible Overall] = {">0"}, [Overall Tier] = {"*"}, YearEnd={$(=$(v_Last_YearEnd))}>} [Percent Earned Overall]),
                   If(Match([Metric ID],'Z_ACH_OVERALL', 'Z_PROG_OVERALL', 'Z_CLIM_OVERALL', 'Z_CC_OVERALL') > 0, 
@@ -139,7 +137,7 @@ export default {
         },
         {
           qDef: {
-            qLabel: 'perc-earned-ppy', 
+            qLabel: 'perc_earned_ppy', 
             qDef: `Num(
                 If([Metric ID] = 'Z_OVERALL_OVERALL', Max({<[Points Possible Overall] = {">0"}, [Overall Tier] = {"*"}, YearEnd={$(=$(v_LastLast_YearEnd))}>} [Percent Earned Overall]),
                   If(Match([Metric ID],'Z_ACH_OVERALL', 'Z_PROG_OVERALL', 'Z_CLIM_OVERALL', 'Z_CC_OVERALL') > 0, 
@@ -185,7 +183,7 @@ export default {
         },
         {
           qDef: {
-            qLabel: 'perc-earned-3year', 
+            qLabel: 'perc_earned_3year', 
             qDef: `Num(
                 If([Metric ID] = 'Z_OVERALL_OVERALL', 
                     RangeAvg(
@@ -211,7 +209,7 @@ export default {
         },
         {
           qDef: {
-            qLabel: 'points-earned', 
+            qLabel: 'points_earned', 
             qDef: `Num(
               If([Metric ID] = 'Z_OVERALL_OVERALL', Max({<[Exception Overall] = {"*"}, YearEnd={$(=$(v_Max_YearEnd))}>} [Points Earned Overall]),
                 If(Match([Metric ID],'Z_ACH_OVERALL', 'Z_PROG_OVERALL', 'Z_CLIM_OVERALL', 'Z_CC_OVERALL') > 0, 
@@ -223,7 +221,7 @@ export default {
         },
         {
           qDef: {
-            qLabel: 'points-possible', 
+            qLabel: 'points_possible', 
             qDef: `Num(
               If([Metric ID] = 'Z_OVERALL_OVERALL', Max({<[Exception Overall] = {"*"}, YearEnd={$(=$(v_Max_YearEnd))}>} [Points Possible Overall]),
                 If(Match([Metric ID],'Z_ACH_OVERALL', 'Z_PROG_OVERALL', 'Z_CLIM_OVERALL', 'Z_CC_OVERALL') > 0, 
@@ -232,6 +230,7 @@ export default {
                 )) , '#0.##')`
           }
         },
+        
         // The following are for metric-level only 
 
         // scores can be % in some cases and # in others
