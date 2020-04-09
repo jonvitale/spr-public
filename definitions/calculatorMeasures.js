@@ -7,11 +7,11 @@ export default {
         qHeight: 400 
       }],
       qDimensions: [
-        {qDef: {qFieldLabels: ['name_report'], qFieldDefs: ['School Name (Reporting Category)']}, qNullSuppression: true},
+        {qDef: {qFieldLabels: ['nameReport'], qFieldDefs: ['School Name (Reporting Category)']}, qNullSuppression: true},
         {qDef: {qFieldLabels: ['domain_name'], qFieldDefs: ['Domain']}, qNullSuppression: false},
-        {qDef: {qFieldLabels: ['metric_name'], qFieldDefs: ['Metric']}, qNullSuppression: false},
+        {qDef: {qFieldLabels: ['metricName'], qFieldDefs: ['Metric']}, qNullSuppression: false},
         {qDef: {qFieldLabels: ['domain_id'], qFieldDefs: ['Domain ID']}, qNullSuppression: false},
-        {qDef: {qFieldLabels: ['metric_id'], qFieldDefs: ['Metric ID']}, qNullSuppression: false},
+        {qDef: {qFieldLabels: ['metricId'], qFieldDefs: ['Metric ID']}, qNullSuppression: false},
       ],
       qMeasures: [
         // {label: 'perc-overall', expression: '$(vMM_Only_PercScore_pMetric_pYearEnd(Z_OVERALL_OVERALL, 2018))'},
@@ -30,7 +30,7 @@ export default {
         },
         {
           qDef: {
-            qLabel: 'perc_earned', 
+            qLabel: 'percEarned', 
             qDef: `Num(
                 If([Metric ID] = 'Z_OVERALL_OVERALL', Max({<[Points Possible Overall] = {">0"}, [Overall Tier] = {"*"}, YearEnd={$(=$(v_Max_YearEnd))}>} [Percent Earned Overall]),
                   If(Match([Metric ID],'Z_ACH_OVERALL', 'Z_PROG_OVERALL', 'Z_CLIM_OVERALL', 'Z_CC_OVERALL') > 0, 
@@ -76,7 +76,7 @@ export default {
         },
         {
           qDef: {
-            qLabel: 'points_earned', 
+            qLabel: 'pointsEarned', 
             qDef: `Num(
               If([Metric ID] = 'Z_OVERALL_OVERALL', Max({<[Exception Overall] = {"*"}, YearEnd={$(=$(v_Max_YearEnd))}>} [Points Earned Overall]),
                 If(Match([Metric ID],'Z_ACH_OVERALL', 'Z_PROG_OVERALL', 'Z_CLIM_OVERALL', 'Z_CC_OVERALL') > 0, 
@@ -88,7 +88,7 @@ export default {
         },
         {
           qDef: {
-            qLabel: 'points_possible', 
+            qLabel: 'possiblePoints', 
             qDef: `Num(
               If([Metric ID] = 'Z_OVERALL_OVERALL', Max({<[Exception Overall] = {"*"}, YearEnd={$(=$(v_Max_YearEnd))}>} [Points Possible Overall]),
                 If(Match([Metric ID],'Z_ACH_OVERALL', 'Z_PROG_OVERALL', 'Z_CLIM_OVERALL', 'Z_CC_OVERALL') > 0, 
@@ -99,7 +99,7 @@ export default {
         },
         {
           qDef: {
-            qLabel: 'points_floor', 
+            qLabel: 'floorPoints', 
             qDef: `Num(
               If([Metric ID] = 'Z_OVERALL_OVERALL', Max({<[Exception Overall] = {"*"}, YearEnd={$(=$(v_Max_YearEnd))}>} [Floor]),
                 If(Match([Metric ID],'Z_ACH_OVERALL', 'Z_PROG_OVERALL', 'Z_CLIM_OVERALL', 'Z_CC_OVERALL') > 0, 
@@ -111,7 +111,7 @@ export default {
         },
         {
           qDef: {
-            qLabel: 'points_target', 
+            qLabel: 'targetPoints', 
             qDef: `Num(
               If([Metric ID] = 'Z_OVERALL_OVERALL', Max({<[Exception Overall] = {"*"}, YearEnd={$(=$(v_Max_YearEnd))}>} [Target]),
                 If(Match([Metric ID],'Z_ACH_OVERALL', 'Z_PROG_OVERALL', 'Z_CLIM_OVERALL', 'Z_CC_OVERALL') > 0, 
@@ -125,7 +125,7 @@ export default {
         // scores can be % in some cases and # in others
         {
           qDef: {
-            qLabel: 'is_agi', 
+            qLabel: 'isAgi', 
             qDef: `If(WildMatch([Metric ID], '*_AGI*') > 0, 1, 0)            
             `
           }

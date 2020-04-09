@@ -16,7 +16,7 @@ module.exports = {
         "selected": "#009845",
         "excluded": "#a9a9a9",
         "dark-blue": "#2a4365",
-      }, 
+      },
     },
     fontSize: {
       xs: '.75rem',

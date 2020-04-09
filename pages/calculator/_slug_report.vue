@@ -1,6 +1,7 @@
 <template>
   <div>
     <Columns>
+      <!-- left side: overall and domain scores -->
       <Column side="left" width="1/3">    
         <div class="text-left sticky top-0">
           <div class="flex flex-col align-middle lg:py-4">
@@ -8,60 +9,62 @@
               <h5 class="w-full text-center"> 
                 Performance Tiers Color Key 
               </h5>
-              <div class="flex flex-row flex-wrap justify-between">                
-                <div class="spr-model text-center">
-                  <h6> Model </h6>
-                  <p> 100%-75% </p>
-                </div>
-                <div class="spr-reinforce text-center px-2">
-                  <h6> Reinforce </h6>
-                  <p> 74%-50% </p>
-                </div>
-                <div class="spr-watch text-center px-2">
-                  <h6> Watch </h6>
-                  <p> 49%-25% </p>
-                </div>
+              <div class="flex flex-row flex-wrap justify-between">   
                 <div class="spr-intervene text-center px-2">
                   <h6> Intervene </h6>
-                  <p> 24%-0% </p>
+                  <p> 0-24% </p>
+                </div>             
+                <div class="spr-watch text-center px-2">
+                  <h6> Watch </h6>
+                  <p> 25-49% </p>
+                </div>                
+                <div class="spr-reinforce text-center px-2">
+                  <h6> Reinforce </h6>
+                  <p> 50-74% </p>
                 </div>
+                <div class="spr-model text-center">
+                  <h6> Model </h6>
+                  <p> 75-100% </p>
+                </div>                
               </div>
             </Square>
             <Square color="tint">
               <h3 class="w-full text-center"> Scores </h3>
               <div v-for="domain in domainFacts" :key="domain.key"> 
-                <div v-if="domain.key !== 'ee' && (domain.key !== 'cc' || report_name === 'High School')">
+                <div v-if="domain.key !== 'ee' && (domain.key !== 'cc' || reportName === 'High School')">
                   <div class="flex flex-row justify-between">
                     <h4> {{ domain.title }} </h4>
                     <button> Reset </button>
                   </div>
                   <div class="flex flex-row justify-between">
-                    <div class="score-card"
-                      :style="{'background-color': getSPRColorByTextValue($qlik.lookupValueByFieldValue(metricValues, 'metric_id', domain.metric_id, 'perc_earned', false, 'text'))}"
-                    > 
-                      <h4> Current </h4>
-                      <h1 class="text-right"> 
-                        {{$qlik.lookupValueByFieldValue(metricValues, 'metric_id', domain.metric_id, 'perc_earned', false, 'text')}} 
-                      </h1>                      
-                      <p class="text-right"> 
-                        <span class="text-lg">{{ $qlik.lookupValueByFieldValue(metricValues, 'metric_id', domain.metric_id, 'points_earned', false, 'text') }} </span>
-                        <span class="text-md">out of </span>
-                        <span class="text-lg">{{ $qlik.lookupValueByFieldValue(metricValues, 'metric_id', domain.metric_id, 'points_possible', false, 'text') }} </span>
-                      </p>
-                    </div>
-                    <div class="score-card text-white py-1 px-4 mr-2"
-                      :style="{'background-color': getSPRColorByTextValue($qlik.lookupValueByFieldValue(metricValues, 'metric_id', domain.metric_id, 'projected_perc_earned', false, 'text'))}"
-                    > 
-                      <h4> Projected </h4>
-                      <h1 class="text-right"> 
-                        {{ $qlik.lookupValueByFieldValue(metricValues, 'metric_id', domain.metric_id, 'projected_perc_earned', false, 'text') }} 
-                      </h1>
-                      <p class="text-right"> 
-                        <span class="text-lg">{{ $qlik.lookupValueByFieldValue(metricValues, 'metric_id', domain.metric_id, 'projected_points_earned', false, 'number') | formatValue(false) }} </span>
-                        <span class="text-md"> out of </span>
-                        <span class="text-lg">{{ $qlik.lookupValueByFieldValue(metricValues, 'metric_id', domain.metric_id, 'projected_points_possible', false, 'number') | formatValue(false, true) }} </span>
-                      </p>
-                    </div>
+                    <KPI :ref="'kpi-agg-current-'+domain.key"
+                      class="mr-2"
+                      style="width: 11rem; height: 7rem;"
+                      align="right"
+                      tight
+                      :color="getSPRTierByValue($qlik.lookupValueByFieldValue(metricValues, 'metricId', domain.metricId, 'percEarned', false, 'text'))"
+                      title="Current"
+                      :primary="formatValue($qlik.lookupValueByFieldValue(metricValues, 'metricId', domain.metricId, 'percEarned', false, 'number'), true, true)"
+                      :description="
+                        formatValue($qlik.lookupValueByFieldValue(metricValues, 'metricId', domain.metricId, 'pointsEarned', false, 'number'), false)
+                        + ' out of ' +
+                        formatValue($qlik.lookupValueByFieldValue(metricValues, 'metricId', domain.metricId, 'possiblePoints', false, 'number'), false)
+                        "
+                      />
+                    <KPI :ref="'kpi-agg-projected-'+domain.key"
+                      class="mr-2"
+                      style="width: 11rem; height: 7rem;"
+                      align="right"
+                      tight
+                      :color="getSPRTierByValue(getProjectedValue(domain.metricId, 'percEarnedProjected'))"
+                      title="Projected"
+                      :primary="formatValue(getProjectedValue(domain.metricId, 'percEarnedProjected'), true, true)"
+                      :description="
+                        formatValue(getProjectedValue(domain.metricId, 'pointsEarnedProjected'), false)
+                        + ' out of ' +
+                        formatValue(getProjectedValue(domain.metricId, 'possiblePointsProjected'), false)
+                        "
+                      />
                   </div>
                 </div>
               </div>              
@@ -69,91 +72,131 @@
           </div>
         </div>
       </Column>
+      
+      <!-- right side: individual metric scores and projection sliders -->
       <Column side="right" width="2/3">
+        <!-- header above sliders -->
         <div class="sticky">
+          <!-- domain buttons -->
           <div class="flex flex-row justify-between">
-            <button @click="currentDomain='Achievement'"> Achievement </button>
-            <button @click="currentDomain='Progress'"> Progress </button>
-            <button @click="currentDomain='Climate'"> Climate </button>
-            <button @click="currentDomain='College & Career'"> College &amp; Career </button>
+            <button 
+              class="domain-nav-item"
+              :class="{'active': currentDomain == 'Achievement'}"
+              @click="updateCurrentDomain('Achievement')"
+              > Achievement </button>
+            <button 
+              class="domain-nav-item"
+              :class="{'active': currentDomain == 'Progress'}"
+              @click="updateCurrentDomain('Progress')"
+              > Progress </button>
+            <button 
+              class="domain-nav-item"
+              :class="{'active': currentDomain == 'Climate'}"
+              @click="updateCurrentDomain('Climate')"
+              > Climate </button>
+            <button 
+              class="domain-nav-item"
+              :class="{'active': currentDomain == 'College & Career'}"
+              @click="updateCurrentDomain('College & Career')"
+              > College &amp; Career </button>
           </div>
           &nbsp;
+          <!-- column titles -->
           <div class="flex flex-row">
             <div class="w-full lg:w-1/2">
-              <div> Scored Range and Metric Score </div>
+              <h6> Scored Range and Metric Score </h6>
             </div>
-            <div class="flex flex-row w-full lg:w-1/2">
-              <div class="mr-2 text-center" style="width: 11rem"> Current Points </div>
-              <div class="mr-2 text-center" style="width: 11rem"> Projected Points </div>
-              <div class="mr-2 text-center" style="width: 7rem"> Projected Change </div>
+            <div class="flex w-full lg:w-1/2">
+              <h6 class="w-2/5 mr-2 text-center"> Current Points </h6>
+              <h6 class="w-2/5 mr-2 text-center"> Projected Points </h6>
+              <h6 class="w-1/5 text-center"> Projected Change </h6>
             </div>
           </div>
         </div
         >
-        <!--  Projected Metric Sliders -->
-        <div v-for="metric_id in metricIds" :key="metric_id">
+        <!--  Projected Metric Sliders and KPIs-->
+        <div v-for="metricId in metricIds" :key="metricId">
           <div class="flex flex-row flex-wrap mb-2 bg-gray-200"
-            v-if="isApplicableByMetricId(metric_id) && $qlik.lookupValueByFieldValue(metricValues, 'metric_id', metric_id, 'points_possible', false, 'number') > 0"
+            v-if="
+              isApplicableByMetricId(metricId) && 
+              $qlik.lookupValueByFieldValue(metricValues, 'metricId', metricId, 'possiblePoints', false, 'number') > 0
+              "
             >
             <div class="w-full lg:w-1/2">
               <h6 class="p-1"> 
-                {{$qlik.lookupValueByFieldValue(metricValues, 'metric_id', metric_id, 'metric_name', false, 'text') }} 
+                {{$qlik.lookupValueByFieldValue(metricValues, 'metricId', metricId, 'metricName', false, 'text') }} 
               </h6>
+              <!--  -->
               <!-- Note: we only update the metric on input (every movement), but do all rollups on change -->
               <ProjectionSlider
                 style="min-width:300px; max-width:600px; min-height:4rem;"
                 class="w-full"
-                :ref="'projection-slider-'+metric_id"
-                :referenceValue="$qlik.lookupValueByFieldValue(metricValues, 'metric_id', metric_id, 'score', false, 'number')"
-                :floor="$qlik.lookupValueByFieldValue(metricValues, 'metric_id', metric_id, 'points_floor', false, 'number') / 100"
-                :ceiling="$qlik.lookupValueByFieldValue(metricValues, 'metric_id', metric_id, 'points_target', false, 'number') / 100"
-                :min="$qlik.lookupValueByFieldValue(metricValues, 'metric_id', metric_id, 'is_agi', false, 'number') ? -10 : 0"
-                :max="$qlik.lookupValueByFieldValue(metricValues, 'metric_id', metric_id, 'is_agi', false, 'number') ? 10 : 1"
-                :is-percent="$qlik.lookupValueByFieldValue(metricValues, 'metric_id', metric_id, 'is_agi', false, 'number') != 1"
-                @input="updateProjectedMetric(metric_id, $event, false)"
-                @change="updateProjectedMetric(metric_id, $event, true)"
+                :ref="'slider-projected-'+metricId"
+                :referenceValue="$qlik.lookupValueByFieldValue(metricValues, 'metricId', metricId, 'score', false, 'number')"
+                :floor="$qlik.lookupValueByFieldValue(metricValues, 'metricId', metricId, 'floorPoints', false, 'number') / 100"
+                :ceiling="$qlik.lookupValueByFieldValue(metricValues, 'metricId', metricId, 'targetPoints', false, 'number') / 100"
+                :min="$qlik.lookupValueByFieldValue(metricValues, 'metricId', metricId, 'isAgi', false, 'number') ? -10 : 0"
+                :max="$qlik.lookupValueByFieldValue(metricValues, 'metricId', metricId, 'isAgi', false, 'number') ? 10 : 1"
+                :is-percent="$qlik.lookupValueByFieldValue(metricValues, 'metricId', metricId, 'isAgi', false, 'number') != 1"
+                @change="updateProjectedValuesByMetric(metricId, $event, true)"
+                @input="updateProjectedValuesByMetric(metricId, $event, true)"
               />
+              
+                
               <div class="flex justify-center">
-                <button @click="resetProjectedMetric(metric_id)"> Reset </button>
+                <button @click="resetProjectedMetric(metricId)"> Reset </button>
               </div>
             </div>
             <div class="flex flex-row w-full lg:w-1/2">
-              <div class="flex flex-row justify-between">
-                <div class="score-card text-white py-1 px-4 mr-2"
-                  :style="{'background-color': getSPRColorByTextValue($qlik.lookupValueByFieldValue(metricValues, 'metric_id', metric_id, 'perc_earned', false, 'text'))}"
-                  > 
-                  <h4> Current </h4>
-                  <h1 class="text-right"> 
-                    {{$qlik.lookupValueByFieldValue(metricValues, 'metric_id', metric_id, 'perc_earned', false, 'text')}} 
-                  </h1>
-                  <p class="text-right"> 
-                    <span class="text-lg">{{ $qlik.lookupValueByFieldValue(metricValues, 'metric_id', metric_id, 'points_earned', false, 'text') | formatValue(false) }} </span>
-                    <span class="text-md">out of </span>
-                    <span class="text-lg">{{ $qlik.lookupValueByFieldValue(metricValues, 'metric_id', metric_id, 'points_possible', false, 'text') | formatValue(false) }} </span>
-                  </p>                  
-                </div>
-                <div class="score-card text-white py-1 px-4 mr-2"
-                  :style="{'background-color': getSPRColorByTextValue($qlik.lookupValueByFieldValue(metricValues, 'metric_id', metric_id, 'projected_perc_earned', false, 'text'))}"
-                  > 
-                  <h4> Projected </h4>
-                  <h1 class="text-right"> 
-                    {{ $qlik.lookupValueByFieldValue(metricValues, 'metric_id', metric_id, 'projected_perc_earned', false, 'number') | formatValue(true, true) }} 
-                  </h1>
-                  <p class="text-right"> 
-                    <span class="text-lg">{{ $qlik.lookupValueByFieldValue(metricValues, 'metric_id', metric_id, 'projected_points_earned', false, 'number') | formatValue(false) }} </span>
-                    <span class="text-md"> out of </span>
-                    <span class="text-lg">{{ $qlik.lookupValueByFieldValue(metricValues, 'metric_id', metric_id, 'projected_points_possible', false, 'number') | formatValue(false) }} </span>
-                  </p>
-                </div>
-                <div class="change-card">
-                  <h1>
-                    {{ 
-                      ($qlik.lookupValueByFieldValue(metricValues, 'metric_id', metric_id, 'projected_perc_earned', false, 'number') - 
-                      $qlik.lookupValueByFieldValue(metricValues, 'metric_id', metric_id, 'perc_earned', false, 'number'))
-                    | formatValue(true, true)
-                    }} 
-                  </h1>
-                </div>
+              <KPI :ref="'kpi-current-'+metricId"
+                class="w-2/5 mr-2"
+                style="height: 7rem;"
+                align="right"
+                tight
+                :color="getSPRTierByValue($qlik.lookupValueByFieldValue(metricValues, 'metricId', metricId, 'percEarned', false, 'text'))"
+                title="Current"
+                :primary="formatValue($qlik.lookupValueByFieldValue(metricValues, 'metricId', metricId, 'percEarned', false, 'number'), true, true)"
+                :description="
+                  formatValue($qlik.lookupValueByFieldValue(metricValues, 'metricId', metricId, 'pointsEarned', false, 'number'), false)
+                  + ' out of ' +
+                  formatValue($qlik.lookupValueByFieldValue(metricValues, 'metricId', metricId, 'possiblePoints', false, 'number'), false)
+                  "
+                />
+              <KPI :ref="'kpi-projected-'+metricId"
+                class="w-2/5 mr-2"
+                style="height: 7rem;"
+                align="right"
+                tight
+                :color="getSPRTierByValue(getProjectedValue(metricId, 'percEarnedProjected'))"
+                title="Projected"
+                :primary="formatValue(getProjectedValue(metricId, 'percEarnedProjected'), true, true)"
+                :description="
+                  formatValue(getProjectedValue(metricId, 'pointsEarnedProjected'), false)
+                  + ' out of ' +
+                  formatValue(getProjectedValue(metricId, 'possiblePointsProjected'), false)
+                  "
+                />
+              <div class="w-1/5 flex justify-center items-center text-3xl bg-gray-400"
+                :class="
+                  (
+                    getProjectedValue(metricId, 'percEarnedProjected')
+                    -
+                    $qlik.lookupValueByFieldValue(metricValues, 'metricId', metricId, 'percEarned', false, 'number')) 
+                    >= 0 ?
+                    'text-blue-600' :
+                    'text-red-600'"
+                style="height: 7rem;"
+                >
+                <span>
+                  {{ 
+                    (
+                      getProjectedValue(metricId, 'percEarnedProjected') 
+                      - 
+                      $qlik.lookupValueByFieldValue(metricValues, 'metricId', metricId, 'percEarned', false, 'number')
+                    )
+                  | formatValue(true, true, true)
+                  }} 
+                </span>
               </div>
             </div>
           </div>
@@ -166,350 +209,68 @@
 <script>
 import metricValuesDef from '~/definitions/calculatorMeasures'
 
-import ProjectionSlider from '~components/PageElements/ProjectionSlider.vue'
-import Columns from '~components/PageElements/Columns.vue'
-import Column from '~components/PageElements/Column.vue'
-import Square from '~components/PageElements/Square.vue'
+import ProjectionSlider from '~components/PageElements/ProjectionSlider'
+import KPI from '~components/PageElements/KPI'
+import Columns from '~components/PageElements/Columns'
+import Column from '~components/PageElements/Column'
+import Square from '~components/PageElements/Square'
+
+const formatValue = (value, isPercent, roundAtWhole, showPlusForPositive) => {
+      let prepend = ''
+      if (showPlusForPositive && value > 0) {
+        prepend = "+"
+      }
+
+      if(isPercent) {
+        if (roundAtWhole) {
+          return prepend + "" + Math.round(value * 100) + '%'
+        } else {
+          return prepend + "" + Math.round(value * 10000) / 100 + '%'
+        }        
+      } else {
+        if (roundAtWhole) {
+           return prepend + "" + Math.round(value)
+        } else {
+          return prepend + "" + Math.round(value * 100) / 100
+        }
+      }
+    }
 
 const domainFacts = [
   {
     key: 'overall',
     title: 'Overall',
-    metric_id: 'Z_OVERALL_OVERALL',
+    metricId: 'Z_OVERALL_OVERALL',
     description: 'A school’s overall score represents its combined performance on the Achievement, Progress, Climate, and College & Career (for high schools only) domains.',
   },
   {
     key: 'achievement',
     title: 'Achievement',
-    metric_id: 'Z_ACH_OVERALL',
+    metricId: 'Z_ACH_OVERALL',
     description: 'The Achievement domain measures performance on standardized assessments, including PSSA, Keystone Exams, ACCESS for ELLs, and reading assessments.',
-    metric_groups: [
-      {          
-        key: 'DRA',
-        metrics: [
-          { title: '% Reading at Grade Level- Grades K-2', metric_id: 'DRA' },
-        ]
-      },
-      {
-        key: 'PSSA_ELA',
-        title: 'PSSA: English Language Arts',
-        metrics: [
-          { subtitle: '% Proficient or Advanced', metric_id: 'PSSA_PROFADV_ELA' },
-          { subtitle: 'Grade 3 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_ELA_G3' },
-          { subtitle: 'Grade 4 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_ELA_G4' },
-          { subtitle: 'Grade 5 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_ELA_G5' },
-          { subtitle: 'Grade 6 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_ELA_G6' },
-          { subtitle: '% Advanced', metric_id: 'PSSA_ADV_ELA' },
-        ]
-      },
-      {
-        key: 'PSSA_MATH',
-        title: 'PSSA: Mathematics',
-        metrics: [
-          { subtitle: '% Proficient or Advanced', metric_id: 'PSSA_PROFADV_MATH' },
-          { subtitle: 'Grade 3 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_MATH_G3' },
-          { subtitle: 'Grade 4 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_MATH_G4' },
-          { subtitle: 'Grade 5 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_MATH_G5' },
-          { subtitle: 'Grade 6 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_MATH_G6' },
-          { subtitle: '% Advanced', metric_id: 'PSSA_ADV_MATH' },
-        ]
-      },
-      {
-        key: 'PSSA_SCI',
-        title: 'PSSA: Science',
-        metrics: [
-          { subtitle: '% Proficient or Advanced', metric_id: 'PSSA_PROFADV_SCI' },
-          { subtitle: 'Grade 4 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_SCI_G4' },
-          { subtitle: '% Advanced', metric_id: 'PSSA_ADV_SCI' },
-        ]
-      },
-      {
-        key: 'KEYSTONE_ALG1',
-        title: 'Keystone Exam - Algebra I',
-        metrics: [
-          { subtitle: '% Proficient or Advanced', metric_id: 'KEYSTONE_PROFADV_ALG1' },
-          { subtitle: 'Grade 9 - % Proficient or Advanced', metric_id: 'KEYSTONE_PROFADV_ALG1_G9' },
-          { subtitle: '% Advanced', metric_id: 'KEYSTONE_ADV_ALG1' },
-        ]
-      },
-      {
-        key: 'KEYSTONE_BIO',
-        title: 'Keystone Exam - Biology',
-        metrics: [
-          { subtitle: '% Proficient or Advanced', metric_id: 'KEYSTONE_PROFADV_BIO' },
-          { subtitle: '% Advanced', metric_id: 'KEYSTONE_ADV_BIO' },
-        ]
-      },
-      {
-        key: 'KEYSTONE_LIT',
-        title: 'Keystone Exam - Literature',
-        metrics: [
-          { subtitle: '% Proficient or Advanced', metric_id: 'KEYSTONE_PROFADV_LIT' },
-          { subtitle: '% Advanced', metric_id: 'KEYSTONE_ADV_LIT' },
-        ]
-      },
-      {          
-        key: 'ACCESS_PROF',
-        metrics: [
-          { title: 'ACCESS for ELLs:', subtitle: '% 4.5 or Above', metric_id: 'ACCESS_PROF' },
-        ]
-      },
-      
-    ]
   },
   {
     key: 'progress',
     title: 'Progress',
-    metric_id: 'Z_PROG_OVERALL',
+    metricId: 'Z_PROG_OVERALL',
     description: 'The Progress domain measures growth on standardized assessments and progress towards graduation (for high schools only).',
-    metric_groups: [
-      {
-        key: 'PSSA_MATH_AGI',
-        metrics: [
-          {  title: 'PSSA Mathematics:', subtitle: 'Average Growth Index (AGI)', metric_id: 'PSSA_MATH_AGI' },
-        ]
-      },
-      {
-        key: 'PSSA_ELA_AGI',
-        metrics: [
-          {  title: 'PSSA English Language Arts:', subtitle: 'Average Growth Index (AGI)', metric_id: 'PSSA_ELA_AGI' },
-        ]
-      },
-      {
-        key: 'PSSA_GR_4_SCIENCE_AGI',
-        metrics: [
-          {  title: 'PSSA Science (Grade 4):', subtitle: 'Average Growth Index (AGI)', metric_id: 'PSSA_GR_4_SCIENCE_AGI' },
-        ]
-      },
-      {
-        key: 'KEYSTONE_ALG1_AGI',
-        metrics: [
-          {  title: 'Keystone Exam - Algebra I:', subtitle: 'Average Growth Index (AGI)', metric_id: 'KEYSTONE_ALGEBRA_I_AGI' },
-        ]
-      },
-      {
-        key: 'KEYSTONE_BIO_AGI',          
-        metrics: [
-          { title: 'Keystone Exam - Biology:', subtitle: 'Average Growth Index (AGI)', metric_id: 'KEYSTONE_BIOLOGY_AGI' },
-        ]
-      },
-      {
-        key: 'KEYSTONE_LIT_AGI',
-        metrics: [
-          { title: 'Keystone Exam - Literature:', subtitle: 'Average Growth Index (AGI)', metric_id: 'KEYSTONE_LITERATURE_AGI' },
-        ]
-      },
-      {
-        key: 'STAY_ON_TRACK',
-        metrics: [
-          { title: '% of On-Track Students', subtitle: 'Earning Credits Required for Promotion', metric_id: 'STAY_ON_TRACK' },
-        ]
-      },
-      {
-        key: 'BACK_ON_TRACK',
-        metrics: [
-          { title: '% of Off-Track Students', subtitle: 'Earning Credits Required for Promotion', metric_id: 'BACK_ON_TRACK' },
-        ]
-      },
-      {
-        key: 'ACCESS_GROWTH', 
-        metrics: [
-          { title: 'ACCESS for ELLs', subtitle: '% Growth in 60th Percentile or Above', metric_id: 'ACCESS_GROWTH' },
-        ]
-      },
-      { 
-        key: 'EQUITY_HEADER',
-        title: 'Progress, On Equity',
-        header: true,
-      },
-      {
-        key: 'PSSA_MATH_AGI_L33P',
-        metrics: [
-          {  title: 'PSSA Mathematics: ', subtitle: 'AGI for Lowest-Performing 33% of Students', metric_id: 'PSSA_MATH_AGI_L33P' },
-        ]
-      },
-      {
-        key: 'PSSA_ELA_AGI_L33P',
-        metrics: [
-          {  title: 'PSSA English Language Arts: ', subtitle: 'AGI for Lowest-Performing 33% of Students', metric_id: 'PSSA_ELA_AGI_L33P' },
-        ]
-      },
-      {
-        key: 'KEYSTONE_ALG1_AGI_L33P',
-        metrics: [
-          {  title: 'Keystone Exam - Algebra I: ', subtitle: 'AGI for Lowest-Performing 33% of Students', metric_id: 'KEYSTONE_ALG1_AGI_L33P' },
-        ]
-      },
-      {
-        key: 'KEYSTONE_BIO_AGI_L33P',
-        metrics: [
-          { title: 'Keystone Exam - Biology: ', subtitle: 'AGI for Lowest-Performing 33% of Students', metric_id: 'KEYSTONE_BIO_AGI_L33P' },
-        ]
-      },
-      {
-        key: 'KEYSTONE_LIT_AGI_L33P',
-        metrics: [
-          { title: 'Keystone Exam - Literature: ', subtitle: 'AGI for Lowest-Performing 33% of Students', metric_id: 'KEYSTONE_LIT_AGI_L33P' },
-        ]
-      },
-    ],
   },
   {
     key: 'climate',
     title: 'Climate',
-    metric_id: 'Z_CLIM_OVERALL',
+    metricId: 'Z_CLIM_OVERALL',
     description: 'The Climate domain measures school climate and student and parent/guardian engagement.',
-    metric_groups: [
-      {
-        key: 'ATTENDANCE',
-        metrics: [
-          { title: '% of Students Attending 95% or More of Instructional Days', metric_id: 'ATTENDANCE_95MORE' },
-          { subtitle: '% Attending 90% to 95% of days', metric_id: 'ATTENDANCE_9095' },
-          { subtitle: '% Attending 85% to 90% of days', metric_id: 'ATTENDANCE_8590' },
-          { subtitle: '% Attending 80% to 85% of days', metric_id: 'ATTENDANCE_8085' },
-          { subtitle: '% Attending less than 80% of days', metric_id: 'ATTENDANCE_LT80' },            
-        ]
-      },
-      {
-        key: 'RETENTION',
-        metrics: [
-          { title: 'Annual Retention Rate', metric_id: 'RETENTION' },
-        ]
-      },
-      {
-        key: 'ISS',
-        metrics: [
-          { title: '% of Students with Zero In-School Suspensions', metric_id: 'ISS' },
-        ]
-      },
-      {
-        key: 'OSS',
-        metrics: [
-          { title: '% of Students with Zero Out-of-School Suspensions', metric_id: 'OSS' },
-        ]
-      },
-      {
-        key: 'SVY_CLIM_STUD',
-        metrics: [
-          { title: 'Student Survey: School Climate Rating (% most positive responses)', metric_id: 'SVY_CLIM_STUD' },
-        ]
-      },
-      {
-        key: 'SVY_CLIM_PAR',
-        metrics: [
-          { title: 'Parent Survey: School Climate Rating (% most positive responses)', metric_id: 'SVY_CLIM_PAR' },
-        ]
-      },
-      {
-        key: 'SVY_PARENT_RATE',
-        metrics: [
-          { title: 'Parent/Guardian Survey: Participation Rate', metric_id: 'SVY_PARENT_RATE' },
-        ]
-      },
-    ],
   },
   {
     key: 'cc',
     title: 'College & Career',
     title_style: {fontSize: '16pt', fontWeight: 700},
-    metric_id: 'Z_CC_OVERALL',
+    metricId: 'Z_CC_OVERALL',
     description: 'The College & Career domain measures college and career readiness and post-secondary outcomes.',
-    metric_groups: [
-      {
-        key: 'GRAD',
-        metrics: [
-          { title: 'Four-Year Cohort Graduation Rate', metric_id: 'GRAD' },
-        ]
-      },
-      {
-        key: 'FF_MATRIC',
-        metrics: [
-          { title: 'First-Fall College Matriculation Rate', metric_id: 'FF_MATRIC' },
-        ]
-      },
-      {
-        key: 'AP_IB_NOCTI',
-        metrics: [
-          { title: 'SAT & ACT Exams Participation & Performance', metric_id: 'AP_IB_NOCTI' },
-          { subtitle: '% Participating Not Meeting Threshold', metric_id: 'AP_IB_NOCTI_NOTPASS' },
-          { subtitle: '% Not Participating', metric_id: 'AP_IB_NOCTI_NOTPARTICIPATE' },      
-        ]
-      },
-      {
-        key: 'ACT_SAT',
-        metrics: [
-          { title: 'SAT & ACT Exams Participation & Performance', metric_id: 'ACT_SAT' },
-          { subtitle: '% Participating Not Meeting Threshold', metric_id: 'ACT_SAT_NOTPASS' },
-          { subtitle: '% Not Participating', metric_id: 'ACT_SAT_NOTPARTICIPATE' },      
-        ]
-      },
-        {
-        key: 'FAFSA',
-        metrics: [
-          { title: 'FAFSA Completion Rate', metric_id: 'FAFSA' },
-        ]
-      },
-      {
-        key: 'SVY_STUD_CCR',
-        metrics: [
-          { title: 'Student Survey:', subtitle: 'College & Career Readiness Rating (% most positive responses)', metric_id: 'SVY_STUD_CCR' },
-        ]
-      },
-    ]
   },
   {
     key: 'ee',
     title: 'Educator Effectiveness',
-    metric_groups: [
-      {
-        key: 'MMS_DISTIN',
-        metrics: [
-          { title: '% of Teachers Receiving an MMS Rating of Distinguished', metric_id: 'MMS_DISTIN' },
-        ]
-      },
-      {
-        key: 'MMS_PROF',
-        metrics: [
-          { title: '% of Teachers Receiving an MMS Rating of Proficient', metric_id: 'MMS_PROF' },
-        ]
-      },
-      {
-        key: 'MMS_NEEDS_IMP',
-        metrics: [
-          { title: '% of Teachers Receiving an MMS Rating of Needs Improvement', metric_id: 'MMS_NEEDS_IMP' },
-        ]
-      },
-      {
-        key: 'MMS_FAILING',
-        metrics: [
-          { title: '% of Teachers Receiving an MMS Rating of Failing', metric_id: 'MMS_FAILING' },
-        ]
-      },
-      {
-        key: 'ESSA_EFF',
-        metrics: [
-          { title: '% of Teachers Receiving an ESSA Rating of Effective', metric_id: 'ESSA_EFF' },
-        ]
-      },
-      {
-        key: 'ESSA_INEFF',
-        metrics: [
-          { title: '% of Teachers Receiving an ESSA Rating of Ineffective', metric_id: 'ESSA_INEFF' },
-        ]
-      },
-      {
-        key: 'TEACH_ATTENDANCE',
-        metrics: [
-          { title: '% of Teachers Attending 95% or More of Days', metric_id: 'TEACH_ATTENDANCE' },
-        ]
-      },
-      {
-        key: 'SVY_STUD_TEACH',
-        metrics: [
-          { title: 'Student Survey: Student Perception of Quality of Teacher Practice', subtitle: '(% of most positive responses)', metric_id: 'SVY_STUD_TEACH' },
-        ]
-      },
-    ]
   }
 ]
 
@@ -518,6 +279,7 @@ export default {
     Columns,
     Column,
     Square,
+    KPI,
     ProjectionSlider,
   },
   data() {
@@ -526,26 +288,24 @@ export default {
       domainFacts: domainFacts,
       sessionObject: null,
       schoolsInitialized: this.$store.state.schools.initialized,
-      slug_report: this.$route.params.slug_report,
+      slugReport: this.$route.params.slug_report,
+      metricIds: null,
       metricValues: null,
+      // general facts about the school
+      metricId: '', 
+      srcschoolid: '',
+      schoolName: '',
+      reportName: '',
+      // keep projection values directly in key-value objects
+      // this will make it easier to update the view
+      scoreProjected: null,
+      percEarnedProjected: null,
+      pointsEarnedProjected: null,
+      pointsEarnedProjectedCalculated: null,
+      possiblePointsProjected: null,        
     }
   },
-  computed: {
-    // a shortcut for the template
-    mv() {
-      return this.metricValues
-    },
-    metricIds() {
-      let metricIds = this.$qlik.lookupValueByMultipleFieldValues(this.metricValues, {'domain_name': this.currentDomain, 'is_metric': true}, 'metric_id', true, 'text')
-      return metricIds
-    },
-    school_report: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "school_report"),
-    srcschoolid: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "srcschoolid"),
-    schoolname: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "schoolname"),
-    report_name: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "report_name"),
-    
-  }, 
-
+  
   watch: {
     schoolsInitialized(to, from) {
       if (to && !from) {
@@ -562,14 +322,96 @@ export default {
       }
     },
 
-    getSPRColorByTextValue (textVal) {
-      const val = parseInt(textVal)
-      // console.log("this val for color", val)
+    getProjectedValue (metricId, type) {
+      // has this been initialized
+      if (this.percEarnedProjected != null && 
+          Object.keys(this.percEarnedProjected).length > 0
+        ) {
+        if (type == "scoreProjected") {
+          return this.scoreProjected[metricId]
+        } else if (type == "percEarnedProjected") {
+          return this.percEarnedProjected[metricId]
+        } else if (type == "pointsEarnedProjected") {
+          return this.pointsEarnedProjected[metricId]
+        } else if (type == "pointsEarnedProjectedCalculated") {
+          return this.pointsEarnedProjectedCalculated[metricId]
+        } else if (type == "possiblePointsProjected") {
+          return this.possiblePointsProjected[metricId]
+        } else {
+          return null
+        }
+      } else {
+        return null
+      }
+    },
+
+    getSPRColorByValue (textVal) {
+      let val
+      if (typeof textVal == "string") {
+        val = parseFloat(textVal)
+      } else {
+        val = textVal
+        val = 100 * val
+      }
+      // console.log("this val for color", val, textVal)
       if (val < 25) { return '#c0504d' }
       else if (val < 50) { return "#f79646" }
       else if (val < 75) { return "#00b050" }
       else if (val >= 75) { return "#0070c0" }
       else { return "#888888" }
+    },
+
+    getSPRTierByValue (textVal) {
+      let val
+      if (typeof textVal == "string") {
+        val = parseFloat(textVal)
+      } else {
+        val = textVal
+        val = 100 * val
+      }
+      // console.log("this val for tier", val, textVal)
+      if (val < 25) { return 'Intervene' }
+      else if (val < 50) { return "Watch" }
+      else if (val < 75) { return "Reinforce" }
+      else if (val >= 75) { return "Model" }
+      else { return null }
+    },
+
+    /** 
+     * initialize grabs the school's slug from the route param to use as this pages school.
+     * We then get the full name of the school - and report type - from the slug.
+     * Then select the school in the field to update the line graphs
+     * Then get the measures from the metricValues hypermetricValues def
+     * initialized depends upon the school list being loaded, so we must only call that when schools/initialized is true in vuex 
+    */
+    async initialize() {
+      this.sessionObject = await this.$qlik.generateHypercubeObjectFromDef(metricValuesDef)
+      this.sessionObject.on("changed", this.update)
+      
+      this.schoolReport = await this.$store.dispatch("schools/lookup_text_by_slugreport", { slugReport: this.slugReport, target: "schoolReport"})
+      this.srcschoolid = await this.$store.dispatch("schools/lookup_text_by_slugreport", { slugReport: this.slugReport, target: "srcschoolid"})
+      this.schoolName = await this.$store.dispatch("schools/lookup_text_by_slugreport", { slugReport: this.slugReport, target: "schoolName"})
+      this.reportName = await this.$store.dispatch("schools/lookup_text_by_slugreport", { slugReport: this.slugReport, target: "reportName"})
+    
+      
+      let selectedValues = {}
+      selectedValues["schoolReport"] = await this.$qlik.selectFieldValues("School Name (Reporting Category)", [{text: this.schoolReport}])
+      await this.$store.dispatch("update_current_selections", selectedValues)
+      
+      this.update()
+    },
+
+    isApplicableByMetricId (metricId) {
+      if (this.metricValues) {
+        const values = this.$qlik.lookupValueByFieldValue(this.metricValues, "metricId", metricId, "exception")
+        if (values && values.number) {
+          return values.number !== 999
+        } else {
+          return true
+        }
+      } else {
+        return null
+      }
     },
 
     lookupTextByFieldValue (sourceField, sourceFieldValue, targetField, returnMultiple) {
@@ -618,155 +460,102 @@ export default {
     },
 
     
-    /** 
-     * initialize grabs the school's slug from the route param to use as this pages school.
-     * We then get the full name of the school - and report type - from the slug.
-     * Then select the school in the field to update the line graphs
-     * Then get the measures from the metricValues hypermetricValues def
-     * initialized depends upon the school list being loaded, so we must only call that when schools/initialized is true in vuex 
-    */
-    async initialize() {
-      this.sessionObject = await this.$qlik.generateHypercubeObjectFromDef(metricValuesDef)
-      this.sessionObject.on("changed", this.update)
-      let selectedValues = {}
-      selectedValues["school_report"] = await this.$qlik.selectFieldValues("School Name (Reporting Category)", [{text: this.school_report}])
-      this.$store.dispatch("update_current_selections", selectedValues)
-      // this.getCurrentScrollSection()
-      this.update()
-    },
-
-    isApplicableByMetricId (metric_id) {
-      if (this.metricValues) {
-        const values = this.$qlik.lookupValueByFieldValue(this.metricValues, "metric_id", metric_id, "exception")
-        if (values && values.number) {
-          return values.number !== 999
-        } else {
-          return true
-        }
-      } else {
-        return null
-      }
-    },
+    
 
     async update() {
       if (this.sessionObject) {
         this.metricValues = await this.$qlik.getValuesFromHypercubeObject(this.sessionObject)
+        this.metricIds = await this.$qlik.lookupValueByMultipleFieldValues(this.metricValues, {'domain_name': this.currentDomain, 'is_metric': true}, 'metricId', true, 'text')
         
         // add a deep copy of the score field as projected scores
-        this.metricValues['projected_score'] = new Array(this.metricValues['metric_id'].length)
-        this.metricValues['projected_perc_earned'] = new Array(this.metricValues['metric_id'].length)
-        this.metricValues['projected_points_earned'] = new Array(this.metricValues['metric_id'].length)
-        this.metricValues['projected_points_earned_calculated'] = new Array(this.metricValues['metric_id'].length)
-        this.metricValues['projected_points_possible'] = new Array(this.metricValues['metric_id'].length)
+        this.scoreProjected = new Array(this.metricValues['metricId'].length)
+        this.percEarnedProjected = new Array(this.metricValues['metricId'].length)
+        this.pointsEarnedProjected = new Array(this.metricValues['metricId'].length)
+        this.pointsEarnedProjectedCalculated = new Array(this.metricValues['metricId'].length)
+        this.possiblePointsProjected = new Array(this.metricValues['metricId'].length)
         let score, numerator, denominator
-        this.metricValues['score'].forEach((v, metric_index) => {
-          this.updateProjectedValuesAtIndex(metric_index, v.number, true)
+        this.metricValues['score'].forEach((v, metricIndex) => {
+          this.updateProjectedValuesAtIndex(metricIndex, v.number, true)
         })
-
+        
         // for each of the domain calculate rollup values based upon projected values
         this.updateProjectedRollUpValues('Achievement', true)
         this.updateProjectedRollUpValues('Progress', true)
         this.updateProjectedRollUpValues('Climate', true)
         this.updateProjectedRollUpValues('College & Career', true)
         this.updateProjectedRollUpValues('Overall', true)
-        // console.log("metricValues projected_score", this.metricValues['projected_score'])
+        // console.log("metricValues scoreProjected", this.metricValues['scoreProjected'])
         
       }        
     },
 
-    resetProjectedMetric(metric_id) {
+    resetProjectedMetric (metricId) {
       // tell the slider to reset
-      this.$refs['projection-slider-'+metric_id][0].reset()
-      const metric_index = this.$qlik.lookupIndexByFieldValue(this.metricValues, "metric_id", metric_id, false)
-      const projected_score = this.metricValues['score'][metric_index].number
-      this.updateProjectedValuesAtIndex(metric_index, projected_score, true)
+      this.$refs['slider-projected-'+metricId][0].reset()
+      const metricIndex = this.$qlik.lookupIndexByFieldValue(this.metricValues, "metricId", metricId, false)
+      const scoreProjected = this.metricValues['score'][metricIndex].number
+      this.updateProjectedValuesAtIndex(metricIndex, scoreProjected, true)
       this.updateProjectedRollUpValues(this.currentDomain)
       this.updateProjectedRollUpValues("Overall")
       this.$forceUpdate()
     },
 
-    async updateProjectedMetric(metric_id, {currentTarget, projectedValue}, doRollup) {
-      // console.log("event", currentTarget, projectedValue)
-      const metric_index = this.$qlik.lookupIndexByFieldValue(this.metricValues, "metric_id", metric_id, false)
-      // console.log("update metric", metric_id, "index:", metric_index, "to", projected_score)
-      this.updateProjectedValuesAtIndex(metric_index, projectedValue)
-      if (doRollup) {
-        this.updateProjectedRollUpValues(this.currentDomain)
-        this.updateProjectedRollUpValues("Overall")
-      }
-      this.$forceUpdate()
+    async updateCurrentDomain (domain) {
+      this.currentDomain = domain
+      this.metricIds = await this.$qlik.lookupValueByMultipleFieldValues(this.metricValues, {'domain_name': this.currentDomain, 'is_metric': true}, 'metricId', true, 'text')
     },
 
-    updateProjectedValuesAtIndex(metric_index, score, useDefaultValues) {
-      let points, perc, points_calc
-      let is_agi = this.metricValues['is_agi'][metric_index].number == 1
-      let points_possible = this.metricValues['points_possible'][metric_index].number
-      let floor = this.metricValues['points_floor'][metric_index].number / (is_agi ? 1 : 100)
-      let target = this.metricValues['points_target'][metric_index].number / (is_agi ? 1 : 100)          
-      let isSelected = this.metricValues['score'][metric_index].isSelected
-      let isExcluded = this.metricValues['score'][metric_index].isExcluded
+    async updateProjectedValuesByMetric (metricId, scoreProjected, doRollup) {
+      const metricIndex = this.$qlik.lookupIndexByFieldValue(this.metricValues, "metricId", metricId, false)
+      // console.log("update metric", metricId, "index:", metricIndex, "to", scoreProjected)
+      this.updateProjectedValuesAtIndex(metricIndex, scoreProjected)
+      const component = this.$refs["kpi-projected-" + metricId][0]
+      if (doRollup) {
+        // the domain must come before overall because 
+        // overall pulls the calculated score of each of the domains, not all the individual metrics
+        this.updateProjectedRollUpValues(this.currentDomain)
+        this.updateProjectedRollUpValues("Overall")
+        this.$forceUpdate()
+      }
+      
+    },
+
+    updateProjectedValuesAtIndex(metricIndex, scoreProjected, useDefaultValues) {
+      let points, perc, pointsEarnedCalculated
+      const metricId = this.metricValues['metricId'][metricIndex].text
+      let isAgi = this.metricValues['isAgi'][metricIndex].number == 1
+      let possiblePoints = this.metricValues['possiblePoints'][metricIndex].number
+      let floor = this.metricValues['floorPoints'][metricIndex].number / (isAgi ? 1 : 100)
+      let target = this.metricValues['targetPoints'][metricIndex].number / (isAgi ? 1 : 100)          
+      let isSelected = this.metricValues['score'][metricIndex].isSelected
+      let isExcluded = this.metricValues['score'][metricIndex].isExcluded
 
       if (useDefaultValues) {
-        perc = this.metricValues['perc_earned'][metric_index].number
-        points = this.metricValues['points_earned'][metric_index].number
+        perc = this.metricValues['percEarned'][metricIndex].number
+        points = this.metricValues['pointsEarned'][metricIndex].number
         // if there is a numerator and denominator, use that to create a score
-        let numerator = this.metricValues['numerator'][metric_index].number
-        let denominator = this.metricValues['denominator'][metric_index].number
+        let numerator = this.metricValues['numerator'][metricIndex].number
+        let denominator = this.metricValues['denominator'][metricIndex].number
         if (isFinite(parseFloat(numerator)) && isFinite(parseFloat(denominator))) {
-          let score_calc = numerator / denominator
-          // score_calc = Math.round(10000 * score_calc) / 10000
-          let perc_calc = Math.min(Math.max((score_calc - floor) / (target - floor), 0), 1)
-          points_calc = Math.round(1000 * perc_calc * points_possible) / 1000
+          let scoreCalculated = numerator / denominator
+          let percEarnedCalculated = Math.min(Math.max((scoreCalculated - floor) / (target - floor), 0), 1)
+          pointsEarnedCalculated = Math.round(1000 * percEarnedCalculated * possiblePoints) / 1000
         } else {
-          points_calc = points
+          pointsEarnedCalculated = points
         }
           
       } else {
-        if (this.metricValues['metric_id'][metric_index].text == 'SVY_PARENT_RATE')
-          console.log(this.metricValues['metric_id'][metric_index].text, "is_agi", score, is_agi)
-        perc = Math.min(Math.max((score - floor) / (target - floor), 0), 1)
-        points = perc * points_possible
-        points_calc = points
-      }
-      // round percent to hundredth place, but only after calculating points
-      // perc = Math.round(100 * perc) / 100
-
-      // console.log("i", i, perc, this.metricValues['points_floor'][metric_index].number, this.metricValues['points_target'][metric_index].number)
-      
-      this.metricValues['projected_score'][metric_index] = {
-        text: (100 * score) + '%',
-        number: score,
-        isSelected: isSelected,
-        isExcluded: isExcluded
-      }
-
-      this.metricValues['projected_perc_earned'][metric_index] = {
-        text: (100 * perc) + '%',
-        number: perc,
-        isSelected: isSelected,
-        isExcluded: isExcluded
-      }
-
-      this.metricValues['projected_points_earned'][metric_index] = {
-        text: points.toString(),
-        number: points,
-        isSelected: isSelected,
-        isExcluded: isExcluded
+        perc = Math.min(Math.max((scoreProjected - floor) / (target - floor), 0), 1)
+        points = perc * possiblePoints
+        pointsEarnedCalculated = points
       }
       
-      this.metricValues['projected_points_earned_calculated'][metric_index] = {
-        text: points.toString(),
-        number: points_calc,
-        isSelected: isSelected,
-        isExcluded: isExcluded
-      }
-
-      this.metricValues['projected_points_possible'][metric_index] = {
-        text: points_possible.toString(),
-        number: points_possible,
-        isSelected: isSelected,
-        isExcluded: isExcluded
-      }  
+      // use $set to let Vue know that we've updated a value
+      this.$set(this.scoreProjected, metricId, scoreProjected)
+      this.$set(this.percEarnedProjected, metricId, perc)
+      this.$set(this.pointsEarnedProjected, metricId, points)
+      this.$set(this.pointsEarnedProjectedCalculated, metricId, pointsEarnedCalculated)
+      this.$set(this.possiblePointsProjected, metricId, possiblePoints)
     },
 
     updateProjectedRollUpValues(domain, useDefaultValues) {
@@ -783,58 +572,43 @@ export default {
           return 'Z_CC_OVERALL'
         } 
       }
-      const domain_index = this.$qlik.lookupIndexByFieldValue(this.metricValues, "metric_id", mapDomainToId(domain), false)
-      const isSelected = this.metricValues['points_possible'][domain_index].isSelected
-      const isExcluded = this.metricValues['points_possible'][domain_index].isExcluded
-      let perc, points, points_possible      
+      const domainId = mapDomainToId(domain)
+      const domainIndex = this.$qlik.lookupIndexByFieldValue(this.metricValues, "metricId", domainId, false)
+      const isSelected = this.metricValues['possiblePoints'][domainIndex].isSelected
+      const isExcluded = this.metricValues['possiblePoints'][domainIndex].isExcluded
+      let perc, pointsEarned, possiblePoints      
 
       if (useDefaultValues) {
-        points_possible = this.metricValues['points_possible'][domain_index].number
-        points = this.metricValues['points_earned'][domain_index].number
-        perc = this.metricValues['perc_earned'][domain_index].number
+        possiblePoints = this.metricValues['possiblePoints'][domainIndex].number
+        pointsEarned = this.metricValues['pointsEarned'][domainIndex].number
+        perc = this.metricValues['percEarned'][domainIndex].number
       } else {
-        let projected_points, projected_points_possible
+        let metricIds, pointsEarnedProjected, possiblePointsProjected
         if (domain == 'Overall') {
-          projected_points = this.$qlik.lookupValueByFieldValue(this.metricValues, "is_domain", 1, 'projected_points_earned', true)
-            .map(v => v.number)
-          projected_points_possible = this.$qlik.lookupValueByFieldValue(this.metricValues, "is_domain", 1, 'projected_points_possible', true)
-            .map(v => v.number)
+          metricIds = this.$qlik.lookupValueByFieldValue(this.metricValues, "is_domain", 1, 'metricId', true, 'text')
+          pointsEarnedProjected = metricIds.map(id => this.pointsEarnedProjected[id])
+          possiblePointsProjected = metricIds.map(id => this.possiblePointsProjected[id])
         } else {
-          projected_points = this.$qlik.lookupValueByMultipleFieldValues(this.metricValues, {"is_metric": 1, "domain_name": domain }, 'projected_points_earned_calculated', true)
-            .map(v => v.number)
-          projected_points_possible = this.$qlik.lookupValueByMultipleFieldValues(this.metricValues, {"is_metric": 1, "domain_name": domain }, 'projected_points_possible', true)
-            .map(v => v.number)
+          metricIds = this.$qlik.lookupValueByMultipleFieldValues(this.metricValues, {"is_metric": 1, "domain_name": domain }, 'metricId', true, 'text')
+          pointsEarnedProjected = metricIds.map(id => this.pointsEarnedProjectedCalculated[id])
+          possiblePointsProjected = metricIds.map(id => this.possiblePointsProjected[id]) 
         }
 
-        // console.log("projected_points", projected_points)
-        points = Math.round(100 * projected_points.reduce((acc, val) => acc + (isFinite(parseFloat(val)) ? parseFloat(val): 0), 0)) / 100
-        points_possible = Math.round(100 * projected_points_possible.reduce((acc, val) => acc + (isFinite(parseFloat(val)) ? parseFloat(val): 0), 0)) / 100
-        perc = points / points_possible
+        pointsEarned = Math.round(100 * pointsEarnedProjected.reduce((acc, val) => acc + (isFinite(parseFloat(val)) ? parseFloat(val): 0), 0)) / 100
+        possiblePoints = Math.round(100 * possiblePointsProjected.reduce((acc, val) => acc + (isFinite(parseFloat(val)) ? parseFloat(val): 0), 0)) / 100
+        perc = pointsEarned / possiblePoints
         perc = Math.round(100 * perc) / 100
       }
-      console.log("points", domain, points, points_possible, perc) //projected_points, 
+      // console.log("points", domain, domainIndex, pointsEarned, possiblePoints, perc) //projected_points, 
       
-      this.metricValues['projected_perc_earned'][domain_index] = {
-        text: (100 * perc) + '%',
-        number: perc,
-        isSelected: isSelected,
-        isExcluded: isExcluded
-      }
-
-      this.metricValues['projected_points_earned'][domain_index] = {
-        text: points.toString(),
-        number: points,
-        isSelected: isSelected,
-        isExcluded: isExcluded
-      }  
-      
-      this.metricValues['projected_points_possible'][domain_index] = {
-        text: points_possible.toString(),
-        number: points_possible,
-        isSelected: isSelected,
-        isExcluded: isExcluded
-      }  
-    }
+      // use $set to let Vue know that we've updated a value
+      this.$set(this.percEarnedProjected, domainId, perc)
+      this.$set(this.pointsEarnedProjected, domainId, pointsEarned)
+      this.$set(this.possiblePointsProjected, domainId, possiblePoints)
+    }, 
+    
+    //import formatValue as method and filter
+    formatValue
   },
   created() {      
     if (this.schoolsInitialized) this.initialize()
@@ -843,36 +617,11 @@ export default {
     this.destroy()
   },
   filters: {
-    formatValue (value, isPercent, roundAtWhole) {
-      if(isPercent) {
-        if (roundAtWhole) {
-          return Math.round(value * 100) + '%'
-        } else {
-          return Math.round(value * 10000) / 100 + '%'
-        }        
-      } else {
-        if (roundAtWhole) {
-           return Math.round(value)
-        } else {
-          return Math.round(value * 100) / 100
-        }
-      }
-    }
+    formatValue
   }
 }
 </script>
 <style lang="postcss" scoped>
-.score-card {
-  @apply text-white py-1 px-4 mr-2;
-  width: 11rem;
-  height: 7rem;
-}
-
-.change-card {
-  @apply text-black bg-gray-400 py-1 px-4 mr-2;
-  width: 7rem;
-  height: 7rem;
-}
 
 h1 {
   font-size: 20pt;
@@ -929,6 +678,18 @@ hr.light {
 
 hr.tint {
   border-top: 1px solid #cccccc;
+}
+
+.domain-nav-item {
+  @apply text-lg my-2 cursor-pointer outline-none;
+}
+
+.domain-nav-item:hover {
+  @apply font-semibold;
+}
+
+.domain-nav-item.active {
+  @apply font-semibold border-b-2 border-gray-600;
 }
 
 .spr-intervene {

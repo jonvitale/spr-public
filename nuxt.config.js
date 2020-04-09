@@ -31,7 +31,9 @@ export default {
   ** Plugins to load before mounting the App
   */
   plugins: [
-    '~/plugins/qlik.config.js'
+    '~/plugins/qdt.config.js',
+    '../sdp-vue-components/plugins/qlik.config.js',
+    '~/plugins/init.store.js',
   ],
   /*
   ** Nuxt.js dev-modules
@@ -55,9 +57,10 @@ export default {
     extend (config, ctx) {
       
       config.devtool = 'source-map'
-      config.resolve.alias['~components'] = 'C:\\Users\\jvitale\\Documents\\Qlik\\Development\\SDP ' +
-      'Nuxt Mashup Environment\\sdp-vue-components\\components'
-      console.log("Im in config", config.resolve.alias)
+      config.resolve.alias['~components'] = 'C:\\Users\\jvitale\\Documents\\Qlik\\Development\\SDP NUXT Mashup Environment\\sdp-vue-components\\components'
+      // ..\\sdp-vue-components\\components
+      
+     console.log("Im in config", config.resolve.alias)
     },
   },
 

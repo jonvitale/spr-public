@@ -21,24 +21,24 @@
           @click="searchText = ''" 
         />
       </div>    
-      <div v-for="slug_report in slugReports" :key="slug_report">
+      <div v-for="slugReport in slugReports" :key="slugReport">
         <nuxt-link
-          v-if="lookupSchoolReportBySlugReport(slug_report).toLowerCase()
-                .includes(searchText.toLowerCase())"
-          :to="'/calculator/' + slug_report "
+          v-if="searchForSchoolBySlugReport(searchText, slugReport)"
+          :to="'/calculator/' + slugReport "
           class="inline-block w-full text-left text-blue-800 font-bold uppercase border-b border-blue-400 rounded uppercase border-transparent border-b-2 rounded-b-none py-2 pl-2 focus:outline-none hover:bg-gray-200"  
           >
-          {{ lookupSchoolReportBySlugReport(slug_report) }}
+          {{ lookupSchoolReportBySlugReport(slugReport) }}
         </nuxt-link>
+         <!-- {{ lookupSchoolReportBySlugReport(slugReport) }} -->
       </div>
     </Square>
   </div>
 </template>
 <script>
-import NavigationItem from '~components/Navigation/NavigationItem.vue'
-import Square from '~components/PageElements/Square.vue'
-import Heading from '~components/PageElements/Heading.vue'
-import SVGSearch from '~components/SVG/SVGSearch.vue'
+import NavigationItem from '~components/Navigation/NavigationItem'
+import Square from '~components/PageElements/Square'
+import Heading from '~components/PageElements/Heading'
+import SVGSearch from '~components/SVG/SVGSearch'
 import SVGClear from '~components/SVG/SVGClear'
 
 export default {
@@ -52,22 +52,42 @@ export default {
   data: function(){
     return {
       searchText: "",
+      slugReports: [],
+      slugToSchoolMap: null,
     }
   },
-  computed: {
-    slugReports() {
-      try {
-        const vals = this.$store.state.schools.list.slug_report.map(val => val.text)
-        return vals
-      } catch (e) {
-        return []
+  methods: {
+    lookupSchoolReportBySlugReport(slugReport) {
+      if (this.slugToSchoolMap) {
+        const schoolReport = this.slugToSchoolMap[slugReport.toLowerCase()]
+        // console.log("lookupSchoolReportBySlugReport", slugReport, schoolReport)
+        return schoolReport
+      } else {
+        return null
       }
     },
-    lookupSchoolReportBySlugReport() {
-      return (slug_report)  => {
-        return this.$store.getters["schools/lookupTextBySlugReport"](slug_report, "school_report")
+    searchForSchoolBySlugReport(searchText, slugReport) {
+      if (this.slugToSchoolMap) {
+        const schoolReport = this.lookupSchoolReportBySlugReport(slugReport)
+        return schoolReport.toLowerCase().includes(searchText.toLowerCase())
+      } else {
+        return null
       }
     }
+  }, 
+  async created() {
+    this.slugReports = this.$store.state.schools.list.slugReport.map(val => val.text)
+    let slugToSchoolMap = {}
+    let i, slugReport, schoolReport
+    for (i in this.slugReports) {
+      slugReport = this.slugReports[i]
+      schoolReport = await this.$store.dispatch("schools/lookup_text_by_slugreport", {
+        slugReport: slugReport, 
+        target: "schoolReport"
+      })
+      slugToSchoolMap[slugReport] = schoolReport
+    }
+    this.slugToSchoolMap = slugToSchoolMap
   }
 }
 </script>

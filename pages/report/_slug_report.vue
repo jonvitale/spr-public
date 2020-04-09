@@ -29,7 +29,7 @@
             > 
               Climate 
             </button>
-            <button v-if="report_name === 'High School'"
+            <button v-if="reportName === 'High School'"
               class="section-nav-item" 
               :class="{'active': currentSection == 's-cc'}"
               @click.prevent="scrollToSection('s-cc')"
@@ -52,7 +52,7 @@
           <p> {{ $store.state.SY_C }} School Progress Report </p>
         </div>
         <div>            
-          <h1> {{ schoolname }} </h1>
+          <h1> {{ schoolName }} </h1>
           <div class="flex flex-wrap pl-2 mb-8">
             <div class="flex-col md:w-1/2">
               <div class="flex">
@@ -69,8 +69,8 @@
                   <p>{{ governance }}</p>
                   <p>{{ address }}</p>
                   <p>{{ phone }} / {{ fax }} </p>
-                  <p>{{ zip_code }}</p>
-                  <a :href="url_school" target="_blank"> {{ url_school }} </a>
+                  <p>{{ zipCode }}</p>
+                  <a :href="urlSchool" target="_blank"> {{ urlSchool }} </a>
                 </div>
               </div>
             </div>
@@ -84,10 +84,10 @@
                   <p>Turnaround Model</p>
                 </div>
                 <div class="flex-grow text-black">
-                  <p>{{ report_name }}</p>
-                  <p>{{ grades_served }}</p>
+                  <p>{{ reportName }}</p>
+                  <p>{{ gradesServed }}</p>
                   <p>{{ enrollment }}</p>
-                  <p>{{ admissiontype }}</p>
+                  <p>{{ admissionType }}</p>
                   <p>{{ turnaround }}</p>
                 </div>
               </div>
@@ -120,7 +120,7 @@
         <hr>          
         <!-- for front page repeat the following for each of the domains, including overall -->
         <div class="my-4" v-for="domain in domainFacts" :key="domain.key">
-          <div v-if="domain.key !== 'ee' && (domain.key !== 'cc' || report_name === 'High School')">
+          <div v-if="domain.key !== 'ee' && (domain.key !== 'cc' || reportName === 'High School')">
             <div class="flex flex-wrap justify-between" >
               <div class="w-auto mb-2 lg:w-1/3 lg:mb-0">             
                 <p class="text-xl font-bold lg:w-full lg:mb-8" 
@@ -167,8 +167,8 @@
       </section>
 
       <!-- for domain pages repeat the following for each of the domains, not overall and not educator effectiveness  -->
-      <div v-for="domain in domainFacts.filter(domain => domain.key != 'overall' && domain.key != 'ee')" :key="domain.key">
-        <div v-if="domain.key !== 'cc' || report_name === 'High School'">
+      <div v-for="domain in domainFacts.filter(domain => domain.key != 'overall' && domain.key != 'ee' && (domain.key !== 'cc' || reportName === 'High School'))" :key="domain.key">
+        <!-- <div v-if="domain.key !== 'cc' || reportName === 'High School'"> -->
           <!-- page separator -->
           <section class="pt-8">
             <hr class="w-full page">
@@ -177,7 +177,7 @@
             <!-- page header -->
             <div class="flex justify-between my-4 pt-6 w-full text-lg "> 
               <p class="text-gray-600"> {{ $store.state.SY_C }} School Progress Report </p>
-              <p class="text-black font-bold"> {{ schoolname }} </p>            
+              <p class="text-black font-bold"> {{ schoolName }} </p>            
             </div>
             <div class="flex mt-4">
               <hr class="w-full dark">
@@ -196,84 +196,82 @@
               <hr class="w-full light">
             </div>
             <!-- metrics -->
-            <div v-for="(metric_group, metric_group_index) in domain.metric_groups" :key="metric_group.key">
-              <!-- only include metric groups with valid metrics -->
-              <div v-if="metric_group.header || (metric_group.metrics && isApplicableByMetricGroup(metric_group.metrics.map(v => v.metric_id)))">
-                <!-- if there are no metrics treat this as a sub-section header -->
-                <p v-if="metric_group.title" 
-                  :class="[
-                    metric_group.metrics ? 'text-gray-600' : 'text-gray-800',
-                    metric_group.metrics ? '' : 'text-2xl'
-                  ]"> 
-                  {{ metric_group.title }}
-                </p>    
-                <div v-if="metric_group.metrics">     
-                  <div v-for="metric in metric_group.metrics" :key="metric.metric_id">
-                    <!-- v-if="lookupNumberByFieldValue('metric_id', metric.metric_id, 'exception') == null ||
-                              lookupNumberByFieldValue('metric_id', metric.metric_id, 'exception') != 999"  -->
-                    <div class="flex justify-between mb-2"
-                      v-if="isApplicableByMetricId(metric.metric_id)"
+            <div v-for="(metric_group, metric_group_index) in filterMetricGroupsByDomain(domain)" :key="metric_group.key">
+              <!-- if there are no metrics treat this as a sub-section header -->
+              <p v-if="metric_group.title" 
+                :class="[
+                  metric_group.metrics ? 'text-gray-600' : 'text-gray-800',
+                  metric_group.metrics ? '' : 'text-2xl'
+                ]"> 
+                {{ metric_group.title }}
+              </p>    
+              <div v-if="metric_group.metrics">     
+                <div v-for="metric in metric_group.metrics" :key="metric.metric_id">
+                  <!-- v-if="lookupNumberByFieldValue('metric_id', metric.metric_id, 'exception') == null ||
+                            lookupNumberByFieldValue('metric_id', metric.metric_id, 'exception') != 999"  -->
+                  <div class="flex justify-between mb-2"
+                    v-if="isApplicableByMetricId(metric.metric_id)"
                     >
-                      <div class="w-full lg:w-1/3">
-                        <p>
-                          <p v-if="metric.title" class="text-black"> 
-                            {{ metric.title }}
-                          </p>  
-                          <p :class="[
-                              lookupNumberByFieldValue('metric_id', metric.metric_id, 'points_possible') > 0 ? 'text-black' : 'text-gray-600',
-                              metric_group.metrics.length == 1 ? 'pl-0' : 'pl-6'
-                            ]"
-                          > 
-                            {{ metric.subtitle }}
-                          </p>
+                    <div class="w-full lg:w-1/3" style="min-height:50px">
+                      <p>
+                        <p v-if="metric.title" class="text-black"> 
+                          {{ metric.title }}
+                        </p>  
+                        <p :class="[
+                            lookupNumberByFieldValue('metric_id', metric.metric_id, 'points_possible') > 0 
+                              ? 'text-black' : 'text-gray-600',
+                            metric_group.metrics.length == 1 ? 'pl-0' : 'pl-6'
+                          ]"
+                        > 
+                          {{ metric.subtitle }}
                         </p>
-                      </div>
-                      <div class="w-full lg:w-48 text-center"
-                        :class="lookupNumberByFieldValue('metric_id', metric.metric_id, 'points_possible') > 0 ? 'text-black' : 'text-gray-600'"
-                      >
-                        <p v-if="lookupNumberByFieldValue('metric_id', metric.metric_id, 'exception') > 0"> &nbsp; </p>
-                        <p v-else>
-                          <span class="text-xl"> {{ lookupTextByFieldValue('metric_id', metric.metric_id, 'score') }} </span>
+                      </p>
+                    </div>
+                    <div class="w-full lg:w-48 text-center"
+                      :class="lookupNumberByFieldValue('metric_id', metric.metric_id, 'points_possible') > 0 ? 'text-black' : 'text-gray-600'"
+                    >
+                      <p v-if="lookupNumberByFieldValue('metric_id', metric.metric_id, 'exception') > 0"> &nbsp; </p>
+                      <p v-else>
+                        <span class="text-xl"> {{ lookupTextByFieldValue('metric_id', metric.metric_id, 'score') }} </span>
+                        <br>
+                        <span v-if="lookupNumberByFieldValue('metric_id', metric.metric_id, 'denominator') > 0">
+                          ({{ lookupTextByFieldValue('metric_id', metric.metric_id, 'denominator') }} students)
+                        </span>
+                      </p>
+                    </div>
+                    <div class="w-full lg:w-48 text-center">
+                      <p v-if="lookupNumberByFieldValue('metric_id', metric.metric_id, 'exception') > 0"> &nbsp; </p>
+                      <p v-else>
+                        <span v-if="lookupNumberByFieldValue('metric_id', metric.metric_id, 'points_possible') > 0">
+                          <span class="text-xl text-black">{{ lookupTextByFieldValue('metric_id', metric.metric_id, 'points_earned') }} </span>
+                          <span class="text-gray-600"> out of </span>
+                          <span class="text-xl text-black">{{ lookupTextByFieldValue('metric_id', metric.metric_id, 'points_possible') }} </span>
                           <br>
-                          <span v-if="lookupNumberByFieldValue('metric_id', metric.metric_id, 'denominator') > 0">
-                            ({{ lookupTextByFieldValue('metric_id', metric.metric_id, 'denominator') }} students)
-                          </span>
-                        </p>
-                      </div>
-                      <div class="w-full lg:w-48 text-center">
-                        <p v-if="lookupNumberByFieldValue('metric_id', metric.metric_id, 'exception') > 0"> &nbsp; </p>
-                        <p v-else>
-                          <span v-if="lookupNumberByFieldValue('metric_id', metric.metric_id, 'points_possible') > 0">
-                            <span class="text-xl text-black">{{ lookupTextByFieldValue('metric_id', metric.metric_id, 'points_earned') }} </span>
-                            <span class="text-gray-600"> out of </span>
-                            <span class="text-xl text-black">{{ lookupTextByFieldValue('metric_id', metric.metric_id, 'points_possible') }} </span>
-                            <br>
-                            <span class="text-black">({{ lookupTextByFieldValue('metric_id', metric.metric_id, 'perc_earned') }})</span>
-                          </span>
-                        </p>
-                      </div>
-                      <div class="w-full lg:w-1/4 text-center text-lg font-semibold">             
-                        <p v-if="lookupNumberByFieldValue('metric_id', metric.metric_id, 'exception') > 0"> 
-                          <span class="text-gray-800"> 
-                            {{ lookupTextByFieldValue('metric_id', metric.metric_id, 'exception_name').toUpperCase() }} 
-                          </span>
-                        </p>
-                        <p v-else>
-                          <span v-if="lookupNumberByFieldValue('metric_id', metric.metric_id, 'points_possible') > 0"
-                            :style="{color: getSPRColorByTextValue(lookupTextByFieldValue('metric_id', metric.metric_id, 'perc_earned'))}"
-                          >
-                            {{ lookupTextByFieldValue('metric_id', metric.metric_id, 'tier').toUpperCase() }} 
-                          </span>
-                        </p>
-                      </div>
+                          <span class="text-black">({{ lookupTextByFieldValue('metric_id', metric.metric_id, 'perc_earned') }})</span>
+                        </span>
+                      </p>
+                    </div>
+                    <div class="w-full lg:w-1/4 text-center text-lg font-semibold">             
+                      <p v-if="lookupNumberByFieldValue('metric_id', metric.metric_id, 'exception') > 0"> 
+                        <span class="text-gray-800"> 
+                          {{ lookupTextByFieldValue('metric_id', metric.metric_id, 'exception_name').toUpperCase() }} 
+                        </span>
+                      </p>
+                      <p v-else>
+                        <span v-if="lookupNumberByFieldValue('metric_id', metric.metric_id, 'points_possible') > 0"
+                          :style="{color: getSPRColorByTextValue(lookupTextByFieldValue('metric_id', metric.metric_id, 'perc_earned'))}"
+                        >
+                          {{ lookupTextByFieldValue('metric_id', metric.metric_id, 'tier').toUpperCase() }} 
+                        </span>
+                      </p>
                     </div>
                   </div>
                 </div>
-                <div class="flex mt-2">
-                  <hr class="w-full"
-                    :class="metric_group_index < domain.metric_groups.length - 1 ? 'tint' : 'medium'"
+              </div>
+              <div class="flex mt-2">
+                <hr class="w-full"
+                  :class="metric_group_index < countApplicableMetricGroupsByDomain(domain) - 1 ? 'tint' : 'medium'"
                   >
-                </div>
               </div>
             </div> 
             <!-- domain footer -->
@@ -305,7 +303,7 @@
               </div>
             </div>          
           </section>
-        </div>
+        <!-- </div> -->
       </div>
       <div>  
         <div>
@@ -316,7 +314,7 @@
             <!-- page header -->
             <div class="flex justify-between my-4 pt-6 w-full text-lg "> 
               <p class="text-gray-600"> {{ $store.state.SY_C }} School Progress Report </p>
-              <p class="text-black font-bold"> {{ schoolname }} </p>            
+              <p class="text-black font-bold"> {{ schoolName }} </p>            
             </div>
             <div class="flex mt-4">
               <hr class="w-full dark">
@@ -354,7 +352,7 @@
             <!-- metrics -->
             <div v-for="(metric_group, metric_group_index) in domainFacts.filter(domain => domain.key == 'ee')[0]['metric_groups']" :key="metric_group.key">
               <!-- only include metric groups with valid metrics -->
-              <div v-if="metric_group.header || (metric_group.metrics && isApplicableByMetricGroup(metric_group.metrics.map(v => v.metric_id)))">
+              <div v-if="metric_group.header || (metric_group.metrics && isApplicableByMetricGroup(metric_group))">
                 <!-- if there are no metrics treat this as a sub-section header -->
                 <p v-if="metric_group.title" 
                   :class="[
@@ -369,8 +367,8 @@
                               lookupNumberByFieldValue('metric_id', metric.metric_id, 'exception') != 999"  -->
                     <div class="flex justify-between mb-2"
                       v-if="isApplicableByMetricId(metric.metric_id)"
-                    >
-                      <div class="w-full lg:w-2/3">
+                      >
+                      <div class="w-full lg:w-2/3" style="min-height:50px;">
                         <p>
                           <p v-if="metric.title" class="text-black"> 
                             {{ metric.title }}
@@ -425,12 +423,12 @@
 import { mapState } from 'vuex'
 
 import metricValuesDef from '~/definitions/reportMeasures'
-// import QdtComponent from '~components/Qdt/QdtComponent.vue'
-import LineChart from '~components/SimpleCharts/LineChart.vue'
-import Columns from '~components/PageElements/Columns.vue'
-import Column from '~components/PageElements/Column.vue'
-import Square from '~components/PageElements/Square.vue'
-import Horizontal from '~components/PageElements/Horizontal.vue'
+// import QdtComponent from '~components/Qdt/QdtComponent'
+import LineChart from '~components/SimpleCharts/LineChart'
+import Columns from '~components/PageElements/Columns'
+import Column from '~components/PageElements/Column'
+import Square from '~components/PageElements/Square'
+import Horizontal from '~components/PageElements/Horizontal'
 import Heading from '~components/PageElements/Heading'
 
 const domainFacts = [
@@ -461,45 +459,9 @@ const domainFacts = [
           { subtitle: 'Grade 4 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_ELA_G4' },
           { subtitle: 'Grade 5 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_ELA_G5' },
           { subtitle: 'Grade 6 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_ELA_G6' },
+          { subtitle: 'Grade 7 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_ELA_G7' },
+          { subtitle: 'Grade 8 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_ELA_G8' },
           { subtitle: '% Advanced', metric_id: 'PSSA_ADV_ELA' },
-        ]
-      },
-      {
-        key: 'PSSA_MATH',
-        title: 'PSSA: Mathematics',
-        metrics: [
-          { subtitle: '% Proficient or Advanced', metric_id: 'PSSA_PROFADV_MATH' },
-          { subtitle: 'Grade 3 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_MATH_G3' },
-          { subtitle: 'Grade 4 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_MATH_G4' },
-          { subtitle: 'Grade 5 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_MATH_G5' },
-          { subtitle: 'Grade 6 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_MATH_G6' },
-          { subtitle: '% Advanced', metric_id: 'PSSA_ADV_MATH' },
-        ]
-      },
-      {
-        key: 'PSSA_SCI',
-        title: 'PSSA: Science',
-        metrics: [
-          { subtitle: '% Proficient or Advanced', metric_id: 'PSSA_PROFADV_SCI' },
-          { subtitle: 'Grade 4 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_SCI_G4' },
-          { subtitle: '% Advanced', metric_id: 'PSSA_ADV_SCI' },
-        ]
-      },
-      {
-        key: 'KEYSTONE_ALG1',
-        title: 'Keystone Exam - Algebra I',
-        metrics: [
-          { subtitle: '% Proficient or Advanced', metric_id: 'KEYSTONE_PROFADV_ALG1' },
-          { subtitle: 'Grade 9 - % Proficient or Advanced', metric_id: 'KEYSTONE_PROFADV_ALG1_G9' },
-          { subtitle: '% Advanced', metric_id: 'KEYSTONE_ADV_ALG1' },
-        ]
-      },
-      {
-        key: 'KEYSTONE_BIO',
-        title: 'Keystone Exam - Biology',
-        metrics: [
-          { subtitle: '% Proficient or Advanced', metric_id: 'KEYSTONE_PROFADV_BIO' },
-          { subtitle: '% Advanced', metric_id: 'KEYSTONE_ADV_BIO' },
         ]
       },
       {
@@ -516,7 +478,46 @@ const domainFacts = [
           { title: 'ACCESS for ELLs:', subtitle: '% 4.5 or Above', metric_id: 'ACCESS_PROF' },
         ]
       },
-      
+      {
+        key: 'PSSA_MATH',
+        title: 'PSSA: Mathematics',
+        metrics: [
+          { subtitle: '% Proficient or Advanced', metric_id: 'PSSA_PROFADV_MATH' },
+          { subtitle: 'Grade 3 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_MATH_G3' },
+          { subtitle: 'Grade 4 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_MATH_G4' },
+          { subtitle: 'Grade 5 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_MATH_G5' },
+          { subtitle: 'Grade 6 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_MATH_G6' },
+          { subtitle: 'Grade 7 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_MATH_G7' },
+          { subtitle: 'Grade 8 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_MATH_G8' },
+          { subtitle: '% Advanced', metric_id: 'PSSA_ADV_MATH' },
+        ]
+      },
+      {
+        key: 'KEYSTONE_ALG1',
+        title: 'Keystone Exam - Algebra I',
+        metrics: [
+          { subtitle: '% Proficient or Advanced', metric_id: 'KEYSTONE_PROFADV_ALG1' },
+          { subtitle: 'Grade 9 - % Proficient or Advanced', metric_id: 'KEYSTONE_PROFADV_ALG1_G9' },
+          { subtitle: '% Advanced', metric_id: 'KEYSTONE_ADV_ALG1' },
+        ]
+      },
+      {
+        key: 'PSSA_SCI',
+        title: 'PSSA: Science',
+        metrics: [
+          { subtitle: '% Proficient or Advanced', metric_id: 'PSSA_PROFADV_SCI' },
+          { subtitle: 'Grade 4 - % Proficient or Advanced', metric_id: 'PSSA_PROFADV_SCI_G4' },
+          { subtitle: '% Advanced', metric_id: 'PSSA_ADV_SCI' },
+        ]
+      },
+      {
+        key: 'KEYSTONE_BIO',
+        title: 'Keystone Exam - Biology',
+        metrics: [
+          { subtitle: '% Proficient or Advanced', metric_id: 'KEYSTONE_PROFADV_BIO' },
+          { subtitle: '% Advanced', metric_id: 'KEYSTONE_ADV_BIO' },
+        ]
+      },
     ]
   },
   {
@@ -789,93 +790,30 @@ export default {
     return {
       sessionObject: null,
       schoolsInitialized: this.$store.state.schools.initialized,
-      slug_report: this.$route.params.slug_report,
+      slugReport: this.$route.params.slug_report,
       metricValues: null,
       domainFacts: domainFacts,
-      // qObjs: qObjs,
       currentSection: "",
+
+      // school facts
+      schoolReport: null,
+      srcschoolid: null,
+      schoolName: null,
+      governance: null,
+      address: null,
+      phone: null,
+      fax: null,
+      zipCode: null,
+      urlSchool: null,
+      reportName: null,
+      gradesServed: null,
+      enrollment: null,
+      admissionType: null,
+      turnaround: null,
+ 
     }
   },
 
-  computed: {
-    // lookupTextByFieldValue() {        
-    //   return (sourceField, sourceFieldValue, targetField) => {
-    //     if (this.metricValues) {
-    //       const values = this.$qlik.lookupValueByFieldValue(this.metricValues, sourceField, sourceFieldValue, targetField)
-    //       if(targetField === 'exception') console.log('exception', values)
-    //       if (values && values.text) {
-    //         return values.text
-    //       } else {
-    //         return ''
-    //       }
-    //     } else {
-    //       return ''
-    //     }
-    //   }
-    // },
-
-    // lookupNumberByFieldValue() {        
-    //   return (sourceField, sourceFieldValue, targetField) => {
-    //     if (this.metricValues) {
-    //       const values = this.$qlik.lookupValueByFieldValue(this.metricValues, sourceField, sourceFieldValue, targetField)
-    //       if (values && values.number) {
-    //         return values.number
-    //       } else {
-    //         return null
-    //       }
-    //     } else {
-    //       return null
-    //     }
-    //   }
-    // },
-
-    // isApplicableByMetricId() {
-    //   return metric_id => {
-    //     if (this.metricValues) {
-    //       const values = this.$qlik.lookupValueByFieldValue(this.metricValues, "metric_id", metric_id, "exception")
-    //       if (values && values.number) {
-    //         return values.number !== 999
-    //       } else {
-    //         return true
-    //       }
-    //     } else {
-    //       return null
-    //     }
-    //   }
-    // },
-
-    // isApplicableByMetricGroup() {
-    //   return metric_ids => {
-    //     let isApplicable = false
-    //     metric_ids.forEach(metric_id => {
-    //       const values = this.$qlik.lookupValueByFieldValue(this.metricValues, "metric_id", metric_id, "exception")
-    //       if (values && values.number) {
-    //         if (values.number !== 999) {
-    //           isApplicable = true
-    //         } 
-    //       } else {
-    //         isApplicable = true
-    //       } 
-    //     })
-    //     return isApplicable
-    //   }
-    // },
-    
-    school_report: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "school_report"),
-    srcschoolid: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "srcschoolid"),
-    schoolname: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "schoolname"),
-    governance: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "governance"),
-    address: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "address"),
-    phone: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "phone"),
-    fax: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "fax"),
-    zip_code: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "zip_code"),
-    url_school: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "url_school"),
-    report_name: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "report_name"),
-    grades_served: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "grades_served"),
-    enrollment: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "enrollment"),
-    admissiontype: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "admissiontype"),
-    turnaround: state => state.$store.getters['schools/lookupTextBySlugReport'](state.slug_report, "turnaround"),
-  },
   watch: {
     schoolsInitialized(to, from) {
       if (to && !from) {
@@ -911,18 +849,20 @@ export default {
     },
 
     getCurrentScrollSection() {
-      const sections = ['s-overview', 's-achievement', 's-progress', 's-climate', 's-cc']
-      //console.log(this.$refs)
-      let currentSection = "", sectionName, ref
-      for (sectionName in this.$refs) {
-        ref = this.$refs[sectionName]
-        if (ref.length) ref = ref[0]
-        if (ref.nodeName == "SECTION") {
-          if (ref.offsetTop &&
-            window.scrollY < ref.offsetTop + ref.offsetHeight
-          ) {
-            currentSection = sectionName
-            break
+      const sections = ['s-overview', 's-achievement', 's-progress', 's-climate', 's-cc', 's-ee']      
+      let currentSection = "", i, sectionName, ref
+      for (i in sections) {
+        sectionName = sections[i]
+        if (Object.keys(this.$refs).includes(sectionName)) {
+          ref = this.$refs[sectionName]
+          if (ref.length) ref = ref[0]
+          if (ref.nodeName == "SECTION") {
+            if (ref.offsetTop &&
+              window.scrollY < ref.offsetTop + ref.offsetHeight
+            ) {
+              currentSection = sectionName
+              break
+            }
           }
         }
       }
@@ -966,11 +906,44 @@ export default {
     async initialize() {
       this.sessionObject = await this.$qlik.generateHypercubeObjectFromDef(metricValuesDef)
       this.sessionObject.on("changed", this.update)
+      
+      this.schoolReport = await this.$store.dispatch("schools/lookup_text_by_slugreport", { slugReport: this.slugReport, target: "schoolReport"})
+      this.srcschoolid = await this.$store.dispatch("schools/lookup_text_by_slugreport", { slugReport: this.slugReport, target: "srcschoolid"})
+      this.schoolName = await this.$store.dispatch("schools/lookup_text_by_slugreport", { slugReport: this.slugReport, target: "schoolName"})
+      this.governance = await this.$store.dispatch("schools/lookup_text_by_slugreport", { slugReport: this.slugReport, target: "governance"})
+      this.address = await this.$store.dispatch("schools/lookup_text_by_slugreport", { slugReport: this.slugReport, target: "address"})
+      this.phone = await this.$store.dispatch("schools/lookup_text_by_slugreport", { slugReport: this.slugReport, target: "phone"})
+      this.fax = await this.$store.dispatch("schools/lookup_text_by_slugreport", { slugReport: this.slugReport, target: "fax"})
+      this.zipCode = await this.$store.dispatch("schools/lookup_text_by_slugreport", { slugReport: this.slugReport, target: "zipCode"})
+      this.urlSchool = await this.$store.dispatch("schools/lookup_text_by_slugreport", { slugReport: this.slugReport, target: "urlSchool"})
+      this.reportName = await this.$store.dispatch("schools/lookup_text_by_slugreport", { slugReport: this.slugReport, target: "reportName"})
+      this.gradesServed = await this.$store.dispatch("schools/lookup_text_by_slugreport", { slugReport: this.slugReport, target: "gradesServed"})
+      this.enrollment = await this.$store.dispatch("schools/lookup_text_by_slugreport", { slugReport: this.slugReport, target: "enrollment"})
+      this.admissionType = await this.$store.dispatch("schools/lookup_text_by_slugreport", { slugReport: this.slugReport, target: "admissionType"})
+      this.turnaround = await this.$store.dispatch("schools/lookup_text_by_slugreport", { slugReport: this.slugReport, target: "turnaround"})
+
+
       let selectedValues = {}
-      selectedValues["school_report"] = await this.$qlik.selectFieldValues("School Name (Reporting Category)", [{text: this.school_report}])
+      selectedValues["schoolReport"] = await this.$qlik.selectFieldValues("School Name (Reporting Category)", [{text: this.schoolReport}])
       this.$store.dispatch("update_current_selections", selectedValues)
+
+
       this.getCurrentScrollSection()
       this.update()
+    },
+
+    filterMetricGroupsByDomain (domain) {
+      return domain.metric_groups.filter(metric_group => {
+        return metric_group.header || (metric_group.metrics && this.isApplicableByMetricGroup(metric_group))
+      })
+    },
+
+    countApplicableMetricsByGroup (metric_group) {
+      return metric_group.metrics.filter(m => this.isApplicableByMetricId(m.metric_id)).length
+    },
+
+    countApplicableMetricGroupsByDomain (domain) {
+      return domain.metric_groups.filter(m => this.isApplicableByMetricGroup(m)).length
     },
 
     isApplicableByMetricId (metric_id) {
@@ -986,23 +959,28 @@ export default {
       }
     },
 
-    isApplicableByMetricGroup(metric_ids) {
-      let isApplicable = false
-      metric_ids.forEach(metric_id => {
-        const values = this.$qlik.lookupValueByFieldValue(this.metricValues, "metric_id", metric_id, "exception")
-        if (values && values.number) {
-          if (values.number !== 999) {
+    isApplicableByMetricGroup(metric_group) {
+      if (metric_group.metrics) {
+        const metric_ids = metric_group.metrics.map(v => v.metric_id)
+        let isApplicable = false
+        metric_ids.forEach(metric_id => {
+          const values = this.$qlik.lookupValueByFieldValue(this.metricValues, "metric_id", metric_id, "exception")
+          if (values && values.number) {
+            if (values.number !== 999) {
+              isApplicable = true
+            } 
+          } else {
             isApplicable = true
           } 
-        } else {
-          isApplicable = true
-        } 
-      })
-      return isApplicable
+        })
+        return isApplicable
+      } else {
+        return true
+      }
     },
 
     scrollToSection(sectionName) {
-      console.log("navigate to section", sectionName, this.$refs, this.$refs[sectionName][0])
+      // console.log("navigate to section", sectionName, this.$refs, this.$refs[sectionName][0])
       if(this.$refs[sectionName].length) {
         this.$refs[sectionName][0].scrollIntoView()
       } else if (this.$refs[sectionName].scrollIntoView) {
@@ -1013,6 +991,7 @@ export default {
     async update() {
       if (this.sessionObject) {
         this.metricValues = await this.$qlik.getValuesFromHypercubeObject(this.sessionObject)
+        
       }        
     },
     

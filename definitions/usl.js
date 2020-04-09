@@ -5,7 +5,7 @@ export default {
       {
         qDef: {
           qFieldDefs: ['School Name (Reporting Category)'],
-          qFieldLabels: ['school_report'],
+          qFieldLabels: ['schoolReport'],
           qSortCriterias: [{ qSortByLoadOrder: 0, qSortByAscii: 1 }],
         },
         qNullSuppression: true
@@ -27,14 +27,14 @@ export default {
       {
         qDef: {
           qFieldDefs: ['spr.slug_report'],
-          qFieldLabels: ['slug_report'],
+          qFieldLabels: ['slugReport'],
         },
         qNullSuppression: false
       },
       {
         qDef: {
           qFieldDefs: ['spr.schoolname'],
-          qFieldLabels: ['schoolname'],
+          qFieldLabels: ['schoolName'],
         },
         qNullSuppression: false
       },
@@ -69,28 +69,28 @@ export default {
       {
         qDef: {
           qFieldDefs: ['spr.zip_code'],
-          qFieldLabels: ['zip_code'],
+          qFieldLabels: ['zipCode'],
         },
         qNullSuppression: false
       },
       {
         qDef: {
           qFieldDefs: ['spr.url_school'],
-          qFieldLabels: ['url_school'],
+          qFieldLabels: ['urlSchool'],
         },
         qNullSuppression: false
       },
       {
         qDef: {
           qFieldDefs: ['spr.report_name'],
-          qFieldLabels: ['report_name'],
+          qFieldLabels: ['reportName'],
         },
         qNullSuppression: false
       },
       {
         qDef: {
           qFieldDefs: ['spr.grades_served'],
-          qFieldLabels: ['grades_served'],
+          qFieldLabels: ['gradesServed'],
         },
         qNullSuppression: false
       },
@@ -104,7 +104,7 @@ export default {
       {
         qDef: {
           qFieldDefs: ['spr.admissiontype'],
-          qFieldLabels: ['admissiontype'],
+          qFieldLabels: ['admissionType'],
         },
         qNullSuppression: true
       },

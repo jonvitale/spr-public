@@ -1,9 +1,9 @@
 // const dimensionDefs = [
-//   {label: 'name_report', field: 'School Name (Reporting Category)', nullSuppression: true},
+//   {label: 'nameReport', field: 'School Name (Reporting Category)', nullSuppression: true},
 //   // {label: 'name', field: 'School Name', nullSuppression: true},
 //   // {label: 'report', field: 'SPR Report Type', nullSuppression: true},
 //   {label: 'domain_name', field: 'Domain', nullSuppression: false},
-//   {label: 'metric_name', field: 'Metric', nullSuppression: false},
+//   {label: 'metricName', field: 'Metric', nullSuppression: false},
 //   {label: 'domain_id', field: 'Domain ID', nullSuppression: false},
 //   {label: 'metric_id', field: 'Metric ID', nullSuppression: false},
 // ]
@@ -102,9 +102,9 @@ export default {
         qHeight: 400 
       }],
       qDimensions: [
-        {qDef: {qFieldLabels: ['name_report'], qFieldDefs: ['School Name (Reporting Category)']}, qNullSuppression: true},
+        {qDef: {qFieldLabels: ['nameReport'], qFieldDefs: ['School Name (Reporting Category)']}, qNullSuppression: true},
         {qDef: {qFieldLabels: ['domain_name'], qFieldDefs: ['Domain']}, qNullSuppression: false},
-        {qDef: {qFieldLabels: ['metric_name'], qFieldDefs: ['Metric']}, qNullSuppression: false},
+        {qDef: {qFieldLabels: ['metricName'], qFieldDefs: ['Metric']}, qNullSuppression: false},
         {qDef: {qFieldLabels: ['domain_id'], qFieldDefs: ['Domain ID']}, qNullSuppression: false},
         {qDef: {qFieldLabels: ['metric_id'], qFieldDefs: ['Metric ID']}, qNullSuppression: false},
       ],

@@ -7,7 +7,6 @@
           <p> For the {{ $store.state.SY_C }} school year</p>
         </Square>
         <Square color="tint">
-          <!-- <div ref="qdtSelectionToolbar"/> -->
           <QlikFiltersCollapsable 
             :qlikAPI="$qlik"
             :fieldValues="[
@@ -24,54 +23,48 @@
         </Square>
       </Column>
       <Column side="right" width="2/3">
-        <div class="flex flex-wrap mb-4" color="transparent">
+        <Square class="flex flex-wrap mb-4" color="light" tight>
           <QlikKPI 
-            :qlikAPI="$qlik"
             class="max-w-sm"
             ref="kpi1"
             :qId="kpi1.props.qId"
             :title="kpi1.props.title" 
             :subtitle="kpi1.props.subtitle"
             :secondaryLabel="kpi1.props.secondaryLabel" 
-            :description="kpi1.props.description" />
-          <QdtComponent :qdtAPI="$qdt" :type="chart1.type" :props="chart1.props" />
-        </div>
-        <div class="flex flex-wrap mb-4" color="transparent">
-          <!-- <QdtComponent class="w-1/2" :type="kpi2.type" :props="kpi2.props" /> -->
+            :description="kpi1.props.description" 
+            />
+          <QdtComponent class="flex-auto m-2 p-2 bg-white" :type="chart1.type" :props="chart1.props" />
+        </Square>
+        <Square class="flex flex-wrap mb-4" color="light" tight>
           <QlikKPI 
-            :qlikAPI="$qlik"
             class="max-w-sm"
             :qId="kpi2.props.qId"
             :title="kpi2.props.title" 
             :subtitle="kpi2.props.subtitle"
             :secondaryLabel="kpi2.props.secondaryLabel" 
             :description="kpi2.props.description" />
-          <QdtComponent :qdtAPI="$qdt" :type="chart2.type" :props="chart2.props" />
-        </div>
-        <div class="flex flex-wrap mb-4" color="transparent">
-          <!-- <QdtComponent class="w-1/2" :type="kpi3.type" :props="kpi3.props" /> -->
+          <QdtComponent class="flex-auto m-2 p-2 bg-white" :type="chart2.type" :props="chart2.props" />
+        </Square>
+        <Square class="flex flex-wrap mb-4" color="light" tight>
           <QlikKPI 
-            :qlikAPI="$qlik"
             class="max-w-sm"
             :qId="kpi3.props.qId"
             :title="kpi3.props.title" 
             :subtitle="kpi3.props.subtitle"
             :secondaryLabel="kpi3.props.secondaryLabel" 
             :description="kpi3.props.description" />
-          <QdtComponent :qdtAPI="$qdt" :type="chart3.type" :props="chart3.props" />
-        </div>
-        <div class="flex flex-wrap mb-4" color="transparent">
-          <!-- <QdtComponent class="w-1/2" :type="kpi4.type" :props="kpi4.props" /> -->
+          <QdtComponent class="flex-auto m-2 p-2 bg-white" :type="chart3.type" :props="chart3.props" />
+        </Square>
+        <Square class="flex flex-wrap mb-4" color="light" tight>
           <QlikKPI 
-            :qlikAPI="$qlik"
             class="max-w-sm"
             :qId="kpi4.props.qId"
             :title="kpi4.props.title" 
             :subtitle="kpi4.props.subtitle"
             :secondaryLabel="kpi4.props.secondaryLabel" 
             :description="kpi4.props.description" />
-          <QdtComponent :qdtAPI="$qdt" :type="chart4.type" :props="chart4.props" />
-        </div>
+          <QdtComponent class="flex-auto m-2 p-2 bg-white" :type="chart4.type" :props="chart4.props" />
+        </Square>
       </Column>
     </Columns> 
   </section>  
@@ -79,17 +72,17 @@
 
 <script>
 import { mapState } from 'vuex'
-// import QdtFilters from '~/components/Qdt/QdtFilters.vue'
-import QdtComponent from '~components/Qdt/QdtComponent.vue'
-import QlikFiltersCollapsable from '~components/Qlik/QlikFiltersCollapsable.vue'
-import QlikFilter from '~components/Qlik/QlikFilter.vue'
-import QlikKPI from '~components/Qlik/QlikKPI.vue'
-import Horizontal from '~components/PageElements/Horizontal.vue'
-import Columns from '~components/PageElements/Columns.vue'
-import Column from '~components/PageElements/Column.vue'
+// import QdtFilters from '~/components/Qdt/QdtFilters'
+import QdtComponent from '~components/Qdt/QdtComponent'
+import QlikFiltersCollapsable from '~components/Qlik/QlikFiltersCollapsable'
+import QlikFilter from '~components/Qlik/QlikFilter'
+import QlikKPI from '~components/Qlik/QlikKPI'
+import Horizontal from '~components/PageElements/Horizontal'
+import Columns from '~components/PageElements/Columns'
+import Column from '~components/PageElements/Column'
 import Square from '~components/PageElements/Square.vue'
 import Heading from '~components/PageElements/Heading'
-// import SearchResultsList from '~components/Search/SearchResultsListQlik.vue'
+// import SearchResultsList from '~components/Search/SearchResultsListQlik'
 
 export default {
   components: {

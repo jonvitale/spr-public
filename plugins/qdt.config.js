@@ -1,7 +1,7 @@
-import Vue from 'vue';
+// import Vue from 'vue';
 import QdtComponents from 'qdt-components'
 
-import uslDef from "~/definitions/usl"
+// import uslDef from "~/definitions/usl"
 
 const config = {
   host: window.location.hostname,
@@ -17,7 +17,20 @@ const connections = {
 }
 const qdtComponents = new QdtComponents(config, connections);
 
+export default async ({ app }, inject) => {
+  inject('qdt', qdtComponents)
+  
+  // store.commit('setQdtComponents', qdtComponents)
+  // Vue.prototype.$qdt = qdtComponents
+  // Vue.prototype.$qlik = qlikAPI
 
+  // const sessionObject = await generateHypercubeObjectFromDef(uslDef)
+  // const values = await getValuesFromHypercubeObject(sessionObject)
+  // if (values[Object.keys(values)[0]].length < 1) {
+  //   throw Error("USL is not returning any values, make sure to check definitions. < 10,000 cells")
+  // }
+  // store.dispatch("schools/set_schools", values)
+}
 
 
 
@@ -319,33 +332,21 @@ const selectFieldValues = async (fieldName, values) => {
   }
 }
 
-const qlikAPI = {
-  clearField,
-  destroySessionObject,
-  generateHypercubeObjectFromDef,
-  generateListObject, 
-  getFieldValueByIndex,
-  getObjectFromId,
-  getValuesFromListObject,
-  getValuesFromHypercubeObject,
-  getVariableValueByName,
-  lookupIndexByFieldValue,
-  lookupValueByFieldValue,
-  lookupIndexByMultipleFieldValues,
-  lookupValueByMultipleFieldValues,
-  selectFieldValues,
-}
+// const qlikAPI = {
+//   clearField,
+//   destroySessionObject,
+//   generateHypercubeObjectFromDef,
+//   generateListObject, 
+//   getFieldValueByIndex,
+//   getObjectFromId,
+//   getValuesFromListObject,
+//   getValuesFromHypercubeObject,
+//   getVariableValueByName,
+//   lookupIndexByFieldValue,
+//   lookupValueByFieldValue,
+//   lookupIndexByMultipleFieldValues,
+//   lookupValueByMultipleFieldValues,
+//   selectFieldValues,
+// }
 
 
-export default async ({ app, store }) => {
-  store.commit('setQdtComponents', qdtComponents)
-  Vue.prototype.$qdt = qdtComponents
-  Vue.prototype.$qlik = qlikAPI
-
-  const sessionObject = await generateHypercubeObjectFromDef(uslDef)
-  const values = await getValuesFromHypercubeObject(sessionObject)
-  if (values[Object.keys(values)[0]].length < 1) {
-    throw Error("USL is not returning any values, make sure to check definitions. < 10,000 cells")
-  }
-  store.dispatch("schools/set_schools", values)
-}
