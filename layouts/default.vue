@@ -12,9 +12,9 @@
 </template>
 
 <script>
-import Header from '~components/Header/Header'
+import Header from '~sdp-components/Header/Header'
 import Navigation from '~/components/Navigation'
-import Footer from '~components/Footer/Footer'
+import Footer from '~sdp-components/Footer/Footer'
 
 export default {
   components: {

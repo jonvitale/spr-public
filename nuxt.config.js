@@ -34,6 +34,8 @@ export default {
     '~/plugins/qdt.config.js',
     '../sdp-vue-components/plugins/qlik.config.js',
     '~/plugins/init.store.js',
+    '../sdp-vue-components/plugins/breakpoints.js',
+    { src: '~/plugins/vue-unicons.js', mode: 'client' },
   ],
   /*
   ** Nuxt.js dev-modules
@@ -57,10 +59,9 @@ export default {
     extend (config, ctx) {
       
       config.devtool = 'source-map'
-      config.resolve.alias['~components'] = 'C:\\Users\\jvitale\\Documents\\Qlik\\Development\\SDP NUXT Mashup Environment\\sdp-vue-components\\components'
-      // ..\\sdp-vue-components\\components
+      config.resolve.alias['~sdp-components'] = 'C:\\Users\\jvitale\\Documents\\Qlik\\Development\\SDP NUXT Mashup Environment\\sdp-vue-components\\components'
+      config.resolve.alias['~sdp-plugins'] = 'C:\\Users\\jvitale\\Documents\\Qlik\\Development\\SDP NUXT Mashup Environment\\sdp-vue-components\\plugins'
       
-     console.log("Im in config", config.resolve.alias)
     },
   },
 

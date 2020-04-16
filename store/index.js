@@ -34,7 +34,6 @@ export const actions = {
     commit("set_only_schoolReport", schoolReport)
     if (schoolReport) {
       const slugReport = await dispatch("schools/lookup_slugreport_by_schoolreport", schoolReport)
-      console.log("is this working?", slugReport)
       commit("set_only_slugReport", slugReport)
     } else {
       commit("set_only_slugReport", "")

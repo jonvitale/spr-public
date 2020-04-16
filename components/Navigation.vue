@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import NavigationItem from '~components/Navigation/NavigationItem'
+import NavigationItem from '~sdp-components/Navigation/NavigationItem'
 
 export default {
   components: {

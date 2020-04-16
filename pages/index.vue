@@ -73,16 +73,16 @@
 <script>
 import { mapState } from 'vuex'
 // import QdtFilters from '~/components/Qdt/QdtFilters'
-import QdtComponent from '~components/Qdt/QdtComponent'
-import QlikFiltersCollapsable from '~components/Qlik/QlikFiltersCollapsable'
-import QlikFilter from '~components/Qlik/QlikFilter'
-import QlikKPI from '~components/Qlik/QlikKPI'
-import Horizontal from '~components/PageElements/Horizontal'
-import Columns from '~components/PageElements/Columns'
-import Column from '~components/PageElements/Column'
-import Square from '~components/PageElements/Square.vue'
-import Heading from '~components/PageElements/Heading'
-// import SearchResultsList from '~components/Search/SearchResultsListQlik'
+import QdtComponent from '~sdp-components/Qdt/QdtComponent'
+import QlikFiltersCollapsable from '~sdp-components/Qlik/QlikFiltersCollapsable'
+import QlikFilter from '~sdp-components/Qlik/QlikFilter'
+import QlikKPI from '~sdp-components/Qlik/QlikKPI'
+import Horizontal from '~sdp-components/PageElements/Horizontal'
+import Columns from '~sdp-components/PageElements/Columns'
+import Column from '~sdp-components/PageElements/Column'
+import Square from '~sdp-components/PageElements/Square.vue'
+import Heading from '~sdp-components/PageElements/Heading'
+// import SearchResultsList from '~sdp-components/Search/SearchResultsListQlik'
 
 export default {
   components: {
@@ -178,18 +178,10 @@ export default {
     }
   },
   async mounted() {
-    this.$store.state.qdtComponents.render("QdtSelectionToolbar", {title: "Selections", btnText: "Clear"}, this.$refs.qdtSelectionToolbar)
-    // this.$store.state.qdtComponents.render("QdtFilter", {cols: ['School Name (Reporting Category)'], expanded: true}, this.$refs.qdtFilter)
-    // const engine = await this.$store.state.qdtComponents.qDocPromise
-    // const sess = await engine.createSessionObject(qDef)  
-    // const f = async () => {
-    //   const _layout = await sess.getLayout() 
-    //   console.log("List item callback", _layout)
-    // }
-    // sess.on("changed", f)
-    // const layout = await sess.getLayout()      
-    // console.log("List item init", layout, sess)
-
+    // this.$qdt.render("QdtSelectionToolbar", {title: "Selections", btnText: "Clear"}, this.$refs.qdtSelectionToolbar)
+    
+    // this.$qdt.render("QdtFilter", {cols: ['School Name (Reporting Category)'], expanded: true}, this.$refs.qdtFilter)
+    
   },
   
 }

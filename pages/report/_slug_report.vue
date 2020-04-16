@@ -1,53 +1,16 @@
 <template>
-  <div class="flex flex-wrap lg:flex-no-wrap">    
+  <div class="flex flex-wrap lg:flex-no-wrap">   
     <div class="w-full lg:w-1/5 text-left lg:h-screen sticky top-0">
-      <div class="flex flex-col align-middle bg-blue-100 lg:h-screen lg:py-8">
-        <div class="w-32 self-center">
-          <h3 class="mb-2"> Sections </h3>
-          <div class="flex flex-col">
-            <button class="section-nav-item" 
-              :class="{'active': currentSection == 's-overview'}"
-              @click.prevent="scrollToSection('s-overview')"
-            > 
-              Overview 
-            </button>
-            <button class="section-nav-item" 
-              :class="{'active': currentSection == 's-achievement'}"
-              @click.prevent="scrollToSection('s-achievement')"
-            > 
-              Achievement 
-            </button>
-            <button class="section-nav-item" 
-              :class="{'active': currentSection == 's-progress'}"
-              @click.prevent="scrollToSection('s-progress')"
-            > 
-              Progress 
-            </button>
-            <button class="section-nav-item" 
-              :class="{'active': currentSection == 's-climate'}"
-              @click.prevent="scrollToSection('s-climate')"
-            > 
-              Climate 
-            </button>
-            <button v-if="reportName === 'High School'"
-              class="section-nav-item" 
-              :class="{'active': currentSection == 's-cc'}"
-              @click.prevent="scrollToSection('s-cc')"
-            > 
-              College &amp; Career
-            </button>
-            <button class="section-nav-item" 
-              :class="{'active': currentSection == 's-ee'}"
-              @click.prevent="scrollToSection('s-ee')"
-            > 
-              Educator Effectiveness
-            </button>
-          </div>
-        </div>
-      </div>
+      <!-- use current breakpoints based on sdp-plugins -->
+      <ScrollSpyNav 
+        class="bg-blue-100"
+        title="Sections"
+        :refs="['s-overview', 's-achievement', 's-progress', 's-climate', 's-cc', 's-ee']"
+        :orientation="breakpoints.is == 'lg' || breakpoints.is == 'xl' ? 'col' : 'row'"
+        />
     </div>
-    <div class="w-full lg:w-4/5 lg:pl-2">
-      <section ref="s-overview" class="px-8">
+    <div class="w-full lg:w-4/5 lg:pl-2" ref="scrollSpyTarget">
+      <section ref="s-overview" name="Overview" class="px-8">
         <div class="flex mb-4 px-4 w-full bg-black text-white text-2xl "> 
           <p> {{ $store.state.SY_C }} School Progress Report </p>
         </div>
@@ -173,7 +136,9 @@
           <section class="pt-8">
             <hr class="w-full page">
           </section>
-          <section :ref="'s-'+domain.key" class="px-8 my-4 pt-4" >
+          <section :ref="'s-'+domain.key" :name="domain.title"
+            class="px-8 my-4 pt-4" 
+            >
             <!-- page header -->
             <div class="flex justify-between my-4 pt-6 w-full text-lg "> 
               <p class="text-gray-600"> {{ $store.state.SY_C }} School Progress Report </p>
@@ -310,7 +275,7 @@
           <section class="pt-8">
             <hr class="w-full page">
           </section>
-          <section ref="s-ee" class="px-8 my-4 pt-4" >
+          <section ref="s-ee" name="Educator Effectiveness" class="px-8 my-4 pt-4" >
             <!-- page header -->
             <div class="flex justify-between my-4 pt-6 w-full text-lg "> 
               <p class="text-gray-600"> {{ $store.state.SY_C }} School Progress Report </p>
@@ -423,13 +388,16 @@
 import { mapState } from 'vuex'
 
 import metricValuesDef from '~/definitions/reportMeasures'
-// import QdtComponent from '~components/Qdt/QdtComponent'
-import LineChart from '~components/SimpleCharts/LineChart'
-import Columns from '~components/PageElements/Columns'
-import Column from '~components/PageElements/Column'
-import Square from '~components/PageElements/Square'
-import Horizontal from '~components/PageElements/Horizontal'
-import Heading from '~components/PageElements/Heading'
+// import QdtComponent from '~sdp-components/Qdt/QdtComponent'
+import LineChart from '~sdp-components/SimpleCharts/LineChart'
+import Columns from '~sdp-components/PageElements/Columns'
+import Column from '~sdp-components/PageElements/Column'
+import Square from '~sdp-components/PageElements/Square'
+import Horizontal from '~sdp-components/PageElements/Horizontal'
+import Heading from '~sdp-components/PageElements/Heading'
+import ScrollSpyNav from '~sdp-components/Navigation/ScrollSpyNav'
+
+import breakpoints from '~sdp-plugins/breakpoints'
 
 const domainFacts = [
   {
@@ -785,6 +753,7 @@ export default {
     Square,
     Horizontal,
     Heading,
+    ScrollSpyNav,
   },
   data() {
     return {
@@ -793,7 +762,7 @@ export default {
       slugReport: this.$route.params.slug_report,
       metricValues: null,
       domainFacts: domainFacts,
-      currentSection: "",
+      breakpoints: breakpoints,
 
       // school facts
       schoolReport: null,
@@ -848,27 +817,7 @@ export default {
       else { return shortReportType }
     },
 
-    getCurrentScrollSection() {
-      const sections = ['s-overview', 's-achievement', 's-progress', 's-climate', 's-cc', 's-ee']      
-      let currentSection = "", i, sectionName, ref
-      for (i in sections) {
-        sectionName = sections[i]
-        if (Object.keys(this.$refs).includes(sectionName)) {
-          ref = this.$refs[sectionName]
-          if (ref.length) ref = ref[0]
-          if (ref.nodeName == "SECTION") {
-            if (ref.offsetTop &&
-              window.scrollY < ref.offsetTop + ref.offsetHeight
-            ) {
-              currentSection = sectionName
-              break
-            }
-          }
-        }
-      }
-      this.currentSection = currentSection
-      // console.log("scroll", window.scrollY, currentSection)
-    },
+    
 
     lookupTextByFieldValue (sourceField, sourceFieldValue, targetField) {
       if (this.metricValues) {
@@ -927,8 +876,6 @@ export default {
       selectedValues["schoolReport"] = await this.$qlik.selectFieldValues("School Name (Reporting Category)", [{text: this.schoolReport}])
       this.$store.dispatch("update_current_selections", selectedValues)
 
-
-      this.getCurrentScrollSection()
       this.update()
     },
 
@@ -979,41 +926,25 @@ export default {
       }
     },
 
-    scrollToSection(sectionName) {
-      // console.log("navigate to section", sectionName, this.$refs, this.$refs[sectionName][0])
-      if(this.$refs[sectionName].length) {
-        this.$refs[sectionName][0].scrollIntoView()
-      } else if (this.$refs[sectionName].scrollIntoView) {
-        this.$refs[sectionName].scrollIntoView()
-      }
-    },
-
     async update() {
       if (this.sessionObject) {
         this.metricValues = await this.$qlik.getValuesFromHypercubeObject(this.sessionObject)
         
       }        
     },
-    
-    
-    
+
   },
 
   created() {      
     if (this.schoolsInitialized) this.initialize()
   },
 
-  beforeMount() {
-    window.addEventListener("scroll", this.getCurrentScrollSection)
-  },
-
   beforeDestroy() {    
     this.destroy()
-    window.removeEventListener("scroll", this.getCurrentScrollSection)
   },
 }
 </script>
-<style scoped>
+<style lang="postcss" scoped>
 h1 {
   font-size: 20pt;
   font-weight: bold;
@@ -1078,17 +1009,7 @@ hr.tint {
   height: 10pt;
 }
 
-.section-nav-item {
-  @apply py-2 text-left cursor-pointer outline-none;
-}
 
-.section-nav-item:hover {
-  @apply font-semibold;
-}
-
-.section-nav-item.active {
-  @apply font-semibold underline;
-}
 
 .spr-intervene {
   color: theme('colors.spr-intervene');

@@ -209,11 +209,11 @@
 <script>
 import metricValuesDef from '~/definitions/calculatorMeasures'
 
-import ProjectionSlider from '~components/PageElements/ProjectionSlider'
-import KPI from '~components/PageElements/KPI'
-import Columns from '~components/PageElements/Columns'
-import Column from '~components/PageElements/Column'
-import Square from '~components/PageElements/Square'
+import ProjectionSlider from '~sdp-components/PageElements/ProjectionSlider'
+import KPI from '~sdp-components/PageElements/KPI'
+import Columns from '~sdp-components/PageElements/Columns'
+import Column from '~sdp-components/PageElements/Column'
+import Square from '~sdp-components/PageElements/Square'
 
 const formatValue = (value, isPercent, roundAtWhole, showPlusForPositive) => {
       let prepend = ''

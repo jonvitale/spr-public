@@ -8,7 +8,7 @@
         v-if="slugReports.length > 5"
         class="inline-flex justify-between w-full mb-4 bg-white appearance-none border border-blue-900  py-2 px-3 leading-tight focus:outline-none focus:shadow-outline">
         <div class="inline-flex">
-          <SVGSearch />
+          <SearchIcon />
           <input 
             class="pl-2 text-blue-900 w-full"
             id="search-filter" 
@@ -16,7 +16,7 @@
             placeholder=""
             v-model="searchText" />
         </div>
-        <SVGClear v-if="searchText.length > 0"
+        <ClearIcon v-if="searchText.length > 0"
           class="flex-initial"
           @click="searchText = ''" 
         />
@@ -34,19 +34,19 @@
   </div>
 </template>
 <script>
-import NavigationItem from '~components/Navigation/NavigationItem'
-import Square from '~components/PageElements/Square'
-import Heading from '~components/PageElements/Heading'
-import SVGSearch from '~components/SVG/SVGSearch'
-import SVGClear from '~components/SVG/SVGClear'
+import NavigationItem from '~sdp-components/Navigation/NavigationItem'
+import Square from '~sdp-components/PageElements/Square'
+import Heading from '~sdp-components/PageElements/Heading'
+import SearchIcon from '~sdp-components/Icons/SearchIcon'
+import ClearIcon from '~sdp-components/Icons/ClearIcon'
 
 export default {
   components: {
     NavigationItem,
     Square,
     Heading,
-    SVGSearch,
-    SVGClear,
+    SearchIcon,
+    ClearIcon,
   },
   data: function(){
     return {
