@@ -1,109 +1,107 @@
 <template>
-  <section>
-    <Columns>
-      <Column side="left" width="1/3">
-        <Square color="dark">
-          <Heading size="large">School Progress Report</Heading>
-          <p> For the {{ $store.state.SY_C }} school year</p>
-        </Square>
-        <Square color="tint">        
-          <QlikFilter 
-            :qlikAPI="$qlik"
-            class="mt-2"              
-            title="Select a specific Domain"
-            field="Domain_Name"
-            preventMultipleSelections
-            @changed="handleDomainSelected" 
-          />
-          <QlikFilter 
-            v-if="selectedDomain"
-            :qlikAPI="$qlik"
-            class="mt-2"       
-            style="max-height: 360px"       
-            :title="'Select a specific ' + selectedDomain + ' Metric'"
-            field="Metric_Name"
-            preventMultipleSelections
-            :expression="'Only({<[Domain_Name]={\''+ selectedDomain + '\'}]>}[Metric_Name])'"
-          />
-          <QlikFiltersCollapsable 
-            :qlikAPI="$qlik"
-            :fieldValues="[
-            {field:'SPR Report Type'},
-            {field:'Sector'},               
-            {field:'Learning Network', title:'Network'},
-          ]" />     
-          <QlikFilter 
-            :qlikAPI="$qlik"
-            class="mt-3"
-            style="max-height: 360px"
-            title="School and Report Type"
-            field="School Name (Reporting Category)" 
-          />
-        </Square>
-      </Column>
-      <Column side="right" width="2/3" ref="content-column">
-        <ScrollSpyNav 
-          class="sticky top-0 bg-white"
-          title="Charts:"
-          :refs="['v-distribution', 'v-map', 'v-table']"
-          orientation="row"
-          />
-        <div class="flex flex-wrap">
-          <div 
-            ref="v-distribution" 
-            name="Distribution"
-            class="mb-2"
-            >
-            <Square class="mb-4" color="light" tight>
-              <div class="flex flex-row" >
-                <QlikKPI 
-                  class="max-w-sm"
-                  ref="kpi1"
-                  :qId="kpi1.qId"
-                  :title="kpi1.title" 
-                  :subtitle="kpi1.subtitle"
-                  :secondaryLabel="kpi1.secondaryLabel" 
-                  :description="kpi1.description" 
-                  />
-                <QdtComponent 
-                  class="flex-auto m-2 p-2 bg-white"
-                  style="min-width:400px"
-                  type="QdtViz" 
-                  :props="distribution" 
-                  />
-              </div>
-              <div class="flex flex-row justify-center">
-                <ButtonGroup
-                  :options="{
-                    'current': 'Current Year',
-                    '3year': '3-Year Average',
-                    }"
-                  @buttonClicked="handleYearSelection($event.id, $event.value)" 
-                  />
-              </div>
-            </Square>
-          </div>
-          <div 
-            ref="v-map" 
-            name="Map">
-            <Square class="flex w-full" color="white" tight>
-              <QdtComponent type="QdtViz" :props="map" />
-            </Square>
-          </div>
-          <div 
-            ref="v-table" 
-            name="Table">
-            <Square class="flex flex-row mb-4" color="white" tight>
-              <QdtComponent 
-                type="QdtViz" 
-                :props="table"
+  <Columns>
+    <Column side="left" width="1/3">
+      <Square color="dark">
+        <Heading size="large">School Progress Report</Heading>
+        <p> For the {{ $store.state.SY_C }} school year</p>
+      </Square>
+      <Square color="tint">        
+        <QlikFilter 
+          :qlikAPI="$qlik"
+          class="mt-2"              
+          title="Select a specific Domain"
+          field="Domain_Name"
+          preventMultipleSelections
+          @changed="handleDomainSelected" 
+        />
+        <QlikFilter 
+          v-if="selectedDomain"
+          :qlikAPI="$qlik"
+          class="mt-2"       
+          style="max-height: 360px"       
+          :title="'Select a specific ' + selectedDomain + ' Metric'"
+          field="Metric_Name"
+          preventMultipleSelections
+          :expression="'Only({<[Domain_Name]={\''+ selectedDomain + '\'}]>}[Metric_Name])'"
+        />
+        <QlikFiltersCollapsable 
+          :qlikAPI="$qlik"
+          :fieldValues="[
+          {field:'SPR Report Type'},
+          {field:'Sector'},               
+          {field:'Learning Network', title:'Network'},
+        ]" />     
+        <QlikFilter 
+          :qlikAPI="$qlik"
+          class="mt-3"
+          style="max-height: 360px"
+          title="School and Report Type"
+          field="School Name (Reporting Category)" 
+        />
+      </Square>
+    </Column>
+    <Column side="right" width="2/3" ref="content-column">
+      <ScrollSpyNav 
+        class="sticky top-0 bg-white"
+        title="Charts:"
+        :refs="['v-distribution', 'v-map', 'v-table']"
+        orientation="row"
+        />
+      <div class="flex flex-wrap">
+        <div 
+          ref="v-distribution" 
+          name="Distribution"
+          class="mb-2"
+          >
+          <Square class="mb-4" color="light" tight>
+            <div class="flex flex-row" >
+              <QlikKPI 
+                class="max-w-sm"
+                ref="kpi1"
+                :qId="kpi1.qId"
+                :title="kpi1.title" 
+                :subtitle="kpi1.subtitle"
+                :secondaryLabel="kpi1.secondaryLabel" 
+                :description="kpi1.description" 
                 />
-            </Square>
-          </div>
+              <QdtComponent 
+                class="flex-auto m-2 p-2 bg-white"
+                style="min-width:400px"
+                type="QdtViz" 
+                :props="distribution" 
+                />
+            </div>
+            <div class="flex flex-row justify-center">
+              <ButtonGroup
+                :options="{
+                  'current': 'Current Year',
+                  '3year': '3-Year Average',
+                  }"
+                @buttonClicked="handleYearSelection($event.id, $event.value)" 
+                />
+            </div>
+          </Square>
         </div>
-      </Column>
-    </Columns>
-  </section>
+        <div 
+          ref="v-map" 
+          name="Map">
+          <Square class="flex w-full" color="white" tight>
+            <QdtComponent type="QdtViz" :props="map" />
+          </Square>
+        </div>
+        <div 
+          ref="v-table" 
+          name="Table">
+          <Square class="flex flex-row mb-4" color="white" tight>
+            <QdtComponent 
+              type="QdtViz" 
+              :props="table"
+              />
+          </Square>
+        </div>
+      </div>
+    </Column>
+  </Columns>
 </template>
 
 <script>

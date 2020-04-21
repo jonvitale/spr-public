@@ -4,7 +4,7 @@
       <!-- left side: overall and domain scores -->
       <Column side="left" width="1/3">    
         <div class="text-left sticky top-0">
-          <div class="flex flex-col align-middle lg:py-4">
+          <div class="flex flex-col align-middle">
             <Square color="tint" tight class="py-6 mb-6">
               <h5 class="w-full text-center"> 
                 Performance Tiers Color Key 
@@ -32,11 +32,11 @@
               <h3 class="w-full text-center"> Scores </h3>
               <div v-for="domain in domainFacts" :key="domain.key"> 
                 <div v-if="domain.key !== 'ee' && (domain.key !== 'cc' || reportName === 'High School')">
-                  <div class="flex flex-row justify-between">
+                  <div class="flex flex-row justify-around mx-2">
                     <h4> {{ domain.title }} </h4>
                     <button> Reset </button>
                   </div>
-                  <div class="flex flex-row justify-between">
+                  <div class="flex flex-row justify-center">
                     <KPI :ref="'kpi-agg-current-'+domain.key"
                       class="mr-2"
                       style="width: 11rem; height: 7rem;"
@@ -75,6 +75,7 @@
       
       <!-- right side: individual metric scores and projection sliders -->
       <Column side="right" width="2/3">
+        <h1> {{ schoolName }} </h1>
         <!-- header above sliders -->
         <div class="sticky">
           <!-- domain buttons -->
@@ -465,7 +466,7 @@ export default {
     async update() {
       if (this.sessionObject) {
         this.metricValues = await this.$qlik.getValuesFromHypercubeObject(this.sessionObject)
-        this.metricIds = await this.$qlik.lookupValueByMultipleFieldValues(this.metricValues, {'domain_name': this.currentDomain, 'is_metric': true}, 'metricId', true, 'text')
+        this.metricIds = await this.$qlik.lookupValueByMultipleFieldValues(this.metricValues, {'domainName': this.currentDomain, 'isMetric': true}, 'metricId', true, 'text')
         
         // add a deep copy of the score field as projected scores
         this.scoreProjected = new Array(this.metricValues['metricId'].length)
@@ -502,7 +503,7 @@ export default {
 
     async updateCurrentDomain (domain) {
       this.currentDomain = domain
-      this.metricIds = await this.$qlik.lookupValueByMultipleFieldValues(this.metricValues, {'domain_name': this.currentDomain, 'is_metric': true}, 'metricId', true, 'text')
+      this.metricIds = await this.$qlik.lookupValueByMultipleFieldValues(this.metricValues, {'domainName': this.currentDomain, 'isMetric': true}, 'metricId', true, 'text')
     },
 
     async updateProjectedValuesByMetric (metricId, scoreProjected, doRollup) {
@@ -585,11 +586,11 @@ export default {
       } else {
         let metricIds, pointsEarnedProjected, possiblePointsProjected
         if (domain == 'Overall') {
-          metricIds = this.$qlik.lookupValueByFieldValue(this.metricValues, "is_domain", 1, 'metricId', true, 'text')
+          metricIds = this.$qlik.lookupValueByFieldValue(this.metricValues, "isDomain", 1, 'metricId', true, 'text')
           pointsEarnedProjected = metricIds.map(id => this.pointsEarnedProjected[id])
           possiblePointsProjected = metricIds.map(id => this.possiblePointsProjected[id])
         } else {
-          metricIds = this.$qlik.lookupValueByMultipleFieldValues(this.metricValues, {"is_metric": 1, "domain_name": domain }, 'metricId', true, 'text')
+          metricIds = this.$qlik.lookupValueByMultipleFieldValues(this.metricValues, {"isMetric": 1, "domainName": domain }, 'metricId', true, 'text')
           pointsEarnedProjected = metricIds.map(id => this.pointsEarnedProjectedCalculated[id])
           possiblePointsProjected = metricIds.map(id => this.possiblePointsProjected[id]) 
         }

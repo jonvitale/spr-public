@@ -1,3 +1,6 @@
+const { resolve, join } = require('path')
+
+console.log("config", join(resolve(__dirname), "../sdp-vue-components"))
 // const path = require("path")
 // const projectName = 'spr-config'
 
@@ -32,9 +35,9 @@ export default {
   */
   plugins: [
     '~/plugins/qdt.config.js',
-    '../sdp-vue-components/plugins/qlik.config.js',
+    join(resolve(__dirname), "../sdp-vue-components/plugins/qlik.config"),
     '~/plugins/init.store.js',
-    '../sdp-vue-components/plugins/breakpoints.js',
+    join(resolve(__dirname), "../sdp-vue-components/plugins/breakpoints"),
     { src: '~/plugins/vue-unicons.js', mode: 'client' },
   ],
   /*
@@ -48,7 +51,23 @@ export default {
   ** Nuxt.js modules
   */
   modules: [
+    // ['~/../test-module/module', {value: 7}],
   ],
+
+  // enabled: true,
+  // content: ["**/*.js", "**/*.html", "**/*.vue"],
+  // css: ["assets/**/*.css"],
+  // rejected: true,
+
+  purgeCSS: {
+    paths: [
+      '../sdp-vue-components/components/**/*.vue',
+      '../sdp-vue-components/layouts/**/*.vue',
+      '../sdp-vue-components/pages/**/*.vue',
+      '../sdp-vue-components/plugins/**/*.js',
+    ],
+    rejected: true,
+  },
   /*
   ** Build configuration
   */
@@ -59,9 +78,8 @@ export default {
     extend (config, ctx) {
       
       config.devtool = 'source-map'
-      config.resolve.alias['~sdp-components'] = 'C:\\Users\\jvitale\\Documents\\Qlik\\Development\\SDP NUXT Mashup Environment\\sdp-vue-components\\components'
-      config.resolve.alias['~sdp-plugins'] = 'C:\\Users\\jvitale\\Documents\\Qlik\\Development\\SDP NUXT Mashup Environment\\sdp-vue-components\\plugins'
-      
+      config.resolve.alias['~sdp-components'] = join(resolve(__dirname), "../sdp-vue-components/components")
+      config.resolve.alias['~sdp-plugins'] = join(resolve(__dirname), "../sdp-vue-components/plugins")
     },
   },
 
@@ -75,7 +93,7 @@ export default {
         component: resolve(__dirname, 'pages/index'),
         name: "index"
       }, {
-        path: "About",
+        path: "/About",
         component: resolve(__dirname, 'pages/about'),
         name: "about"
       })

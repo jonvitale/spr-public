@@ -1,7 +1,3 @@
-/* purgecss start ignore */
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
-/* purgecss end ignore */
-/* Note I manually moved the utilities up because tailwind 
-utilities in components were being ignored */
