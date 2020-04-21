@@ -8,9 +8,9 @@ export default {
       }],
       qDimensions: [
         {qDef: {qFieldLabels: ['nameReport'], qFieldDefs: ['School Name (Reporting Category)']}, qNullSuppression: true},
-        {qDef: {qFieldLabels: ['domain_name'], qFieldDefs: ['Domain']}, qNullSuppression: false},
+        {qDef: {qFieldLabels: ['domainName'], qFieldDefs: ['Domain']}, qNullSuppression: false},
         {qDef: {qFieldLabels: ['metricName'], qFieldDefs: ['Metric']}, qNullSuppression: false},
-        {qDef: {qFieldLabels: ['domain_id'], qFieldDefs: ['Domain ID']}, qNullSuppression: false},
+        {qDef: {qFieldLabels: ['domainId'], qFieldDefs: ['Domain ID']}, qNullSuppression: false},
         {qDef: {qFieldLabels: ['metricId'], qFieldDefs: ['Metric ID']}, qNullSuppression: false},
       ],
       qMeasures: [
@@ -18,13 +18,13 @@ export default {
         // {label: 'tier-overall', expression: '$(vMM_Only_Tier_pMetric_pYearEnd(Z_OVERALL_OVERALL, 2018))'}
         {
           qDef: {
-            qLabel: 'is_metric',
+            qLabel: 'isMetric',
             qDef: `If(Match([Metric ID],'Z_OVERALL_OVERALL', 'Z_ACH_OVERALL', 'Z_PROG_OVERALL', 'Z_CLIM_OVERALL', 'Z_CC_OVERALL') > 0, 0, 1)`
           }
         },
         {
           qDef: {
-            qLabel: 'is_domain',
+            qLabel: 'isDomain',
             qDef: `If(Match([Metric ID],'Z_ACH_OVERALL', 'Z_PROG_OVERALL', 'Z_CLIM_OVERALL', 'Z_CC_OVERALL') > 0, 1, 0)`
           }
         },
