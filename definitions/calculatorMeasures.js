@@ -54,7 +54,7 @@ export default {
         },
         {
           qDef: {
-            qLabel: 'exception_name', 
+            qLabel: 'exceptionName', 
             qDef: `If([Metric ID] = 'Z_OVERALL_OVERALL', MaxString({<[Exception Overall] = {"*"}, YearEnd={$(=$(v_Max_YearEnd))}>} [Exception Name]),
                 If(Match([Metric ID],'Z_ACH_OVERALL', 'Z_PROG_OVERALL', 'Z_CLIM_OVERALL', 'Z_CC_OVERALL') > 0, 
                   MaxString({<[Metric ID] = {"Z_ACH_OVERALL", "Z_PROG_OVERALL", "Z_CLIM_OVERALL", "Z_CC_OVERALL"},  [Exception in Domain] = {"*"}, YearEnd={$(=$(v_Max_YearEnd))}>} [Exception Name]),
