@@ -7,19 +7,30 @@
           <p> For the {{ $store.state.SY_C }} school year</p>
         </Square>
         <Square color="tint">
+          <QlikFilter 
+            :qlikAPI="$qlik"
+            class="mt-2"              
+            title="Select a specific Domain"
+            field="Domain_Name"
+            preventMultipleSelections
+            @changed="handleFieldSelections" 
+            />        
           <QlikFiltersCollapsable 
             :qlikAPI="$qlik"
             :fieldValues="[
               {field:'SPR Report Type'},
               {field:'Sector'},               
               {field:'Learning Network', title:'Network'},
-            ]" />     
+            ]" 
+            @changed="handleFieldSelections" 
+            />     
           <QlikFilter 
             :qlikAPI="$qlik"
             style="max-height: 400px"
             title="School Name and Report Type"
             field="School Name (Reporting Category)" 
-            @changed="update" />                   
+            @changed="handleFieldSelections"  
+            />                   
         </Square>
       </Column>
       <Column side="right" width="2/3">
@@ -42,10 +53,12 @@
             :title="kpi2.props.title" 
             :subtitle="kpi2.props.subtitle"
             :secondaryLabel="kpi2.props.secondaryLabel" 
-            :description="kpi2.props.description" />
+            :description="kpi2.props.description" 
+            />
           <QdtComponent class="flex-auto m-2 p-2 bg-white" :type="chart2.type" :props="chart2.props" />
         </Square>
-        <Square class="flex flex-wrap mb-4" color="light" tight>
+        <Square v-if="!$store.getters['selections/oneSchoolSelected']"
+          class="flex flex-wrap mb-4" color="light" tight>
           <QlikKPI 
             class="max-w-sm"
             :qId="kpi3.props.qId"
@@ -55,7 +68,8 @@
             :description="kpi3.props.description" />
           <QdtComponent class="flex-auto m-2 p-2 bg-white" :type="chart3.type" :props="chart3.props" />
         </Square>
-        <Square class="flex flex-wrap mb-4" color="light" tight>
+        <Square v-if="!$store.getters['selections/oneSchoolSelected']"
+          class="flex flex-wrap mb-4" color="light" tight>
           <QlikKPI 
             class="max-w-sm"
             :qId="kpi4.props.qId"
@@ -72,7 +86,7 @@
 
 <script>
 import { mapState } from 'vuex'
-// import QdtFilters from '~/components/Qdt/QdtFilters'
+import SelectionsMixin from '~/mixins/SelectionsMixin'
 import QdtComponent from '~sdp-components/Qdt/QdtComponent'
 import QlikFiltersCollapsable from '~sdp-components/Qlik/QlikFiltersCollapsable'
 import QlikFilter from '~sdp-components/Qlik/QlikFilter'
@@ -80,11 +94,12 @@ import QlikKPI from '~sdp-components/Qlik/QlikKPI'
 import Horizontal from '~sdp-components/PageElements/Horizontal'
 import Columns from '~sdp-components/PageElements/Columns'
 import Column from '~sdp-components/PageElements/Column'
-import Square from '~sdp-components/PageElements/Square.vue'
+import Square from '~sdp-components/PageElements/Square'
 import Heading from '~sdp-components/PageElements/Heading'
 // import SearchResultsList from '~sdp-components/Search/SearchResultsListQlik'
 
 export default {
+  mixins: [ SelectionsMixin ],
   components: {
     QlikFilter,
     QlikFiltersCollapsable,
@@ -113,7 +128,7 @@ export default {
         'props': {
           'qId': 'bJYMhp',
           'description':'Averaged for all applicable district and charter schools', 
-          'title': '% Earned Overall', 
+          'title': '', 
           'subtitle': ' ',
           'secondaryLabel': 'From  ' + this.$store.state.SY_P,
           'color': 'light'
@@ -124,7 +139,7 @@ export default {
         'props': {
           'qId': 'ghWAbL',
           'description':'Average of previous three reports, averaged for all applicable district and charter schools', 
-          'title': 'Average of Past Three % Earned Overall', 
+          'title': '', 
           'subtitle': ' ',
           'secondaryLabel': 'From  ' + this.$store.state.SY_P,
           'color': 'light'
@@ -135,7 +150,7 @@ export default {
         'props': {
           'qId': 'hGwBh',
           'description':'Averaged for all applicable district and charter schools', 
-          'title': '% "Model" and "Reinforce" School Reports', 
+          'title': '', 
           'subtitle': ' ',
           'secondaryLabel': 'From  ' + this.$store.state.SY_P,
           'color': 'light'
@@ -146,7 +161,7 @@ export default {
         'props': {
           'qId': 'kcmZvgT',
           'description':'Averaged for students at all applicable district and charter schools', 
-          'title': '% of Students in "Model" and "Reinforce" Schools', 
+          'title': '', 
           'subtitle': ' ',
           'secondaryLabel': 'From  ' + this.$store.state.SY_P,
           'color': 'light'
@@ -172,10 +187,7 @@ export default {
   },
   
   methods: {
-    update() {
-      // console.log("update kp1", this.$refs.kpi1)
-      // this.$refs.kpi1.update()
-    }
+    
   },
   async mounted() {
     // this.$qdt.render("QdtSelectionToolbar", {title: "Selections", btnText: "Clear"}, this.$refs.qdtSelectionToolbar)
@@ -183,7 +195,18 @@ export default {
     // this.$qdt.render("QdtFilter", {cols: ['School Name (Reporting Category)'], expanded: true}, this.$refs.qdtFilter)
     
   },
-  
+  /**
+   * Remove field values that we don't want to carry to other pages
+   */  
+  async destroyed() {    
+    const fieldsToClear = ["Domain_Name"]
+    const engine = await this.$qlik.engine
+    let field
+    fieldsToClear.forEach(async fieldName => {
+      field = await engine.getField(fieldName)
+      await field.clear()
+    })
+  }
 }
 </script>
 

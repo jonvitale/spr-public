@@ -59,7 +59,6 @@
                 class="max-w-sm"
                 ref="kpi1"
                 :qId="kpi1.qId"
-                :title="kpi1.title" 
                 :subtitle="kpi1.subtitle"
                 :secondaryLabel="kpi1.secondaryLabel" 
                 :description="kpi1.description" 
@@ -137,7 +136,7 @@ export default {
       // Qlik Objects
       kpi1: {        
         'qId': 'XTmmsjm',
-        'title': 'Average % Earned - Overall', 
+        'title': '', 
         'subtitle': ' ',
         'secondaryLabel': 'From  ' + this.$store.state.SY_P,
         'description': ' '

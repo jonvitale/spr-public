@@ -51,15 +51,16 @@ export default {
   ** Nuxt.js modules
   */
   modules: [
+    'vue-scrollto/nuxt',
     // ['~/../test-module/module', {value: 7}],
   ],
 
-  // enabled: true,
-  // content: ["**/*.js", "**/*.html", "**/*.vue"],
-  // css: ["assets/**/*.css"],
-  // rejected: true,
-
+  /**
+   * purgeCss:
+   * note that the following paths simply add to the default
+   */
   purgeCSS: {
+    
     paths: [
       '../sdp-vue-components/components/**/*.vue',
       '../sdp-vue-components/layouts/**/*.vue',

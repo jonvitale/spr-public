@@ -6,7 +6,15 @@
           <Heading size="large">School Progress Report</Heading>
           <p> For the {{ $store.state.SY_C }} school year</p>
         </Square>
-        <Square color="tint">             
+        <Square color="tint">      
+          <QlikFilter 
+            :qlikAPI="$qlik"
+            class="mt-2"              
+            title="Select a specific Domain"
+            field="Domain_Name"
+            preventMultipleSelections
+            @changed="handleDomainSelected" 
+          />       
           <QlikFiltersCollapsable 
             :qlikAPI="$qlik"
             :fieldValues="[
@@ -23,7 +31,7 @@
           />
         </Square>
       </Column>
-      <Column side="right" width="2/3" ref="content-column">
+      <Column side="right" width="2/3" >
         <ScrollSpyNav 
           class="sticky top-0 bg-white"
           title="Charts:"
@@ -42,7 +50,6 @@
                   class="max-w-sm"
                   ref="kpiTrends"
                   :qId="kpiTrends.qId"
-                  :title="kpiTrends.title" 
                   :subtitle="kpiTrends.subtitle"
                   :secondaryLabel="kpiTrends.secondaryLabel" 
                   :description="kpiTrends.description" 
@@ -79,7 +86,6 @@
                   class="max-w-sm"
                   ref="kpiSankey1"
                   :qId="kpiSankey1.qId"
-                  :title="kpiSankey1.title" 
                   :subtitle="kpiSankey1.subtitle"
                   :secondaryLabel="kpiSankey1.secondaryLabel" 
                   :description="kpiSankey1.description" 
@@ -88,7 +94,6 @@
                   class="max-w-sm"
                   ref="kpiSankey2"
                   :qId="kpiSankey2.qId"
-                  :title="kpiSankey2.title" 
                   :subtitle="kpiSankey2.subtitle"
                   :secondaryLabel="kpiSankey2.secondaryLabel" 
                   :description="kpiSankey2.description" 
@@ -155,6 +160,7 @@ export default {
   },
   data() { 
     return {
+      selectedDomain: '',
       trendDomainSelected: 'overall',
       // Qlik Objects
       kpiTrends: {        
@@ -202,13 +208,15 @@ export default {
     }
   },
   methods: {
-    domainSelected(values) {
+    handleDomainSelected (values) {
+      const selected = values.filter(val => val.isSelected)
       if (selected.length) {
         this.selectedDomain = selected[0].text
       } else {
         this.selectedDomain = ""
       }
     },
+
     handleTrendDomainSelection (domainId, domainName) {
       this.trendDomainSelected = domainId
       this.$set(this.kpiTrends, "title", "Average % Earned - " + domainName)
@@ -252,7 +260,13 @@ export default {
    * Remove field values that we don't want to carry to other pages
    */  
   async destroyed() {    
-    
+    const fieldsToClear = ["Domain_Name"]
+    const engine = await this.$qlik.engine
+    let field
+    fieldsToClear.forEach(async fieldName => {
+      field = await engine.getField(fieldName)
+      await field.clear()
+    })
   }
 }
 </script>

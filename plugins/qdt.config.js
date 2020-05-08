@@ -19,17 +19,6 @@ const qdtComponents = new QdtComponents(config, connections);
 
 export default async ({ app }, inject) => {
   inject('qdt', qdtComponents)
-  
-  // store.commit('setQdtComponents', qdtComponents)
-  // Vue.prototype.$qdt = qdtComponents
-  // Vue.prototype.$qlik = qlikAPI
-
-  // const sessionObject = await generateHypercubeObjectFromDef(uslDef)
-  // const values = await getValuesFromHypercubeObject(sessionObject)
-  // if (values[Object.keys(values)[0]].length < 1) {
-  //   throw Error("USL is not returning any values, make sure to check definitions. < 10,000 cells")
-  // }
-  // store.dispatch("schools/set_schools", values)
 }
 
 

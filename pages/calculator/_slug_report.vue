@@ -397,7 +397,7 @@ export default {
       
       let selectedValues = {}
       selectedValues["schoolReport"] = await this.$qlik.selectFieldValues("School Name (Reporting Category)", [{text: this.schoolReport}])
-      await this.$store.dispatch("update_current_selections", selectedValues)
+      await this.$store.dispatch("selections/set_current_selections", selectedValues)
       
       this.update()
     },

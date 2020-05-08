@@ -19,7 +19,7 @@ export default {
   },
   computed: {
     schoolReport_route() {
-      const slugReport = this.$store.state["slugReport"]
+      const slugReport = this.$store.state.selections.slugReport
       if (slugReport.length) {
         return '/report/' + slugReport
       } else {
@@ -27,7 +27,7 @@ export default {
       }
     },
     school_calculator_route() {
-      const slugReport = this.$store.state["slugReport"]
+      const slugReport = this.$store.state.selections.slugReport
       if (slugReport.length) {
         return '/calculator/' + slugReport
       } else {
