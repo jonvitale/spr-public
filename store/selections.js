@@ -47,7 +47,7 @@ export const actions = {
     commit ("set_only_domain", domain)
   },
 
-  async set_current_selections_field ({state, commit, dispatch} , { field, selections }) {
+  async set_current_selections_in_field ({state, commit, dispatch} , { field, selections }) {
     commit("set_current_selections_in_field", { field, selections})
     // for the special case where this is the "schoolReport" and a single item is selected set the value in the state       
     if (state.schoolReport_fields.includes(field)) {
@@ -55,6 +55,15 @@ export const actions = {
         await dispatch("set_only_schoolReport", selections[0].text)
       } else {
         await dispatch("set_only_schoolReport", "")
+      }
+    }
+
+    // for the special case where this is the "domain" and a single item is selected set the value in the state       
+    if (state.domain_fields.includes(field)) {
+      if (selections.length === 1) {
+        await dispatch("set_only_domain", selections[0].text)
+      } else {
+        await dispatch("set_only_domain", "")
       }
     }
   },

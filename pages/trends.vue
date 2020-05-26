@@ -1,134 +1,99 @@
 <template>
-  <section>
-    <Columns>
-      <Column side="left" width="1/3">
-        <Square color="dark">
-          <Heading size="large">School Progress Report</Heading>
-          <p> For the {{ $store.state.SY_C }} school year</p>
-        </Square>
-        <Square color="tint">      
-          <QlikFilter 
-            :qlikAPI="$qlik"
-            class="mt-2"              
-            title="Select a specific Domain"
-            field="Domain_Name"
-            preventMultipleSelections
-            @changed="handleDomainSelected" 
-          />       
-          <QlikFiltersCollapsable 
-            :qlikAPI="$qlik"
-            :fieldValues="[
-            {field:'SPR Report Type'},
-            {field:'Sector'},               
-            {field:'Learning Network', title:'Network'},
-          ]" />            
-          <QlikFilter 
-            :qlikAPI="$qlik"
-            class="mt-3"
-            style="max-height: 360px"
-            title="School and Report Type"
-            field="School Name (Reporting Category)" 
-          />
-        </Square>
-      </Column>
-      <Column side="right" width="2/3" >
-        <ScrollSpyNav 
-          class="sticky top-0 bg-white"
-          title="Charts:"
-          :refs="['v-trends', 'v-sankey', 'v-table', 'v-scatter']"
-          orientation="row"
-          />
-        <div class="flex flex-wrap w-full">
-          <div 
-            ref="v-trends" 
-            name="Trend Lines"
-            class="mb-2"
-            >
-            <Square class="mb-4" color="light" tight>
-              <div class="flex flex-row" >
-                <QlikKPI 
-                  class="max-w-sm"
-                  ref="kpiTrends"
-                  :qId="kpiTrends.qId"
-                  :subtitle="kpiTrends.subtitle"
-                  :secondaryLabel="kpiTrends.secondaryLabel" 
-                  :description="kpiTrends.description" 
-                  />
-                <QdtComponent 
-                  class="flex-auto m-2 p-2 bg-white"
-                  style="min-width:400px"
-                  type="QdtViz" 
-                  :props="trends" 
-                  />
-              </div>
-              <div class="flex flex-row justify-center">
-                <ButtonGroup
-                  :options="{
-                    'overall': 'Overall',
-                    'achievement': 'Achievement', 
-                    'progress': 'Progress', 
-                    'climate': 'Climate', 
-                    'cc': 'College & Career'
-                    }"
-                  @buttonClicked="handleTrendDomainSelection($event.id, $event.value)" 
-                  />
-              </div>
-            </Square>
-          </div>
-          <div 
-            ref="v-sankey" 
-            name="Flow Diagram"
-            class="mb-2"
-            >
-            <Square class="flex flex-row mb-4" color="tint" tight>
-              <div class="flex-flex-col">
-                <QlikKPI 
-                  class="max-w-sm"
-                  ref="kpiSankey1"
-                  :qId="kpiSankey1.qId"
-                  :subtitle="kpiSankey1.subtitle"
-                  :secondaryLabel="kpiSankey1.secondaryLabel" 
-                  :description="kpiSankey1.description" 
-                  />
-                <QlikKPI 
-                  class="max-w-sm"
-                  ref="kpiSankey2"
-                  :qId="kpiSankey2.qId"
-                  :subtitle="kpiSankey2.subtitle"
-                  :secondaryLabel="kpiSankey2.secondaryLabel" 
-                  :description="kpiSankey2.description" 
-                  />
-              </div>
-              <QdtComponent 
-                type="QdtViz" 
-                :props="sankey" 
-                />
-            </Square>
-          </div>
-          <div 
-            ref="v-table" 
-            name="Table">
-            <Square class="flex flex-row mb-4" color="white" tight>
-              <QdtComponent 
-                type="QdtViz" 
-                :props="table"
-                />
-            </Square>
-          </div>
-          <div 
-            ref="v-scatter" 
-            name="Scatterplot">
-            <Square class="flex flex-row mb-4" color="light" tight>
-              <QdtComponent 
-                type="QdtViz" 
-                :props="scatter"
-                />
-            </Square>
-          </div>
+  <div>
+    <ScrollSpyNav 
+      class="sticky top-0 bg-white"
+      title="Charts:"
+      :refs="['v-trends', 'v-sankey', 'v-table', 'v-scatter']"
+      orientation="row"
+      />
+    <div class="flex flex-wrap w-full">
+      <Square 
+        ref="v-trends" 
+        name="Trend Lines"
+        class="mb-4 w-full"
+        color="light" 
+        tight
+        >
+        <div class="flex flex-row" >
+          <QlikKPI 
+            class="w-full lg:w-1/2"
+            ref="kpiTrends"
+            :qId="kpiTrends.qId"
+            :subtitle="kpiTrends.subtitle"
+            :secondaryLabel="kpiTrends.secondaryLabel" 
+            :description="kpiTrends.description" 
+            />
+          <QdtComponent 
+            class="w-full lg:w-1/2 bg-white"
+            type="QdtViz" 
+            :props="trends" 
+            />
         </div>
-      </Column>
-    </Columns>
-  </section>
+        
+      </Square>
+  
+      <Square 
+        v-if="!$store.getters['selections/oneSchoolSelected']"
+        ref="v-sankey" 
+        name="Flow Diagram"
+        class="mb-4 w-full" 
+        color="tint" 
+        tight
+        >
+        <div class="flex flex-row" >
+          <div class="w-full lg:w-1/2">
+            <QlikKPI 
+              class="w-full"
+              ref="kpiSankey1"
+              :qId="kpiSankey1.qId"
+              :subtitle="kpiSankey1.subtitle"
+              :secondaryLabel="kpiSankey1.secondaryLabel" 
+              :description="kpiSankey1.description" 
+              />
+            <QlikKPI 
+              class="w-full"
+              ref="kpiSankey2"
+              :qId="kpiSankey2.qId"
+              :subtitle="kpiSankey2.subtitle"
+              :secondaryLabel="kpiSankey2.secondaryLabel" 
+              :description="kpiSankey2.description" 
+              />
+          </div>
+          <QdtComponent 
+            class="w-full lg:w-1/2"
+            type="QdtViz" 
+            :props="sankey" 
+            />
+        </div>
+      </Square>
+      <Square 
+        ref="v-table" 
+        name="Table"
+        class="mb-4 w-full" 
+        color="white" 
+        tight
+        >
+        <QdtComponent 
+          class="w-full"
+          type="QdtViz" 
+          :props="table"
+          />
+      </Square>
+      <Square 
+        v-if="!$store.getters['selections/oneSchoolSelected']"
+        ref="v-scatter" 
+        name="Scatterplot"
+        class="mb-4 w-full" 
+        color="dark" 
+        >
+        <QdtComponent 
+          class="w-full"
+          type="QdtViz" 
+          :props="scatter"
+          />
+      </Square>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -136,26 +101,19 @@ import QdtComponent from '~sdp-components/Qdt/QdtComponent'
 import QlikFilter from '~sdp-components/Qlik/QlikFilter'
 import QlikFiltersCollapsable from '~sdp-components/Qlik/QlikFiltersCollapsable'
 import QlikKPI from '~sdp-components/Qlik/QlikKPI'
-import Horizontal from '~sdp-components/PageElements/Horizontal'
 import Columns from '~sdp-components/PageElements/Columns'
 import Column from '~sdp-components/PageElements/Column'
 import Square from '~sdp-components/PageElements/Square'
-import Heading from '~sdp-components/PageElements/Heading'
-import ButtonGroup from '~sdp-components/PageElements/ButtonGroup'
 import ScrollSpyNav from '~sdp-components/Navigation/ScrollSpyNav'
 
 export default {
+  layout: 'main',
   components: {
     QdtComponent,
     QlikFilter,
     QlikFiltersCollapsable,
     QlikKPI,
-    Columns,
-    Column,
     Square,
-    Horizontal,
-    Heading,
-    ButtonGroup,
     ScrollSpyNav,
   },
   data() { 
@@ -190,19 +148,16 @@ export default {
       sankey: {
         id: 'b38403aa-c472-4566-9b81-3eb374866388', 
         type: 'extension', 
-        width: '500px', 
         height: '400px',
       },
       table: {
         id: 'a1196e2b-acc2-4831-9f05-8b57ae22a0a9', 
         type: 'table', 
-        width: '800px', 
         height: '600px'
       },
       scatter: {
         id: 'NmGYw',
         type: 'scatterplot',
-        width: '800px',
         height: '600px',
       }
     }

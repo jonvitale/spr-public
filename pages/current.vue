@@ -1,106 +1,82 @@
 <template>
-  <Columns>
-    <Column side="left" width="1/3">
-      <Square color="dark">
-        <Heading size="large">School Progress Report</Heading>
-        <p> For the {{ $store.state.SY_C }} school year</p>
+  <div>
+    <ScrollSpyNav 
+      class="sticky top-0 bg-white"
+      title="Charts:"
+      :refs="['v-distribution', 'v-map', 'v-table', 'v-points']"
+      orientation="row"
+      />
+    <div class="flex flex-wrap">
+      <Square 
+        ref="v-distribution" 
+        name="Distribution"
+        class="mb-4 w-full" 
+        color="light" 
+        >
+        <div class="flex flex-row" >
+          <QlikKPI 
+            class="w-full lg:w-1/2"
+            ref="kpi1"
+            :qId="kpi1.qId"
+            :subtitle="kpi1.subtitle"
+            :secondaryLabel="kpi1.secondaryLabel" 
+            :description="kpi1.description" 
+            />
+          <QdtComponent 
+            class="w-full lg:w-1/2 bg-white"
+            type="QdtViz" 
+            :props="distribution" 
+            />
+        </div>
+        <div class="w-full flex flex-row justify-center">
+          <ButtonGroup
+            :options="{
+              'current': 'Current Year',
+              '3year': '3-Year Average',
+              }"
+            @buttonClicked="handleYearSelection($event.id, $event.value)" 
+            />
+        </div>
       </Square>
-      <Square color="tint">        
-        <QlikFilter 
-          :qlikAPI="$qlik"
-          class="mt-2"              
-          title="Select a specific Domain"
-          field="Domain_Name"
-          preventMultipleSelections
-          @changed="handleDomainSelected" 
-        />
-        <QlikFilter 
-          v-if="selectedDomain"
-          :qlikAPI="$qlik"
-          class="mt-2"       
-          style="max-height: 360px"       
-          :title="'Select a specific ' + selectedDomain + ' Metric'"
-          field="Metric_Name"
-          preventMultipleSelections
-          :expression="'Only({<[Domain_Name]={\''+ selectedDomain + '\'}]>}[Metric_Name])'"
-        />
-        <QlikFiltersCollapsable 
-          :qlikAPI="$qlik"
-          :fieldValues="[
-          {field:'SPR Report Type'},
-          {field:'Sector'},               
-          {field:'Learning Network', title:'Network'},
-        ]" />     
-        <QlikFilter 
-          :qlikAPI="$qlik"
-          class="mt-3"
-          style="max-height: 360px"
-          title="School and Report Type"
-          field="School Name (Reporting Category)" 
-        />
+      <Square 
+        ref="v-map" 
+        name="Map"
+        class="w-full mb-4 " color="dark"
+        >
+        <QdtComponent class="w-full" type="QdtViz" :props="map" />
       </Square>
-    </Column>
-    <Column side="right" width="2/3" ref="content-column">
-      <ScrollSpyNav 
-        class="sticky top-0 bg-white"
-        title="Charts:"
-        :refs="['v-distribution', 'v-map', 'v-table']"
-        orientation="row"
-        />
-      <div class="flex flex-wrap">
-        <div 
-          ref="v-distribution" 
-          name="Distribution"
-          class="mb-2"
-          >
-          <Square class="mb-4" color="light" tight>
-            <div class="flex flex-row" >
-              <QlikKPI 
-                class="max-w-sm"
-                ref="kpi1"
-                :qId="kpi1.qId"
-                :subtitle="kpi1.subtitle"
-                :secondaryLabel="kpi1.secondaryLabel" 
-                :description="kpi1.description" 
-                />
-              <QdtComponent 
-                class="flex-auto m-2 p-2 bg-white"
-                style="min-width:400px"
-                type="QdtViz" 
-                :props="distribution" 
-                />
-            </div>
-            <div class="flex flex-row justify-center">
-              <ButtonGroup
-                :options="{
-                  'current': 'Current Year',
-                  '3year': '3-Year Average',
-                  }"
-                @buttonClicked="handleYearSelection($event.id, $event.value)" 
-                />
-            </div>
-          </Square>
+      <Square 
+        ref="v-table" 
+        name="Table"
+        class="w-full mb-4" color="tint" tight>
+        <QdtComponent 
+          class="w-full"
+          type="QdtViz" 
+          :props="table"
+          />
+      </Square>
+      <Square 
+        ref="v-points" 
+        name="Points"
+        class="w-full mb-4" color="transparent" tight>
+        <QdtComponent 
+          class="w-full"
+          type="QdtViz" 
+          :props="points"
+          />
+        <div class="w-full flex flex-row justify-center">
+          <ButtonGroup
+            :options="{
+              'domain': 'Domain',
+              'metric': 'All Metrics',
+              }"
+            @buttonClicked="handleLevelSelection($event.id, $event.value)" 
+            />
         </div>
-        <div 
-          ref="v-map" 
-          name="Map">
-          <Square class="flex w-full" color="white" tight>
-            <QdtComponent type="QdtViz" :props="map" />
-          </Square>
-        </div>
-        <div 
-          ref="v-table" 
-          name="Table">
-          <Square class="flex flex-row mb-4" color="white" tight>
-            <QdtComponent 
-              type="QdtViz" 
-              :props="table"
-              />
-          </Square>
-        </div>
-      </div>
-    </Column>
-  </Columns>
+      </Square>
+      
+    </div>
+  </div>
 </template>
 
 <script>
@@ -108,25 +84,18 @@ import QdtComponent from '~sdp-components/Qdt/QdtComponent'
 import QlikFilter from '~sdp-components/Qlik/QlikFilter'
 import QlikFiltersCollapsable from '~sdp-components/Qlik/QlikFiltersCollapsable'
 import QlikKPI from '~sdp-components/Qlik/QlikKPI'
-import Horizontal from '~sdp-components/PageElements/Horizontal'
-import Columns from '~sdp-components/PageElements/Columns'
-import Column from '~sdp-components/PageElements/Column'
 import Square from '~sdp-components/PageElements/Square'
-import Heading from '~sdp-components/PageElements/Heading'
 import ButtonGroup from '~sdp-components/PageElements/ButtonGroup'
 import ScrollSpyNav from '~sdp-components/Navigation/ScrollSpyNav'
 
 export default {
+  layout: 'main',
   components: {
     QdtComponent,
     QlikFilter,
     QlikFiltersCollapsable,
     QlikKPI,
-    Columns,
-    Column,
     Square,
-    Horizontal,
-    Heading,
     ButtonGroup,
     ScrollSpyNav,
   },
@@ -145,23 +114,31 @@ export default {
         id: 'jKmNJ', type: 'extension', height: '600px',
       },
       distribution: {
-        id: 'gpLpNXS', type: 'extension', height: '400px',
+        id: 'c0911370-79b9-49e4-8397-2a4a18c929af', type: 'extension', height: '400px',
       },
       table: {
-        id: 'BSXpST', 
-        type: 'table', 
-        width: '800px', 
-        height: '600px'
+        id: 'BSXpST', type: 'table', height: '600px'
+      },
+      points: {
+        id: 'HrDKVU', type: 'extension', height:'400px',
       },
     }
   },
   methods: {
-    handleDomainSelected (values) {
-      const selected = values.filter(val => val.isSelected)
-      if (selected.length) {
-        this.selectedDomain = selected[0].text
-      } else {
-        this.selectedDomain = ""
+    // handleDomainSelected (values) {
+    //   const selected = values.filter(val => val.isSelected)
+    //   if (selected.length) {
+    //     this.selectedDomain = selected[0].text
+    //   } else {
+    //     this.selectedDomain = ""
+    //   }
+    // },
+
+    handleLevelSelection (id, name) {
+      if (id == 'domain') {
+        this.$set(this.points, "id", "HrDKVU")
+      } else if (id == 'metric') {
+        this.$set(this.points, "id", "HGmXP")
       }
     },
 
