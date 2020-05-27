@@ -1,13 +1,13 @@
 <template>
   <div>
     <div class="container mx-auto px-2 lg:px-6 py-4 md:py-6">
-      <Header/>
-      <br>
+      <Header />
+      <br />
       <Navigation />
-      <br>
-      <Nuxt/>
+      <br />
+      <Nuxt />
     </div>
-    <Footer/>
+    <Footer />
   </div>
 </template>
 
@@ -21,6 +21,6 @@ export default {
     Header,
     Navigation,
     Footer
-  },
+  }
 }
 </script>

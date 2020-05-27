@@ -9,14 +9,14 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        "spr-intervene": '#c0504d',
-        "spr-watch": "#f79646",
-        "spr-reinforce": "#00b050",
-        "spr-model": "#0070c0",
-        "selected": "#009845",
-        "excluded": "#a9a9a9",
-        "dark-blue": "#2a4365",
-      },
+        'spr-intervene': '#c0504d',
+        'spr-watch': '#f79646',
+        'spr-reinforce': '#00b050',
+        'spr-model': '#0070c0',
+        selected: '#009845',
+        excluded: '#a9a9a9',
+        'dark-blue': '#2a4365'
+      }
     },
     fontSize: {
       xs: '.75rem',
@@ -30,13 +30,13 @@ module.exports = {
       '4xl': '2.25rem',
       '5xl': '3rem',
       '6xl': '4rem',
-      '7xl': '5rem',
-    },
+      '7xl': '5rem'
+    }
     // height: {
-      // 'schoolbox-mobile': '20rem',
-      // 'schoolbox-tall': '97rem',
+    // 'schoolbox-mobile': '20rem',
+    // 'schoolbox-tall': '97rem',
     // }
   },
   variants: {},
-  plugins: [require("@tailwindcss/custom-forms")]
+  plugins: [require('@tailwindcss/custom-forms')]
 }

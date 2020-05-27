@@ -2,19 +2,18 @@
 
 export const state = () => ({
   initialized: false,
-  list: [],
+  list: []
 })
 
 export const getters = {
   list: state => {
     return state.list
-  },
-  
+  }
 }
 
 export const mutations = {
   initialized(state, val) {
-    console.log("school initialized", this)
+    console.log('school initialized', this)
     state.initialized = val
   },
   add(state, data) {
@@ -29,15 +28,20 @@ export const mutations = {
 }
 
 export const actions = {
-  async set_schools({ commit }, values) {
-    console.log("set_schools", values)
+  set_schools({ commit }, values) {
+    console.log('set_schools', values)
     commit('replace', values)
-    commit('initialized', true)    
+    commit('initialized', true)
   },
 
-  lookup_slugreport_by_schoolreport ({ state }, schoolReport) {
+  lookup_slugreport_by_schoolreport({ state }, schoolReport) {
     // console.log("lookup_slugreport_by_schoolreport ", schoolReport, state.list)
-    const slugReport = this.$qlik.lookupValueByFieldValue(state.list, "schoolReport", schoolReport, "slugReport")
+    const slugReport = this.$qlik.lookupValueByFieldValue(
+      state.list,
+      'schoolReport',
+      schoolReport,
+      'slugReport'
+    )
     if (slugReport) {
       return slugReport.text
     } else {
@@ -45,13 +49,18 @@ export const actions = {
     }
   },
 
-  lookup_text_by_slugreport ({ state }, { slugReport, target }) {
+  lookup_text_by_slugreport({ state }, { slugReport, target }) {
     // console.log("lookup_text_by_slugreport",  slugReport, target, state.list)
-    const value = this.$qlik.lookupValueByFieldValue(state.list, "slugReport", slugReport, target)
+    const value = this.$qlik.lookupValueByFieldValue(
+      state.list,
+      'slugReport',
+      slugReport,
+      target
+    )
     if (value) {
       return value.text
     } else {
       return ''
     }
-  },
+  }
 }

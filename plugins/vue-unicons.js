@@ -20,9 +20,8 @@ import {
   uniAngleDown,
   uniAngleUp,
   uniPlay,
-  uniSearch,
+  uniSearch
 } from 'vue-unicons/src/icons'
-
 
 Unicon.add([
   uniFilm,
@@ -44,7 +43,7 @@ Unicon.add([
   uniAngleDown,
   uniAngleUp,
   uniPlay,
-  uniSearch,
+  uniSearch
 ])
 
 Vue.use(Unicon)

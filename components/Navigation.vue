@@ -34,6 +34,6 @@ export default {
         return '/calculator'
       }
     }
-  },
+  }
 }
 </script>

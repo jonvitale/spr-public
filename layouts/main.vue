@@ -1,59 +1,66 @@
 <template>
   <div>
     <div class="container mx-auto px-2 lg:px-6 py-4 md:py-6">
-      <Header/>
-      <br>
+      <Header />
+      <br />
       <Navigation />
-      <br>
+      <br />
       <Columns>
         <Column side="left" width="1/3">
           <Square color="dark">
             <Heading size="large">School Progress Report</Heading>
-            <p> For the {{ $store.state.SY_C }} school year</p>
+            <p>For the {{ $store.state.SY_C }} school year</p>
           </Square>
           <Square color="tint" class="sticky top-0">
-            <QlikFilter 
-              class="mt-2"              
+            <QlikFilter
+              class="mt-2"
               title="Select a specific Domain"
               field="Domain_Name"
-              preventSortByState
-              preventMultipleSelections
-              @change="handleFieldSelections" 
-              />        
-            <QlikFilter 
+              prevent-sort-by-state
+              prevent-multiple-selections
+              @change="handleFieldSelections"
+            />
+            <QlikFilter
               v-if="$store.getters['selections/oneDomainSelected']"
-              class="mt-2"       
-              style="max-height: 360px"       
+              class="mt-2"
+              style="max-height: 360px"
               :title="'Select a specific ' + selectedDomain + ' Metric'"
               field="Metric_Name"
-              preventMultipleSelections
-              :expression="'Only({<[Domain_Name]={\''+ selectedDomain + '\'}]>}[Metric_Name])'"
-              @change="handleFieldSelections" 
-              />   
-          
-            <QlikFiltersCollapsable 
-              :fieldValues="[
-                {field:'SPR Report Type'},
-                {field:'Sector'},               
-                {field:'Learning Network', title:'Network'},
-              ]" 
-              :blacklistFields="['School Name (Reporting Category)', 'Domain_Name']"
-              @change="handleSelections" 
-              />     
-            <QlikFilter 
+              prevent-multiple-selections
+              :expression="
+                'Only({<[Domain_Name]={\'' +
+                  selectedDomain +
+                  '\'}]>}[Metric_Name])'
+              "
+              @change="handleFieldSelections"
+            />
+
+            <QlikFiltersCollapsable
+              :field-values="[
+                { field: 'SPR Report Type' },
+                { field: 'Sector' },
+                { field: 'Learning Network', title: 'Network' }
+              ]"
+              :blacklist-fields="[
+                'School Name (Reporting Category)',
+                'Domain_Name'
+              ]"
+              @change="handleSelections"
+            />
+            <QlikFilter
               style="max-height: 400px"
               title="School Name and Report Type"
-              field="School Name (Reporting Category)" 
-              @change="handleFieldSelections"  
-              />                   
+              field="School Name (Reporting Category)"
+              @change="handleFieldSelections"
+            />
           </Square>
         </Column>
         <Column side="right" width="2/3">
-          <Nuxt/>
+          <Nuxt />
         </Column>
       </Columns>
     </div>
-    <Footer/>
+    <Footer />
   </div>
 </template>
 
@@ -70,7 +77,6 @@ import Square from '~sdp-components/PageElements/Square'
 import Heading from '~sdp-components/PageElements/Heading'
 
 export default {
-  mixins: [ SelectionsMixin ],
   components: {
     Header,
     Navigation,
@@ -80,14 +86,16 @@ export default {
     QlikFilter,
     QlikFiltersCollapsable,
     Square,
-    Heading,
+    Heading
   },
-  
+  mixins: [SelectionsMixin],
+
   /**
    * Remove field values that we don't want to carry to other pages
-   */  
-  async destroyed() {    
-    const fieldsToClear = ["Domain_Name"]
+   */
+
+  async destroyed() {
+    const fieldsToClear = ['Domain_Name']
     const engine = await this.$qlik.engine
     let field
     fieldsToClear.forEach(async fieldName => {
