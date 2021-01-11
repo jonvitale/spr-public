@@ -1,32 +1,77 @@
 <template>
   <div class="flex flex-wrap lg:flex-no-wrap">
-    <div class="w-full lg:w-1/5 text-left lg:h-screen sticky top-0">
-      <!-- use current breakpoints based on sdp-plugins -->
-      <ScrollSpyNav
-        class="bg-blue-100"
-        title="Sections"
-        :refs="[
-          's-overview',
-          's-achievement',
-          's-progress',
-          's-climate',
-          's-cc',
-          's-ee'
-        ]"
-        :target="current"
-        :orientation="
-          breakpoints.is == 'lg' || breakpoints.is == 'xl' ? 'col' : 'row'
-        "
-      />
+    <div
+      v-if="!print"
+      class="w-full lg:w-1/5 text-left lg:h-screen sticky top-0"
+    >
+      <div class="hidden lg:block">
+        <ScrollSpyNav
+          class="bg-blue-100"
+          title="Sections"
+          :refs="[
+            's-overview',
+            's-achievement',
+            's-progress',
+            's-climate',
+            's-cc',
+            's-ee'
+          ]"
+          :target="current"
+          orientation="col"
+        />
+        <QlikFilter
+          style="max-height: 400px"
+          title="Change School Report"
+          field="School Name (Reporting Category)"
+          filtering-measure="Count(distinct {1<YearEnd={$(=$(v_Max_YearEnd))}>} 1)"
+          prevent-multiple-selections
+          prevent-no-selections
+          prevent-exclusion-style
+          @change="handleSchoolReportSelection"
+        />
+      </div>
+      <div class="block lg:hidden">
+        <!-- v-else -->
+        <ScrollSpyNav
+          class="bg-blue-100"
+          title="Sections"
+          :refs="[
+            's-overview',
+            's-achievement',
+            's-progress',
+            's-climate',
+            's-cc',
+            's-ee'
+          ]"
+          :target="current"
+          orientation="row"
+        />
+        <div class="mt-1">
+          <nuxt-link
+            :to="'/report'"
+            class="inline text-lg bg-white text-blue-500 font-semibold border-none py-2 pl-2 focus:outline-none hover:bg-gray-200"
+          >
+            <unicon
+              fill="#4299e1"
+              style="vertical-align:text-bottom"
+              name="arrow-circle-left"
+            />
+            <span class="underline" style="vertical-align:text-bottom">
+              Change School Report
+            </span>
+          </nuxt-link>
+        </div>
+      </div>
     </div>
-    <div ref="scrollSpyTarget" class="w-full lg:w-4/5 lg:pl-2">
-      <section ref="s-overview" name="Overview" class="px-8">
+
+    <div ref="scrollSpyTarget" class="bg-white w-full lg:w-4/5 lg:pl-2">
+      <section ref="s-overview" name="Overview" class="px-8 py-4 lg:pt-0">
         <div class="flex mb-4 px-4 w-full bg-black text-white text-2xl ">
-          <p>{{ $store.state.SY_C }} School Progress Report</p>
+          <p>{{ $store.getters.sy_c }} School Progress Report</p>
         </div>
         <div>
           <h1>{{ schoolName }}</h1>
-          <div class="flex flex-wrap pl-2 mb-8">
+          <div class="flex flex-wrap pl-2 mb-8 text-sm">
             <div class="flex-col md:w-1/2">
               <div class="flex">
                 <div class="flex-shrink w-40 text-gray-600">
@@ -43,7 +88,9 @@
                   <p>{{ address }}</p>
                   <p>{{ phone }} / {{ fax }}</p>
                   <p>{{ zipCode }}</p>
-                  <a :href="urlSchool" target="_blank"> {{ urlSchool }} </a>
+                  <a :href="urlSchool" target="_blank">
+                    {{ urlSchool }}
+                  </a>
                 </div>
               </div>
             </div>
@@ -90,9 +137,9 @@
           <div style="width:350px">
             <!-- if using the app object use  pl-8  -->
             <div class="mt-2 ml-2 flex flex-no-wrap justify-around">
-              <h4 class="inline">{{ $store.state.SY_PP }}</h4>
-              <h4 class="inline">{{ $store.state.SY_P }}</h4>
-              <h4 class="inline">{{ $store.state.SY_C }}</h4>
+              <h4 class="inline">{{ $store.getters.sy_pp }}</h4>
+              <h4 class="inline">{{ $store.getters.sy_p }}</h4>
+              <h4 class="inline">{{ $store.getters.sy_c }}</h4>
             </div>
           </div>
           <div class="w-36">
@@ -108,14 +155,23 @@
                 (domain.key !== 'cc' || reportName === 'High School')
             "
           >
-            <div class="flex flex-wrap justify-between">
+            <div class="flex flex-wrap lg:flex-no-wrap justify-between">
               <div class="w-auto mb-2 lg:w-1/3 lg:mb-0">
                 <p
-                  class="text-xl font-bold lg:w-full lg:mb-8"
+                  class="text-xl font-bold lg:w-full lg:mb-4"
                   :class="{ 'text-2xl': domain.key === 'overall' }"
                 >
                   {{ domain.title }}:
                   <span
+                    v-if="
+                      isFinite(
+                        lookupNumberByFieldValue(
+                          'metricId',
+                          domain.metricId,
+                          'perc_earned'
+                        )
+                      )
+                    "
                     :style="{
                       color: getSPRColorByTextValue(
                         lookupTextByFieldValue(
@@ -141,20 +197,23 @@
                       )
                     }})
                   </span>
+                  <span v-else class="text-gray-500 text-lg uppercase">
+                    Insufficient Data
+                  </span>
                 </p>
-                <p class="lg:w-full">
+                <p class="text-sm lg:w-full">
                   {{ domain.description }}
                 </p>
               </div>
               <!-- <div style="width: 300px; height: 150px;"> -->
-              <div :style="{ width: 350 }">
+              <div style="width:350px">
                 <!-- if using the app object use  pl-8  -->
                 <div
                   class="flex flex-no-wrap justify-around lg:hidden mt-2 ml-2"
                 >
-                  <h4 class="inline">{{ $store.state.SY_PP }}</h4>
-                  <h4 class="inline">{{ $store.state.SY_P }}</h4>
-                  <h4 class="inline">{{ $store.state.SY_C }}</h4>
+                  <h4 class="inline">{{ $store.getters.sy_pp }}</h4>
+                  <h4 class="inline">{{ $store.getters.sy_p }}</h4>
+                  <h4 class="inline">{{ $store.getters.sy_c }}</h4>
                 </div>
                 <!-- <QdtComponent :qdtAPI="$qdt" :type="qObjs[domain.key].trend.type" :props="qObjs[domain.key].trend.props" />    -->
                 <LineChart
@@ -184,7 +243,8 @@
                     lookupTextByFieldValue(
                       'metricId',
                       domain.metricId,
-                      'perc_earned_3year'
+                      'perc_earned_3year',
+                      'N / A'
                     )
                   }}
                 </p>
@@ -209,7 +269,7 @@
       >
         <!-- <div v-if="domain.key !== 'cc' || reportName === 'High School'"> -->
         <!-- page separator -->
-        <section class="pt-8">
+        <section v-if="!print" class="pt-8">
           <hr class="w-full page" />
         </section>
         <section
@@ -220,7 +280,7 @@
           <!-- page header -->
           <div class="flex justify-between my-4 pt-6 w-full text-lg ">
             <p class="text-gray-600">
-              {{ $store.state.SY_C }} School Progress Report
+              {{ $store.getters.sy_c }} School Progress Report
             </p>
             <p class="text-black font-bold">{{ schoolName }}</p>
           </div>
@@ -251,7 +311,7 @@
               v-if="metricGroup.title"
               :class="[
                 metricGroup.metrics ? 'text-gray-600' : 'text-gray-800',
-                metricGroup.metrics ? '' : 'text-2xl'
+                metricGroup.metrics ? 'text-base' : 'text-2xl'
               ]"
             >
               {{ metricGroup.title }}
@@ -259,16 +319,17 @@
             <div v-if="metricGroup.metrics">
               <div v-for="metric in metricGroup.metrics" :key="metric.metricId">
                 <!-- v-if="lookupNumberByFieldValue('metricId', metric.metricId, 'exception') == null ||
-                            lookupNumberByFieldValue('metricId', metric.metricId, 'exception') != 999"  -->
+                              lookupNumberByFieldValue('metricId', metric.metricId, 'exception') != 999"  -->
                 <div
                   v-if="isApplicableByMetricId(metric.metricId)"
                   class="flex justify-between mb-2"
                 >
                   <div class="w-full lg:w-1/3" style="min-height:50px">
-                    <p v-if="metric.title" class="text-black">
+                    <p v-if="metric.title" class="text-black text-base">
                       {{ metric.title }}
                     </p>
                     <p
+                      class="text-sm"
                       :class="[
                         lookupNumberByFieldValue(
                           'metricId',
@@ -465,7 +526,9 @@
                   >{{ domain.title }} Total:
                 </span>
                 <br />
-                <span class="text-md text-gray-600"> % of Points Earned </span>
+                <span class="text-base text-gray-600">
+                  % of Points Earned
+                </span>
               </p>
               <p class="w-full lg:w-48 text-center text-2xl font-bold">
                 <span
@@ -491,21 +554,37 @@
               <p class="w-full lg:w-48 text-center text-black font-bold">
                 <span class="text-xl"
                   >{{
-                    lookupTextByFieldValue(
-                      'metricId',
-                      domain.metricId,
-                      'points_earned'
+                    isFinite(
+                      lookupNumberByFieldValue(
+                        'metricId',
+                        domain.metricId,
+                        'points_earned'
+                      )
                     )
+                      ? lookupTextByFieldValue(
+                          'metricId',
+                          domain.metricId,
+                          'points_earned'
+                        )
+                      : getCalculatedPointsEarned(domain.metricId)
                   }}
                 </span>
-                <span class="text-md text-gray-800"> out of </span>
+                <span class="text-base text-gray-800"> out of </span>
                 <span class="text-xl"
                   >{{
-                    lookupTextByFieldValue(
-                      'metricId',
-                      domain.metricId,
-                      'points_possible'
+                    isFinite(
+                      lookupNumberByFieldValue(
+                        'metricId',
+                        domain.metricId,
+                        'points_possible'
+                      )
                     )
+                      ? lookupTextByFieldValue(
+                          'metricId',
+                          domain.metricId,
+                          'points_possible'
+                        )
+                      : getCalculatedPointsPossible(domain.metricId)
                   }}
                 </span>
               </p>
@@ -555,7 +634,7 @@
       </div>
       <div>
         <div>
-          <section class="pt-8">
+          <section v-if="!print" class="pt-8">
             <hr class="w-full page" />
           </section>
           <section
@@ -566,7 +645,7 @@
             <!-- page header -->
             <div class="flex justify-between my-4 pt-6 w-full text-lg ">
               <p class="text-gray-600">
-                {{ $store.state.SY_C }} School Progress Report
+                {{ $store.getters.sy_c }} School Progress Report
               </p>
               <p class="text-black font-bold">{{ schoolName }}</p>
             </div>
@@ -575,16 +654,28 @@
             </div>
             <!-- domain header -->
             <div>
-              <p class="text-xl text-black font-bold">EDUCATOR EFFECTIVENESS</p>
+              <p class="text-xl text-black font-bold">
+                EDUCATOR EFFECTIVENESS
+              </p>
               <p class="text-black mb-2">
-                Teacher effectiveness measures are described in the School
+                Teacher effectiveness measures are displayed in the School
                 Progress Report, but not included in the SPR rating, to share
                 data we have gathered to monitor and support teacher practice.
                 This information is also used to develop responsive and
                 customized professional learning for teachers to ensure that all
-                students have access to great instruction. Here are some
-                important details that contextualize the teacher effectiveness
-                data reported in the SPR.
+                students have access to great instruction.
+                <br />
+                <br />
+                In addition to other metrics, the SPR includes teachers' overall
+                Multiple Measure Summary (MMS) effectiveness ratings. These
+                ratings are comprised of teachers' Formal Observation, Student
+                Learning Objectives, Teacher-Specific PVAAS, and the
+                building-level score from the state of Pennsylvania's School
+                Performance Profile (SPP, also known as Act 82).
+                <br />
+                <br />
+                Here are some important details that contextualize the teacher
+                effectiveness data reported in the SPR.
               </p>
               <ul class="list-disc pl-8 mb-2 text-black">
                 <li class="mb-2">
@@ -594,7 +685,7 @@
                   inflate the overall scores.
                 </li>
                 <li class="mb-2">
-                  Until District-wide, inter-rater reliability norming is held
+                  Until District-wide inter-rater reliability norming is held
                   for all principals, observation scores may vary significantly
                   across schools and observers. As a result, comparisons of
                   scores between schools may not be meaningful.
@@ -633,7 +724,7 @@
                   v-if="metricGroup.title"
                   :class="[
                     metricGroup.metrics ? 'text-gray-600' : 'text-gray-800',
-                    metricGroup.metrics ? '' : 'text-2xl'
+                    metricGroup.metrics ? 'text-base' : 'text-2xl'
                   ]"
                 >
                   {{ metricGroup.title }}
@@ -644,20 +735,20 @@
                     :key="metric.metricId"
                   >
                     <!-- v-if="lookupNumberByFieldValue('metricId', metric.metricId, 'exception') == null ||
-                              lookupNumberByFieldValue('metricId', metric.metricId, 'exception') != 999"  -->
+                                lookupNumberByFieldValue('metricId', metric.metricId, 'exception') != 999"  -->
                     <div
                       v-if="isApplicableByMetricId(metric.metricId)"
                       class="flex justify-between mb-2"
                     >
                       <div class="w-full lg:w-2/3" style="min-height:50px;">
-                        <p v-if="metric.title" class="text-black">
+                        <p v-if="metric.title" class="text-black text-base">
                           {{ metric.title }}
                         </p>
-                        <p class="text-black">
+                        <p class="text-black text-sm">
                           {{ metric.subtitle }}
                         </p>
                       </div>
-                      <div class="w-full lg:w-1/3 text-left text-black">
+                      <div class="w-full lg:w-1/3 text-left text-black text-xl">
                         <p
                           v-if="
                             lookupNumberByFieldValue(
@@ -667,10 +758,18 @@
                             ) > 0
                           "
                         >
-                          &nbsp;
+                          <span class="text-gray-800">
+                            {{
+                              lookupTextByFieldValue(
+                                'metricId',
+                                metric.metricId,
+                                'exception_name'
+                              ).toUpperCase()
+                            }}
+                          </span>
                         </p>
                         <p v-else>
-                          <span class="text-xl">
+                          <span>
                             {{
                               lookupTextByFieldValue(
                                 'metricId',
@@ -705,7 +804,12 @@
               <p class="text-black">
                 More information about the School Progress Reports, including
                 the User Guide, Public Business Rules, and FAQ, is available at
-                philasd.org/spr.
+                <a
+                  class="underline text-blue-500"
+                  href="https:/philasd.org/spr"
+                  target="_blank"
+                  >philasd.org/spr</a
+                >.
               </p>
 
               <h5>NOTES ABOUT ROUNDING</h5>
@@ -732,10 +836,11 @@
 </template>
 
 <script>
+import SelectionsMixin from '~/mixins/SelectionsMixin'
 import metricValuesDef from '~/definitions/reportMeasures'
 import LineChart from '~sdp-components/SimpleCharts/LineChart'
 import ScrollSpyNav from '~sdp-components/Navigation/ScrollSpyNav'
-import breakpoints from '~sdp-plugins/breakpoints'
+import QlikFilter from '~sdp-components/Qlik/QlikFilter'
 
 const domainFacts = [
   {
@@ -876,6 +981,10 @@ const domainFacts = [
             subtitle: 'Grade 4 - % Proficient or Advanced',
             metricId: 'PSSA_PROFADV_SCI_G4'
           },
+          {
+            subtitle: 'Grade 8 - % Proficient or Advanced',
+            metricId: 'PSSA_PROFADV_SCI_G8'
+          },
           { subtitle: '% Advanced', metricId: 'PSSA_ADV_SCI' }
         ]
       },
@@ -926,6 +1035,16 @@ const domainFacts = [
             title: 'PSSA Science (Grade 4):',
             subtitle: 'Average Growth Index (AGI)',
             metricId: 'PSSA_GR_4_SCIENCE_AGI'
+          }
+        ]
+      },
+      {
+        key: 'PSSA_GR_8_SCIENCE_AGI',
+        metrics: [
+          {
+            title: 'PSSA Science (Grade 8):',
+            subtitle: 'Average Growth Index (AGI)',
+            metricId: 'PSSA_GR_8_SCIENCE_AGI'
           }
         ]
       },
@@ -1227,42 +1346,42 @@ const domainFacts = [
           }
         ]
       },
-      {
-        key: 'MMS_NEEDS_IMP',
-        metrics: [
-          {
-            title: '% of Teachers Receiving an MMS Rating of Needs Improvement',
-            metricId: 'MMS_NEEDS_IMP'
-          }
-        ]
-      },
-      {
-        key: 'MMS_FAILING',
-        metrics: [
-          {
-            title: '% of Teachers Receiving an MMS Rating of Failing',
-            metricId: 'MMS_FAILING'
-          }
-        ]
-      },
-      {
-        key: 'ESSA_EFF',
-        metrics: [
-          {
-            title: '% of Teachers Receiving an ESSA Rating of Effective',
-            metricId: 'ESSA_EFF'
-          }
-        ]
-      },
-      {
-        key: 'ESSA_INEFF',
-        metrics: [
-          {
-            title: '% of Teachers Receiving an ESSA Rating of Ineffective',
-            metricId: 'ESSA_INEFF'
-          }
-        ]
-      },
+      // {
+      //   key: 'MMS_NEEDS_IMP',
+      //   metrics: [
+      //     {
+      //       title: '% of Teachers Receiving an MMS Rating of Needs Improvement',
+      //       metricId: 'MMS_NEEDS_IMP'
+      //     }
+      //   ]
+      // },
+      // {
+      //   key: 'MMS_FAILING',
+      //   metrics: [
+      //     {
+      //       title: '% of Teachers Receiving an MMS Rating of Failing',
+      //       metricId: 'MMS_FAILING'
+      //     }
+      //   ]
+      // },
+      // {
+      //   key: 'ESSA_EFF',
+      //   metrics: [
+      //     {
+      //       title: '% of Teachers Receiving an ESSA Rating of Effective',
+      //       metricId: 'ESSA_EFF'
+      //     }
+      //   ]
+      // },
+      // {
+      //   key: 'ESSA_INEFF',
+      //   metrics: [
+      //     {
+      //       title: '% of Teachers Receiving an ESSA Rating of Ineffective',
+      //       metricId: 'ESSA_INEFF'
+      //     }
+      //   ]
+      // },
       {
         key: 'TEACH_ATTENDANCE',
         metrics: [
@@ -1290,8 +1409,10 @@ const domainFacts = [
 export default {
   components: {
     LineChart,
-    ScrollSpyNav
+    ScrollSpyNav,
+    QlikFilter
   },
+  mixins: [SelectionsMixin],
   data() {
     return {
       sessionObject: null,
@@ -1299,7 +1420,6 @@ export default {
       slugReport: this.$route.params.slug_report,
       metricValues: null,
       domainFacts,
-      breakpoints,
 
       // school facts
       schoolReport: null,
@@ -1321,6 +1441,9 @@ export default {
   computed: {
     current() {
       return this
+    },
+    print() {
+      return this.$route.query.print === 'true' ?? false
     }
   },
 
@@ -1341,6 +1464,17 @@ export default {
   },
 
   methods: {
+    countApplicableMetricsByGroup(metricGroup) {
+      return metricGroup.metrics.filter(m =>
+        this.isApplicableByMetricId(m.metricId)
+      ).length
+    },
+
+    countApplicableMetricGroupsByDomain(domain) {
+      return domain.metricGroups.filter(m => this.isApplicableByMetricGroup(m))
+        .length
+    },
+
     destroy() {
       if (this.sessionObject) {
         this.sessionObject.removeListener('changed', this.update)
@@ -1378,40 +1512,13 @@ export default {
       }
     },
 
-    lookupTextByFieldValue(sourceField, sourceFieldValue, targetField) {
-      if (this.metricValues) {
-        const values = this.$qlik.lookupValueByFieldValue(
-          this.metricValues,
-          sourceField,
-          sourceFieldValue,
-          targetField
+    filterMetricGroupsByDomain(domain) {
+      return domain.metricGroups.filter(metricGroup => {
+        return (
+          metricGroup.header ||
+          (metricGroup.metrics && this.isApplicableByMetricGroup(metricGroup))
         )
-        if (values && values.text) {
-          return values.text
-        } else {
-          return ''
-        }
-      } else {
-        return ''
-      }
-    },
-
-    lookupNumberByFieldValue(sourceField, sourceFieldValue, targetField) {
-      if (this.metricValues) {
-        const values = this.$qlik.lookupValueByFieldValue(
-          this.metricValues,
-          sourceField,
-          sourceFieldValue,
-          targetField
-        )
-        if (values && values.number) {
-          return values.number
-        } else {
-          return null
-        }
-      } else {
-        return null
-      }
+      })
     },
 
     /**
@@ -1491,27 +1598,13 @@ export default {
       )
       this.$store.dispatch('selections/set_current_selections', selectedValues)
 
-      this.update()
-    },
-
-    filterMetricGroupsByDomain(domain) {
-      return domain.metricGroups.filter(metricGroup => {
-        return (
-          metricGroup.header ||
-          (metricGroup.metrics && this.isApplicableByMetricGroup(metricGroup))
-        )
-      })
-    },
-
-    countApplicableMetricsByGroup(metricGroup) {
-      return metricGroup.metrics.filter(m =>
-        this.isApplicableByMetricId(m.metricId)
-      ).length
-    },
-
-    countApplicableMetricGroupsByDomain(domain) {
-      return domain.metricGroups.filter(m => this.isApplicableByMetricGroup(m))
-        .length
+      await this.update()
+      if (this.print) {
+        setTimeout(() => {
+          console.log('print image')
+          this.printPDF()
+        }, 10000)
+      }
     },
 
     isApplicableByMetricId(metricId) {
@@ -1557,17 +1650,183 @@ export default {
       }
     },
 
+    lookupTextByFieldValue(
+      sourceField,
+      sourceFieldValue,
+      targetField,
+      valIfNullish
+    ) {
+      if (this.metricValues) {
+        const values = this.$qlik.lookupValueByFieldValue(
+          this.metricValues,
+          sourceField,
+          sourceFieldValue,
+          targetField
+        )
+        if (values && values.text && values.text !== '-') {
+          return values.text
+        } else {
+          return valIfNullish || ''
+        }
+      } else {
+        return valIfNullish || ''
+      }
+    },
+
+    lookupNumberByFieldValue(sourceField, sourceFieldValue, targetField) {
+      if (this.metricValues) {
+        const values = this.$qlik.lookupValueByFieldValue(
+          this.metricValues,
+          sourceField,
+          sourceFieldValue,
+          targetField
+        )
+        if (values && values.number) {
+          return values.number
+        } else {
+          return null
+        }
+      } else {
+        return null
+      }
+    },
+
     async update() {
       if (this.sessionObject) {
         this.metricValues = await this.$qlik.getValuesFromHypercubeObject(
           this.sessionObject
         )
       }
+    },
+
+    async handleSchoolReportSelection(selection) {
+      console.log('handleSchoolReportSelection', selection, this.schoolReport)
+      const slugReport = await this.$store.dispatch(
+        'schools/lookup_slugreport_by_schoolreport',
+        selection.selections[0].text
+      )
+      this.$router.push('/report/' + slugReport)
+    },
+
+    mapIdToDomain(metricId) {
+      if (metricId === 'Z_OVERALL_OVERALL') {
+        return 'Overall'
+      } else if (metricId === 'Z_ACH_OVERALL') {
+        return 'Achievement'
+      } else if (metricId === 'Z_PROG_OVERALL') {
+        return 'Progress'
+      } else if (metricId === 'Z_CLIM_OVERALL') {
+        return 'Climate'
+      } else if (metricId === 'Z_CC_OVERALL') {
+        return 'College & Career'
+      }
+    },
+
+    getCalculatedPointsPossible(metricId) {
+      if (this.metricValues) {
+        const domain = this.mapIdToDomain(metricId)
+        let metricIds
+        if (domain === 'Overall') {
+          metricIds = this.$qlik.lookupValueByFieldValue(
+            this.metricValues,
+            'isDomain',
+            0,
+            'metricId',
+            true,
+            'text'
+          )
+        } else {
+          metricIds = this.$qlik.lookupValueByMultipleFieldValues(
+            this.metricValues,
+            { isMetric: 1, domainName: domain },
+            'metricId',
+            true,
+            'text'
+          )
+        }
+
+        const possiblePoints = metricIds.map(id =>
+          this.$qlik.lookupValueByFieldValue(
+            this.metricValues,
+            'metricId',
+            id,
+            'points_possible',
+            false,
+            'number'
+          )
+        )
+
+        return (
+          Math.round(
+            100 *
+              possiblePoints.reduce(
+                (acc, val) =>
+                  acc + (isFinite(parseFloat(val)) ? parseFloat(val) : 0),
+                0
+              )
+          ) / 100
+        )
+      } else {
+        return null
+      }
+    },
+
+    getCalculatedPointsEarned(metricId) {
+      if (this.metricValues) {
+        const domain = this.mapIdToDomain(metricId)
+        let metricIds
+        if (domain === 'Overall') {
+          metricIds = this.$qlik.lookupValueByFieldValue(
+            this.metricValues,
+            'isDomain',
+            0,
+            'metricId',
+            true,
+            'text'
+          )
+        } else {
+          metricIds = this.$qlik.lookupValueByMultipleFieldValues(
+            this.metricValues,
+            { isMetric: 1, domainName: domain },
+            'metricId',
+            true,
+            'text'
+          )
+        }
+
+        const pointsEarned = metricIds.map(id =>
+          this.$qlik.lookupValueByFieldValue(
+            this.metricValues,
+            'metricId',
+            id,
+            'points_earned',
+            false,
+            'number'
+          )
+        )
+
+        return (
+          Math.round(
+            100 *
+              pointsEarned.reduce(
+                (acc, val) =>
+                  acc + (isFinite(parseFloat(val)) ? parseFloat(val) : 0),
+                0
+              )
+          ) / 100
+        )
+      } else {
+        return null
+      }
     }
   }
 }
 </script>
 <style lang="postcss" scoped>
+a {
+  @apply underline text-blue-500;
+}
+
 h1 {
   font-size: 20pt;
   font-weight: bold;

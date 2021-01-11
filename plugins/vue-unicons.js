@@ -12,6 +12,7 @@ import {
   uniPlus,
   uniMinus,
   uniArrowLeft,
+  uniArrowCircleLeft,
   uniAngleLeft,
   uniAngleRight,
   uniTimes,
@@ -20,7 +21,11 @@ import {
   uniAngleDown,
   uniAngleUp,
   uniPlay,
-  uniSearch
+  uniSearch,
+  uniSearchMinus,
+  uniSearchPlus,
+  uniGrid,
+  uniChart
 } from 'vue-unicons/src/icons'
 
 Unicon.add([
@@ -35,6 +40,7 @@ Unicon.add([
   uniPlus,
   uniMinus,
   uniArrowLeft,
+  uniArrowCircleLeft,
   uniAngleLeft,
   uniAngleRight,
   uniTimes,
@@ -43,7 +49,11 @@ Unicon.add([
   uniAngleDown,
   uniAngleUp,
   uniPlay,
-  uniSearch
+  uniSearch,
+  uniSearchMinus,
+  uniSearchPlus,
+  uniGrid,
+  uniChart
 ])
 
 Vue.use(Unicon)

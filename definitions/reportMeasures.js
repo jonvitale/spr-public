@@ -35,6 +35,12 @@ export default {
     qMeasures: [
       {
         qDef: {
+          qLabel: 'isMetric',
+          qDef: `If(Match([Metric ID],'Z_OVERALL_OVERALL', 'Z_ACH_OVERALL', 'Z_PROG_OVERALL', 'Z_CLIM_OVERALL', 'Z_CC_OVERALL') > 0, 0, 1)`
+        }
+      },
+      {
+        qDef: {
           qLabel: 'perc_earned',
           qDef: `Num(
                 If([Metric ID] = 'Z_OVERALL_OVERALL', Max({<[Points Possible Overall] = {">0"}, [Overall Tier] = {"*"}, YearEnd={$(=$(v_Max_YearEnd))}>} [Percent Earned Overall]),

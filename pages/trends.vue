@@ -6,60 +6,59 @@
       :refs="['v-trends', 'v-sankey', 'v-table', 'v-scatter']"
       orientation="row"
     />
-    <div class="flex flex-wrap w-full">
+    <div class="flex flex-wrap">
       <Square
         ref="v-trends"
         name="Trend Lines"
-        class="mb-4 w-full"
+        class="w-full flex flex-wrap mb-4"
         color="light"
         tight
       >
-        <div class="flex flex-row">
-          <QlikKPI
-            ref="kpiTrends"
-            class="w-full lg:w-1/2"
-            :q-id="kpiTrends.qId"
-            :subtitle="kpiTrends.subtitle"
-            :secondary-label="kpiTrends.secondaryLabel"
-            :description="kpiTrends.description"
-          />
-          <QdtComponent
-            class="w-full lg:w-1/2 bg-white"
-            type="QdtViz"
-            :props="trends"
-          />
-        </div>
+        <QlikKPI
+          ref="kpiTrends"
+          class="max-w-sm"
+          :q-id="kpiTrends.qId"
+          :subtitle="kpiTrends.subtitle"
+          :secondary-label="kpiTrends.secondaryLabel"
+          :description="kpiTrends.description"
+        />
+        <QdtComponent
+          type="QdtViz"
+          :props="trends"
+          class="flex-auto m-2 p-2 bg-white"
+        />
       </Square>
-
       <Square
         v-if="!$store.getters['selections/oneSchoolSelected']"
         ref="v-sankey"
         name="Flow Diagram"
-        class="mb-4 w-full"
+        class="w-full flex flex-wrap mb-4"
         color="tint"
         tight
       >
-        <div class="flex flex-row">
-          <div class="w-full lg:w-1/2">
-            <QlikKPI
-              ref="kpiSankey1"
-              class="w-full"
-              :q-id="kpiSankey1.qId"
-              :subtitle="kpiSankey1.subtitle"
-              :secondary-label="kpiSankey1.secondaryLabel"
-              :description="kpiSankey1.description"
-            />
-            <QlikKPI
-              ref="kpiSankey2"
-              class="w-full"
-              :q-id="kpiSankey2.qId"
-              :subtitle="kpiSankey2.subtitle"
-              :secondary-label="kpiSankey2.secondaryLabel"
-              :description="kpiSankey2.description"
-            />
-          </div>
-          <QdtComponent class="w-full lg:w-1/2" type="QdtViz" :props="sankey" />
+        <div class="max-w-xs flex-col">
+          <QlikKPI
+            ref="kpiSankey1"
+            class="max-w-xs"
+            :q-id="kpiSankey1.qId"
+            :subtitle="kpiSankey1.subtitle"
+            :secondary-label="kpiSankey1.secondaryLabel"
+            :description="kpiSankey1.description"
+          />
+          <QlikKPI
+            ref="kpiSankey2"
+            class="max-w-xs"
+            :q-id="kpiSankey2.qId"
+            :subtitle="kpiSankey2.subtitle"
+            :secondary-label="kpiSankey2.secondaryLabel"
+            :description="kpiSankey2.description"
+          />
         </div>
+        <QdtComponent
+          class="flex-auto bg-white"
+          type="QdtViz"
+          :props="sankey"
+        />
       </Square>
       <Square
         ref="v-table"
@@ -100,43 +99,59 @@ export default {
   data() {
     return {
       selectedDomain: '',
-      trendDomainSelected: 'overall',
-      // Qlik Objects
-      kpiTrends: {
+      trendDomainSelected: 'overall'
+    }
+  },
+  computed: {
+    // Qlik Objects
+    kpiTrends() {
+      return {
         qId: 'XTmmsjm',
         title: 'Average % Earned - Overall',
         subtitle: ' ',
-        secondaryLabel: 'From  ' + this.$store.state.SY_P,
+        secondaryLabel: 'From  ' + this.$store.getters.sy_p,
         description: ' '
-      },
-      trends: {
+      }
+    },
+    trends() {
+      return {
         id: 'f4893eee-2016-415d-89e8-b3078b67ecb4',
         type: 'lineChart',
         height: '300px'
-      },
-      kpiSankey1: {
+      }
+    },
+    kpiSankey1() {
+      return {
         qId: '0d2b6074-a1dd-446d-9309-70a9d5b23019',
         title: '# Increased % Earned',
         subtitle: ' ',
         secondaryLabel: '% of Reports'
-      },
-      kpiSankey2: {
+      }
+    },
+    kpiSankey2() {
+      return {
         qId: '77bfb314-34ab-4bde-b0a4-97fb95d31292',
         title: '# Increased Tier',
         subtitle: ' ',
         secondaryLabel: '% of Reports'
-      },
-      sankey: {
+      }
+    },
+    sankey() {
+      return {
         id: 'b38403aa-c472-4566-9b81-3eb374866388',
         type: 'extension',
         height: '400px'
-      },
-      table: {
+      }
+    },
+    table() {
+      return {
         id: 'a1196e2b-acc2-4831-9f05-8b57ae22a0a9',
         type: 'table',
         height: '600px'
-      },
-      scatter: {
+      }
+    },
+    scatter() {
+      return {
         id: 'NmGYw',
         type: 'scatterplot',
         height: '600px'
@@ -154,9 +169,8 @@ export default {
   /**
    * Remove field values that we don't want to carry to other pages
    */
-
   async destroyed() {
-    const fieldsToClear = ['Domain_Name']
+    const fieldsToClear = ['Metric_Name_Possible', 'Domain_Name_Possible']
     const engine = await this.$qlik.engine
     let field
     fieldsToClear.forEach(async fieldName => {

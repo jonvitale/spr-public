@@ -3,7 +3,7 @@ export default {
   qHyperCubeDef: {
     qInitialDataFetch: [
       {
-        qWidth: 20,
+        qWidth: 25,
         qHeight: 400
       }
     ],
@@ -167,8 +167,47 @@ export default {
           qLabel: 'numerator',
           qDef: `Num(Max({<[Numerator for Metric] = {">0"}, YearEnd={$(=$(v_Max_YearEnd))}>} [Numerator for Metric]), '#,##0')`
         }
+      },
+      {
+        qDef: {
+          qLabel: 'possiblePointsMax',
+          qDef: `Num(
+              Round(Max({<YearEnd={$(=$(v_Max_YearEnd))}>} [Max Points Possible]), 0.01)
+              , '#0.##')`
+        }
+      },
+      {
+        qDef: {
+          qLabel: 'targetPointsMax',
+          qDef: `Num(
+              Round(Max({<YearEnd={$(=$(v_Max_YearEnd))}>} [Max Target]), 0.01)
+              , '#0.##')`
+        }
+      },
+      {
+        qDef: {
+          qLabel: 'floorPointsMax',
+          qDef: `Num(
+              Round(Max({<YearEnd={$(=$(v_Max_YearEnd))}>} [Max Floor]), 0.01)
+              , '#0.##')`
+        }
+      },
+      {
+        qDef: {
+          qLabel: 'numeratorMax',
+          qDef: `Num(
+              Round(Max({<YearEnd={$(=$(v_Max_YearEnd))}>} [Max Numerator]), 0.01)
+              , '#0.##')`
+        }
+      },
+      {
+        qDef: {
+          qLabel: 'denominatorMax',
+          qDef: `Num(
+              Round(Max({<YearEnd={$(=$(v_Max_YearEnd))}>} [Max Denominator]), 0.01)
+              , '#0.##')`
+        }
       }
-      // The following are for metric-level and domain-level
     ]
   }
 }

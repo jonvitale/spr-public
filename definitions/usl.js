@@ -17,13 +17,6 @@ export default {
         },
         qNullSuppression: true
       },
-      // {
-      //   qDef: {
-      //     qFieldDefs: ['School URL Slug'],
-      //     qFieldLabels: ['slug'],
-      //   },
-      //   qNullSuppression: false
-      // },
       {
         qDef: {
           qFieldDefs: ['spr.slug_report'],
